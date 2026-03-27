@@ -1,0 +1,17 @@
+# Cafe655
+
+> The digital hub of Cafe655.
+
+## About
+
+Cafe655 is a personal website and digital hub. It hosts multiple sub-sites covering different topics and projects.
+
+## Main Pages
+
+- [Home](https://cafe655.com): The main landing page and hub directory.
+- [Hub](https://cafe655.com/hub): The central hub with updates and links.
+
+## Technical Details
+
+- Built with Next.js and hosted on Vercel
+- Content is server-rendered for accessibility

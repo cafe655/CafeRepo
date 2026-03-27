@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/container";
 const hubLinks = [
   { label: "AI Field Notes", href: "/ai-field-notes" },
   { label: "Barista Painting Services", href: "/barista-painting" },
+  { label: "Cafe655 on Twitch", href: "/cafe655-on-twitch" },
   {
     label: (
       <>

@@ -57,6 +57,22 @@ interface SplatState {
   life: number;
 }
 
+interface SquirrelState {
+  postIndex: number; // which LIGHT_POSTS index
+  y: number;
+  phase: "climbing" | "sitting" | "descending" | "running";
+  timer: number;
+  runX: number;
+  tailPhase: number;
+}
+
+interface CupSteam {
+  x: number;
+  y: number;
+  life: number;
+  dx: number;
+}
+
 const CUP_W = 5;
 const CUP_H = 6;
 const CAFE_X = 90;
@@ -94,6 +110,9 @@ export function BaristaScene() {
     // String lights — fixed positions between tables
     lights: [] as { x: number; y: number; twinkleOffset: number }[],
     lightsInit: false,
+    squirrel: null as SquirrelState | null,
+    nextSquirrel: 900 + Math.floor(Math.random() * 1800),
+    cupSteams: [] as CupSteam[],
   });
 
   useEffect(() => {
@@ -677,6 +696,105 @@ export function BaristaScene() {
       }
     };
 
+    // --- Draw squirrel ---
+    const drawSquirrel = (sq: SquirrelState, by: number) => {
+      const postX = LIGHT_POSTS[sq.postIndex];
+      ctx.strokeStyle = "#8B6B3E";
+      ctx.lineWidth = 1.2;
+      ctx.lineCap = "round";
+
+      if (sq.phase === "running") {
+        // running along the ground
+        const rx = sq.runX;
+        const ry = by;
+        const legAnim = Math.sin(sq.tailPhase * 0.3) * 2;
+        // body
+        ctx.beginPath();
+        ctx.ellipse(rx, ry - 4, 4, 2.5, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // head
+        ctx.beginPath();
+        ctx.arc(rx + 4, ry - 5, 2, 0, Math.PI * 2);
+        ctx.stroke();
+        // ear
+        ctx.beginPath();
+        ctx.moveTo(rx + 4, ry - 7);
+        ctx.lineTo(rx + 5, ry - 9);
+        ctx.lineTo(rx + 6, ry - 7);
+        ctx.stroke();
+        // eye
+        ctx.fillStyle = "#222";
+        ctx.fillRect(rx + 4.5, ry - 5.5, 0.8, 0.8);
+        // legs
+        ctx.beginPath();
+        ctx.moveTo(rx - 2, ry - 2); ctx.lineTo(rx - 2 - legAnim, ry);
+        ctx.moveTo(rx + 2, ry - 2); ctx.lineTo(rx + 2 + legAnim, ry);
+        ctx.stroke();
+        // bushy tail
+        const tailWave = Math.sin(sq.tailPhase * 0.15) * 2;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(rx - 4, ry - 4);
+        ctx.quadraticCurveTo(rx - 8, ry - 10 + tailWave, rx - 5, ry - 14 + tailWave);
+        ctx.stroke();
+      } else {
+        // on the post (climbing, sitting, descending)
+        const sx = postX + 3;
+        const sy = sq.y;
+        // body (vertical)
+        ctx.beginPath();
+        ctx.ellipse(sx, sy, 2.5, 4, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // head
+        ctx.beginPath();
+        ctx.arc(sx, sy - 5.5, 2, 0, Math.PI * 2);
+        ctx.stroke();
+        // ears
+        ctx.beginPath();
+        ctx.moveTo(sx - 1, sy - 7.5);
+        ctx.lineTo(sx - 0.5, sy - 9.5);
+        ctx.lineTo(sx + 0.5, sy - 7.5);
+        ctx.moveTo(sx + 0.5, sy - 7.5);
+        ctx.lineTo(sx + 1, sy - 9.5);
+        ctx.lineTo(sx + 1.5, sy - 7.5);
+        ctx.stroke();
+        // eye
+        ctx.fillStyle = "#222";
+        ctx.fillRect(sx + 1, sy - 6, 0.8, 0.8);
+        // paws gripping post
+        ctx.beginPath();
+        ctx.moveTo(sx - 2, sy - 2); ctx.lineTo(postX, sy - 2);
+        ctx.moveTo(sx - 2, sy + 2); ctx.lineTo(postX, sy + 2);
+        ctx.stroke();
+        // bushy tail
+        const tailWave = Math.sin(sq.tailPhase * 0.1) * 3;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(sx, sy + 3);
+        ctx.quadraticCurveTo(sx + 6, sy + tailWave, sx + 4, sy - 4 + tailWave);
+        ctx.stroke();
+      }
+    };
+
+    // --- Draw cup steam (for table cups) ---
+    const drawCupSteam = () => {
+      const s = stateRef.current;
+      ctx.strokeStyle = "rgba(255,255,255,0.12)";
+      ctx.lineWidth = 0.7;
+      s.cupSteams = s.cupSteams.filter((p) => {
+        p.y -= 0.3;
+        p.x += p.dx * 0.3;
+        p.life--;
+        const alpha = Math.min(p.life / 20, 1) * 0.12;
+        ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.quadraticCurveTo(p.x + p.dx * 2, p.y - 2, p.x + p.dx * 3, p.y - 4);
+        ctx.stroke();
+        return p.life > 0;
+      });
+    };
+
     // Phase durations (in frames)
     const TAMP = 50;
     const PULL = 60;
@@ -855,6 +973,67 @@ export function BaristaScene() {
         drawSplat(sp, by);
         return sp.life > 0;
       });
+
+      // --- Squirrel ---
+      s.nextSquirrel--;
+      if (!s.squirrel && s.nextSquirrel <= 0) {
+        const postIdx = Math.floor(Math.random() * LIGHT_POSTS.length);
+        s.squirrel = {
+          postIndex: postIdx,
+          y: by,
+          phase: "climbing",
+          timer: 0,
+          runX: LIGHT_POSTS[postIdx],
+          tailPhase: 0,
+        };
+        s.nextSquirrel = 1500 + Math.floor(Math.random() * 2400);
+      }
+      if (s.squirrel) {
+        const sq = s.squirrel;
+        sq.tailPhase++;
+        const ropeY = by - 40;
+        if (sq.phase === "climbing") {
+          sq.y -= 0.4;
+          if (sq.y <= ropeY + 5) {
+            sq.phase = "sitting";
+            sq.timer = 120 + Math.floor(Math.random() * 180);
+          }
+        } else if (sq.phase === "sitting") {
+          sq.timer--;
+          if (sq.timer <= 0) sq.phase = "descending";
+        } else if (sq.phase === "descending") {
+          sq.y += 0.5;
+          if (sq.y >= by - 2) {
+            sq.phase = "running";
+            sq.runX = LIGHT_POSTS[sq.postIndex];
+          }
+        } else if (sq.phase === "running") {
+          sq.runX += 0.8;
+          if (sq.runX > w + 20) {
+            s.squirrel = null;
+          }
+        }
+        if (s.squirrel) drawSquirrel(s.squirrel, by);
+      }
+
+      // --- Cup steam on tables ---
+      // emit steam from cups on tables
+      if (s.frameCount % 10 === 0) {
+        for (const c of s.customers) {
+          if (c.seated && c.holdingCup && c.sittingAt >= 0) {
+            const table = s.tables[c.sittingAt];
+            const tableTopY = by - 12;
+            const cupX = c.sitChair === 0 ? table.x - 5 : table.x + 1;
+            s.cupSteams.push({
+              x: cupX + CUP_W / 2 + (Math.random() - 0.5) * 2,
+              y: tableTopY - CUP_H - 1,
+              life: 20 + Math.floor(Math.random() * 10),
+              dx: (Math.random() - 0.5) * 1.5,
+            });
+          }
+        }
+      }
+      drawCupSteam();
 
       // spawn — only if under cap and not too many waiting
       const totalAlive = s.customers.length;

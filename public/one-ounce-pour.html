@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The One-Ounce Pour</title>
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Caveat:wght@400;700&family=DM+Sans:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --bg: #1a1410;
+    --bg-card: #231e18;
+    --cream: #f5e6c8;
+    --gold: #d4a843;
+    --amber: #c97b2a;
+    --coffee-dark: #3d2b1f;
+    --coffee-med: #6f4e37;
+    --coffee-light: #a67b5b;
+    --red: #c0392b;
+    --green: #27ae60;
+    --blue-accent: #5dade2;
+    --muted: #b5a494;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 80px 20px 60px;
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Caveat', cursive;
+    font-size: 1.4rem;
+    color: var(--gold);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 10vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: 3px;
+    color: var(--cream);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 span {
+    display: block;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-family: 'Caveat', cursive;
+    font-size: 1.5rem;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.4;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 50px 0;
+    padding: 0 20px;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--coffee-med), transparent);
+  }
+
+  .divider-icon {
+    font-size: 1.2rem;
+    color: var(--gold);
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-label {
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 6vw, 3rem);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    line-height: 1;
+  }
+
+  .section-body {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--muted);
+    max-width: 600px;
+  }
+
+  /* ── STAT CALLOUTS ── */
+  .stat-row {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 40px 0;
+    flex-wrap: wrap;
+  }
+
+  .stat-block {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── TEMPERATURE CHART ── */
+  .chart-section {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 40px 30px;
+    margin: 40px 0;
+    border: 1px solid rgba(212, 168, 67, 0.15);
+  }
+
+  .temp-chart {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    margin: 30px 0 20px;
+  }
+
+  .temp-chart svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── VS COMPARISON ── */
+  .vs-section {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 20px;
+    align-items: center;
+    margin: 40px 0;
+    padding: 30px 20px;
+  }
+
+  .vs-side {
+    text-align: center;
+  }
+
+  .vs-side-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .vs-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(212, 168, 67, 0.3);
+  }
+
+  .vs-metric {
+    margin: 16px 0;
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .vs-metric-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  .vs-metric-label {
+    font-family: 'Caveat', cursive;
+    font-size: 1.05rem;
+    color: var(--muted);
+  }
+
+  .winner .vs-metric-value { color: var(--gold); }
+  .loser .vs-metric-value { color: var(--red); }
+
+  /* ── BAR CHART ── */
+  .bar-chart {
+    margin: 30px 0;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+    gap: 12px;
+  }
+
+  .bar-label {
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    width: 120px;
+    text-align: right;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 28px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    animation: barGrow 1.5s ease-out forwards;
+    transform-origin: left;
+  }
+
+  @keyframes barGrow {
+    from { width: 0 !important; }
+  }
+
+  .bar-gold { background: linear-gradient(90deg, var(--gold), var(--amber)); color: var(--bg); }
+  .bar-red { background: linear-gradient(90deg, var(--red), #e74c3c); color: var(--cream); }
+  .bar-muted { background: linear-gradient(90deg, var(--coffee-med), var(--coffee-light)); color: var(--bg); }
+
+  /* ── SENSES GRID ── */
+  .senses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin: 30px 0;
+  }
+
+  .sense-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(212, 168, 67, 0.1);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: border-color 0.3s;
+  }
+
+  .sense-card:hover {
+    border-color: var(--gold);
+  }
+
+  .sense-emoji {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .sense-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    color: var(--gold);
+  }
+
+  .sense-desc {
+    font-family: 'Caveat', cursive;
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ── SMALL CUP SCORING ── */
+  .score-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    margin: 10px 0;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.02);
+    border-left: 3px solid var(--gold);
+  }
+
+  .score-card .check {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .score-card .score-text {
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  .score-card .score-text strong {
+    color: var(--gold);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+
+  /* ── CAFFEINE CURVE ── */
+  .curve-chart {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    margin: 30px 0 20px;
+  }
+
+  .curve-chart svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── HAPPINESS SECTION ── */
+  .deposits-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin: 30px 0;
+    padding: 0 20px;
+  }
+
+  .deposit-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .deposit-label {
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    width: 100px;
+    text-align: right;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .deposit-dots {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+  }
+
+  .dot-gold {
+    background: var(--gold);
+    box-shadow: 0 0 10px rgba(212, 168, 67, 0.4);
+  }
+
+  .dot-dim {
+    background: var(--coffee-dark);
+    border: 1px solid var(--coffee-med);
+  }
+
+  /* ── QUOTE BLOCK ── */
+  .quote-block {
+    padding: 40px 30px;
+    margin: 40px 0;
+    border-left: 3px solid var(--gold);
+    background: rgba(212, 168, 67, 0.03);
+    border-radius: 0 12px 12px 0;
+  }
+
+  .quote-text {
+    font-family: 'Caveat', cursive;
+    font-size: 1.6rem;
+    line-height: 1.4;
+    color: var(--cream);
+    margin-bottom: 12px;
+  }
+
+  .quote-attr {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ── STORY SECTION ── */
+  .story-section {
+    background: linear-gradient(180deg, var(--bg-card), var(--bg));
+    border-radius: 16px;
+    padding: 50px 30px;
+    margin: 40px 0;
+    border: 1px solid rgba(212, 168, 67, 0.1);
+    text-align: center;
+  }
+
+  .story-year {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    color: var(--gold);
+    opacity: 0.3;
+    line-height: 1;
+  }
+
+  .story-body {
+    font-family: 'Caveat', cursive;
+    font-size: 1.3rem;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 20px auto;
+    color: var(--cream);
+  }
+
+  /* ── TRAVEL MUG REBUTTAL ── */
+  .rebuttal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin: 30px 0;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .rebuttal-cell {
+    padding: 20px 16px;
+    text-align: center;
+    background: var(--bg-card);
+  }
+
+  .rebuttal-cell.header {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    padding: 16px;
+  }
+
+  .rebuttal-cell .rc-icon {
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+  }
+
+  .rebuttal-cell .rc-label {
+    font-family: 'Caveat', cursive;
+    font-size: 1.05rem;
+    color: var(--muted);
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    padding: 60px 20px 80px;
+  }
+
+  .footer-tagline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .footer-tagline span { color: var(--gold); }
+
+  .footer-sub {
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    color: var(--muted);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 500px) {
+    .vs-section { grid-template-columns: 1fr; gap: 10px; }
+    .vs-badge { font-size: 1.5rem; }
+    .rebuttal-grid { grid-template-columns: 1fr; }
+    .stat-row { gap: 24px; }
+    .bar-label { width: 90px; font-size: 1rem; }
+    .chart-section { padding: 30px 16px; }
+    .container { padding: 12px; }
+    .sense-card { padding: 16px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ═══ HERO ═══ -->
+  <div class="hero">
+    <div class="hero-eyebrow">A data-driven argument for</div>
+    <h1>THE ONE-<span>OUNCE POUR</span></h1>
+    <div class="hero-sub">Why the smallest cup in the room is getting more out of every drop than you are</div>
+  </div>
+
+  <!-- ═══ THE PREMISE ═══ -->
+  <div class="stat-row">
+    <div class="stat-block">
+      <div class="stat-number">12 oz</div>
+      <div class="stat-label">Same coffee</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-number">1 oz</div>
+      <div class="stat-label">at a time</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-number">15×</div>
+      <div class="stat-label">more moments</div>
+    </div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">☕</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ═══ 1. THERMODYNAMICS ═══ -->
+  <div class="section-label">01 — Thermodynamics</div>
+  <div class="section-title">THE FLAVOR WINDOW IS TINY</div>
+  <div class="section-body">Coffee's volatile aromatic compounds hit peak expression between 120°F and 140°F. That's a 20-degree window. A big ceramic mug spends most of its life outside it.</div>
+
+  <div class="chart-section">
+    <div class="section-label" style="text-align:center;">Temperature Over Time</div>
+    <div class="temp-chart">
+      <svg viewBox="0 0 640 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Grid lines -->
+        <line x1="60" y1="30" x2="60" y2="260" stroke="#3d2b1f" stroke-width="1"/>
+        <line x1="60" y1="260" x2="620" y2="260" stroke="#3d2b1f" stroke-width="1"/>
+        
+        <!-- Sweet spot zone -->
+        <rect x="60" y="130" width="560" height="60" fill="rgba(212,168,67,0.08)" rx="4"/>
+        <text x="615" y="155" fill="#d4a843" font-family="Caveat" font-size="18" text-anchor="end">140°F</text>
+        <text x="615" y="185" fill="#d4a843" font-family="Caveat" font-size="18" text-anchor="end">120°F</text>
+        <line x1="60" y1="130" x2="610" y2="130" stroke="#d4a843" stroke-width="1" stroke-dasharray="4,4" opacity="0.4"/>
+        <line x1="60" y1="190" x2="610" y2="190" stroke="#d4a843" stroke-width="1" stroke-dasharray="4,4" opacity="0.4"/>
+        <text x="335" y="165" fill="#d4a843" font-family="Bebas Neue" font-size="18" text-anchor="middle" letter-spacing="3" opacity="0.5">SWEET SPOT</text>
+        
+        <!-- Y axis labels -->
+        <text x="50" y="45" fill="#8c7b6b" font-family="Caveat" font-size="18" text-anchor="end">180°F</text>
+        <text x="50" y="135" fill="#8c7b6b" font-family="Caveat" font-size="18" text-anchor="end">140°F</text>
+        <text x="50" y="195" fill="#8c7b6b" font-family="Caveat" font-size="18" text-anchor="end">120°F</text>
+        <text x="50" y="265" fill="#8c7b6b" font-family="Caveat" font-size="18" text-anchor="end">90°F</text>
+        
+        <!-- X axis labels -->
+        <text x="60" y="280" fill="#8c7b6b" font-family="Caveat" font-size="18" text-anchor="middle">0 min</text>
+        <text x="200" y="280" fill="#8c7b6b" font-family="Caveat" font-size="18" text-anchor="middle">5 min</text>
+        <text x="340" y="280" fill="#8c7b6b" font-family="Caveat" font-size="18" text-anchor="middle">10 min</text>
+        <text x="480" y="280" fill="#8c7b6b" font-family="Caveat" font-size="18" text-anchor="middle">20 min</text>
+        <text x="600" y="280" fill="#8c7b6b" font-family="Caveat" font-size="18" text-anchor="middle">30 min</text>
+        
+        <!-- Big Mug curve - continuous descent -->
+        <path d="M60,40 C120,42 180,75 230,110 C280,145 340,180 420,215 C480,235 560,248 610,252" 
+              stroke="#c0392b" stroke-width="3" stroke-linecap="round" fill="none" stroke-dasharray="8,4"/>
+        <text x="400" y="240" fill="#c0392b" font-family="Permanent Marker" font-size="17">Big Mug</text>
+        
+        <!-- 1oz Pour curve - sawtooth resets -->
+        <path d="M60,125 L80,155 M95,128 L115,152 M130,130 L150,155 M165,127 L185,154 M200,129 L220,153 M235,130 L255,155 M270,128 L290,153 M305,130 L325,155 M340,127 L360,154 M375,129 L395,153 M410,130 L430,155 M445,128 L465,153 M480,130 L500,155 M515,129 L535,154 M550,130 L570,155" 
+              stroke="#d4a843" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <text x="530" y="118" fill="#d4a843" font-family="Permanent Marker" font-size="17">1oz Pours</text>
+        
+        <!-- Pour markers -->
+        <circle cx="60" cy="125" r="3" fill="#d4a843"/>
+        <circle cx="95" cy="128" r="3" fill="#d4a843"/>
+        <circle cx="130" cy="130" r="3" fill="#d4a843"/>
+        <circle cx="165" cy="127" r="3" fill="#d4a843"/>
+        <circle cx="200" cy="129" r="3" fill="#d4a843"/>
+        <circle cx="235" cy="130" r="3" fill="#d4a843"/>
+        <circle cx="270" cy="128" r="3" fill="#d4a843"/>
+        <circle cx="305" cy="130" r="3" fill="#d4a843"/>
+        <circle cx="340" cy="127" r="3" fill="#d4a843"/>
+        <circle cx="375" cy="129" r="3" fill="#d4a843"/>
+        <circle cx="410" cy="130" r="3" fill="#d4a843"/>
+        <circle cx="445" cy="128" r="3" fill="#d4a843"/>
+        <circle cx="480" cy="130" r="3" fill="#d4a843"/>
+        <circle cx="515" cy="129" r="3" fill="#d4a843"/>
+        <circle cx="550" cy="130" r="3" fill="#d4a843"/>
+      </svg>
+    </div>
+    <div style="text-align:center;">
+      <span style="font-family:'Caveat';color:var(--muted);font-size:1.05rem;">Every pour lands in the sweet spot. The big mug passes through it once and never comes back.</span>
+    </div>
+  </div>
+
+  <!-- ═══ SIP RATE MISMATCH ═══ -->
+  <div class="section-label">02 — The Sip Rate Problem</div>
+  <div class="section-title">YOUR PACE DOESN'T MATCH THE MUG</div>
+  <div class="section-body">A 12oz ceramic mug starts at 180°F. You wait 4-5 minutes before it's even drinkable. Then the sweet spot lasts maybe 6-7 minutes. At a natural sip every 2-3 minutes, that's 2-3 sips in the zone. Out of twelve ounces, you get maybe one ounce of optimal coffee.</div>
+
+  <div class="chart-section">
+    <div style="text-align:center; margin-bottom: 20px;">
+      <span class="section-label">12oz Mug — Where Each Ounce Is Consumed</span>
+    </div>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <div class="bar-label">Too hot to drink</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-red" style="width:35%;">4 oz wasted waiting</div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Sweet spot sips</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-gold" style="width:18%;">~2 oz</div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Lukewarm</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-muted" style="width:47%;">6 oz of declining sadness</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top: 16px; margin-bottom: 24px;">
+      <span style="font-family:'Caveat';color:var(--muted);font-size:1.05rem;">And reheating? The microwave changes the chemistry. The mug warmer slow-cooks it. Both ruin it.</span>
+    </div>
+    <div style="text-align:center;">
+      <span class="section-label">1oz Pour — Where Each Ounce Is Consumed</span>
+    </div>
+    <div class="bar-chart" style="margin-top:20px;">
+      <div class="bar-row">
+        <div class="bar-label">Sweet spot sips</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-gold" style="width:100%;">12 oz — ALL OF IT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">☕</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ═══ 3. PHARMACOLOGY ═══ -->
+  <div class="section-label">03 — Pharmacology</div>
+  <div class="section-title">YOUR LIVER PREFERS MICRO-DOSES</div>
+  <div class="section-body">Caffeine's half-life is 5-6 hours. Your liver metabolizes it at a fixed rate. One big cup creates a spike-crash cycle. Small pours spread across the morning keep you in smooth, sustained alertness.</div>
+
+  <div class="chart-section">
+    <div style="text-align:center;margin-bottom:10px;">
+      <span class="section-label">Caffeine Alertness Over Time</span>
+    </div>
+    <div class="curve-chart">
+      <svg viewBox="0 0 640 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="40" y1="180" x2="620" y2="180" stroke="#3d2b1f" stroke-width="1"/>
+        
+        <!-- Optimal zone -->
+        <rect x="40" y="60" width="580" height="60" fill="rgba(212,168,67,0.06)" rx="4"/>
+        <text x="615" y="95" fill="#d4a843" font-family="Caveat" font-size="15" text-anchor="end" opacity="0.5">optimal zone</text>
+        
+        <!-- Big mug spike & crash -->
+        <path d="M50,170 C80,165 100,30 130,20 C160,30 200,80 260,130 C320,165 400,175 500,178 L620,180" 
+              stroke="#c0392b" stroke-width="2.5" stroke-dasharray="6,3" fill="none" opacity="0.8"/>
+        <text x="135" y="15" fill="#c0392b" font-family="Permanent Marker" font-size="15">SPIKE</text>
+        <text x="420" y="172" fill="#c0392b" font-family="Permanent Marker" font-size="15">crash...</text>
+        
+        <!-- Micro-dose smooth curve -->
+        <path d="M50,170 C80,140 120,85 160,75 C200,70 240,72 280,74 C320,72 360,75 400,78 C440,80 480,85 520,90 C560,100 600,115 620,125" 
+              stroke="#d4a843" stroke-width="3" fill="none"/>
+        <text x="320" y="60" fill="#d4a843" font-family="Permanent Marker" font-size="15">smooth &amp; steady</text>
+        
+        <!-- X axis -->
+        <text x="50" y="196" fill="#8c7b6b" font-family="Caveat" font-size="15">6am</text>
+        <text x="200" y="196" fill="#8c7b6b" font-family="Caveat" font-size="15">8am</text>
+        <text x="350" y="196" fill="#8c7b6b" font-family="Caveat" font-size="15">10am</text>
+        <text x="500" y="196" fill="#8c7b6b" font-family="Caveat" font-size="15">12pm</text>
+        <text x="600" y="196" fill="#8c7b6b" font-family="Caveat" font-size="15">2pm</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">☕</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ═══ 4. FIVE SENSES ═══ -->
+  <div class="section-label">04 — Sensory Science</div>
+  <div class="section-title">EVERY POUR RESETS ALL FIVE SENSES</div>
+  <div class="section-body">Your brain adapts to constant stimuli. A big mug becomes invisible to your nervous system within minutes. The one-ounce pour creates absence — and absence is what makes presence possible.</div>
+
+  <div class="senses-grid">
+    <div class="sense-card">
+      <div class="sense-emoji">👅</div>
+      <div class="sense-name">TASTE</div>
+      <div class="sense-desc">Palate fatigue resets with each empty cup. 15 "first sips."</div>
+    </div>
+    <div class="sense-card">
+      <div class="sense-emoji">👃</div>
+      <div class="sense-name">SMELL</div>
+      <div class="sense-desc">Olfactory habituation. Brain masks constant scent. No cup = no scent = full reset.</div>
+    </div>
+    <div class="sense-card">
+      <div class="sense-emoji">🔊</div>
+      <div class="sense-name">SOUND</div>
+      <div class="sense-desc">Hot coffee splashing into a small metal cup. A tiny bell that says "now."</div>
+    </div>
+    <div class="sense-card">
+      <div class="sense-emoji">🖐️</div>
+      <div class="sense-name">TOUCH</div>
+      <div class="sense-desc">The heat arrives fresh. The weight of one ounce in the hand. Then gone. Then back.</div>
+    </div>
+    <div class="sense-card">
+      <div class="sense-emoji">👁️</div>
+      <div class="sense-name">SIGHT</div>
+      <div class="sense-desc">Watching coffee arc from thermos to cup. A ritual you can see.</div>
+    </div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">☕</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ═══ 5. HAPPINESS RESEARCH ═══ -->
+  <div class="section-label">05 — Happiness Research</div>
+  <div class="section-title">FREQUENCY BEATS INTENSITY</div>
+  <div class="section-body">Kahneman's research is clear: people with the highest life satisfaction don't have bigger peak experiences. They have more frequent small positive moments. The brain counts deposits, not their size.</div>
+
+  <div class="chart-section">
+    <div style="text-align:center;margin-bottom:20px;">
+      <span class="section-label">Happiness Deposits Per Morning</span>
+    </div>
+    <div class="deposits-visual">
+      <div class="deposit-row">
+        <div class="deposit-label">Big Mug</div>
+        <div class="deposit-dots">
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+          <div class="dot dot-dim"></div>
+        </div>
+      </div>
+      <div class="deposit-row">
+        <div class="deposit-label">1oz Pours</div>
+        <div class="deposit-dots">
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+          <div class="dot dot-gold">☕</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <span style="font-family:'Bebas Neue';font-size:1.8rem;color:var(--gold);letter-spacing:2px;">1 DEPOSIT vs 15 DEPOSITS</span><br>
+      <span style="font-family:'Caveat';color:var(--muted);font-size:1.1rem;">Same coffee. Same time. Dramatically more happiness.</span>
+    </div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">☕</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ═══ 6. PRESENCE ═══ -->
+  <div class="section-label">06 — Presence</div>
+  <div class="section-title">A WANDERING MIND IS AN UNHAPPY MIND</div>
+  <div class="section-body">Matt Killingsworth's "Track Your Happiness" study pinged thousands of people randomly throughout their day. The finding: people who were mentally present — even with mundane tasks — were significantly happier than those whose minds wandered, even toward pleasant thoughts.</div>
+
+  <div class="chart-section">
+    <div style="text-align:center; margin-bottom: 20px;">
+      <span class="section-label">What Pulls You Back To Now?</span>
+    </div>
+    <div style="display:flex;gap:30px;justify-content:center;flex-wrap:wrap;margin:20px 0;">
+      <div style="text-align:center;">
+        <div style="font-family:'Bebas Neue';font-size:3rem;color:var(--red);">0</div>
+        <div style="font-family:'Caveat';color:var(--muted);font-size:1.1rem;">Presence cues<br>from a big mug</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-family:'Bebas Neue';font-size:3rem;color:var(--gold);">15</div>
+        <div style="font-family:'Caveat';color:var(--muted);font-size:1.1rem;">Presence cues<br>from 1oz pours</div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:20px;">
+      <span style="font-family:'Caveat';color:var(--cream);font-size:1.2rem;">Every pour is a sound, a smell, a warmth in the hand.<br>The coffee keeps calling you back.</span>
+    </div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">☕</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ═══ 7. TRAVEL MUG REBUTTAL ═══ -->
+  <div class="section-label">07 — The Obvious Objection</div>
+  <div class="section-title">"BUT WHAT ABOUT A TRAVEL MUG?"</div>
+  <div class="section-body">It solves one problem — thermal stability — while destroying everything else. The lid seals off smell and sound. The volume kills sensory resets. And there's never a gap, never an absence, never a moment where the cup is empty and then suddenly alive again.</div>
+
+  <div class="chart-section">
+    <div style="text-align:center;margin-bottom:20px;">
+      <span class="section-label">Scorecard: Thermos + Small Cup vs Travel Mug</span>
+    </div>
+    <div class="score-card">
+      <div class="check">✅</div>
+      <div class="score-text"><strong>TEMPERATURE CONTROL</strong> — Both keep coffee hot. Tie.</div>
+    </div>
+    <div class="score-card">
+      <div class="check">❌</div>
+      <div class="score-text"><strong>SMELL</strong> — Travel mug lid blocks aroma. No olfactory resets.</div>
+    </div>
+    <div class="score-card">
+      <div class="check">❌</div>
+      <div class="score-text"><strong>SOUND</strong> — No pour. No splash. No auditory cue.</div>
+    </div>
+    <div class="score-card">
+      <div class="check">❌</div>
+      <div class="score-text"><strong>PALATE RESETS</strong> — Still one long drink. Still one first sip.</div>
+    </div>
+    <div class="score-card">
+      <div class="check">❌</div>
+      <div class="score-text"><strong>PRESENCE</strong> — Always available = always background. No gaps.</div>
+    </div>
+    <div class="score-card">
+      <div class="check">❌</div>
+      <div class="score-text"><strong>SOCIAL</strong> — Nobody has ever asked a love story about a Yeti.</div>
+    </div>
+    <div style="text-align:center;margin-top:20px;">
+      <span style="font-family:'Caveat';color:var(--cream);font-size:1.1rem;">The thermos is the reservoir. The small cup is the experience.<br>Separating storage from consumption is the whole move.</span>
+    </div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">☕</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ═══ 8. CAPON ═══ -->
+  <div class="section-label">08 — Philosophy</div>
+  <div class="section-title">THE THEOLOGY OF PAYING ATTENTION</div>
+
+  <div class="quote-block">
+    <div class="quote-text">"The world does not need more information. It needs more wonder."</div>
+    <div class="quote-attr">— Robert Farrar Capon, The Supper of the Lamb</div>
+  </div>
+
+  <div class="section-body" style="margin-top:20px;">Capon spent an entire chapter on cutting a single onion. Not how to cut it efficiently — how to <em>encounter</em> it. The translucence of the layers. The wetness on the knife. The thing itself, not the task of getting past it. The big mug treats coffee as a delivery mechanism. The small cup leaves it whole.</div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">☕</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ═══ 9. THE SOCIAL ARTIFACT ═══ -->
+  <div class="section-label">09 — Social</div>
+  <div class="section-title">THE CUP THAT STARTS CONVERSATIONS</div>
+  <div class="section-body">A normal coffee mug is invisible. Nobody comments on it. But a tiny spatterware cup clipped to a messenger bag by a carabiner? That's conspicuous enough to invite a question. And a question is an invitation to connect.</div>
+
+  <div class="chart-section" style="text-align:center;">
+    <div style="font-family:'Caveat';color:var(--muted);font-size:1.1rem;margin-bottom:20px;">Conversations started by coffee vessel</div>
+    <div style="display:flex;gap:40px;justify-content:center;flex-wrap:wrap;">
+      <div>
+        <div style="font-family:'Bebas Neue';font-size:4rem;color:var(--red);">0</div>
+        <div style="font-family:'Caveat';color:var(--muted);">16oz Yeti</div>
+      </div>
+      <div>
+        <div style="font-family:'Bebas Neue';font-size:4rem;color:var(--red);">0</div>
+        <div style="font-family:'Caveat';color:var(--muted);">Ceramic mug</div>
+      </div>
+      <div>
+        <div style="font-family:'Bebas Neue';font-size:4rem;color:var(--gold);">∞</div>
+        <div style="font-family:'Caveat';color:var(--gold);">Tiny cup on<br>a carabiner</div>
+      </div>
+    </div>
+    <div style="margin-top:24px;font-family:'Caveat';color:var(--muted);font-size:1.1rem;font-style:italic;">"Is that an espresso mug?" "That's the smallest coffee cup I've ever seen!" "Tell me about that."</div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">☕</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ═══ 10. THE STORY ═══ -->
+  <div class="section-label">10 — The Story It Carries</div>
+  <div class="section-title">A 26-YEAR-OLD YES</div>
+
+  <div class="story-section">
+    <div class="story-year">1999</div>
+    <div class="story-body">
+      A man drives to the Adirondack Mountains to decide whether to propose to a woman he fell in love with before they ever met. He stops in Lake Placid. Buys a small green and white spatterware mug from Eastern Mountain Sports. 
+    </div>
+    <div class="story-body">
+      On the mornings of that backpacking trip — Marcy Dam, Avalanche Lake — he sips coffee from that mug and makes the most important decision of his life.
+    </div>
+    <div class="story-body" style="color:var(--gold);">
+      He decides yes.
+    </div>
+    <div class="story-body">
+      26 years later. Married. Four kids. Three dogs. A life full of stories. And he still carries that mug, clipped to the outside of his bag, where it can get dinged and seen and asked about. 
+    </div>
+    <div class="story-body" style="color:var(--gold);font-size:1.5rem;margin-top:30px;">
+      Every time someone asks about it, he gets to go back to that trail.
+    </div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">☕</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ═══ FINAL SCORE ═══ -->
+  <div class="section-label" style="text-align:center;">The Final Score</div>
+  <div class="section-title" style="text-align:center;">SAME COFFEE. MORE EVERYTHING.</div>
+
+  <div class="chart-section">
+    <div class="bar-chart">
+      <div class="bar-row">
+        <div class="bar-label">Optimal sips</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-gold" style="width:100%;">15 of 15</div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Taste resets</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-gold" style="width:100%;">15</div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Smell resets</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-gold" style="width:100%;">15</div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Sound cues</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-gold" style="width:100%;">15</div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Presence pulls</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-gold" style="width:100%;">15</div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Happiness deposits</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-gold" style="width:100%;">15</div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Love stories</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-gold" style="width:8%;">1</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:12px;">
+      <span style="font-family:'Caveat';color:var(--muted);font-size:1.1rem;">But one is all you need.</span>
+    </div>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="footer">
+    <div class="footer-tagline">LESS COFFEE PER SERVING.<br><span>MORE COFFEE PER CUP.</span></div>
+    <div class="footer-sub">The pour is the point.</div>
+  </div>
+
+</div>
+
+</body>
+</html>

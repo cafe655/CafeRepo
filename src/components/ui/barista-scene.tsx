@@ -19,6 +19,7 @@ interface Customer {
   sitChair: 0 | 1;
   seated: boolean;
   isWerewolf: boolean;
+  isAnnaSerene: boolean;
   // bench sitting
   benchAt: number; // -1 = not on bench, 0/1 = bench index
   benchSeat: 0 | 1;
@@ -103,6 +104,15 @@ interface BikerState {
   pedalPhase: number;
 }
 
+interface CompanionCat {
+  offsetX: number; // offset from owner
+  offsetTarget: number; // wander target offset
+  phase: number; // leg animation
+  sitting: boolean;
+  sitTimer: number;
+  wanderTimer: number;
+}
+
 const CUP_W = 5;
 const CUP_H = 6;
 const CAFE_X = 90;
@@ -116,6 +126,7 @@ const HATS: Customer["hat"][] = ["none", "none", "none", "beanie", "tophat", "ca
 
 export function BaristaScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ x: -1, y: -1 });
   const stateRef = useRef({
     customers: [] as Customer[],
     nextSpawn: 120,
@@ -150,6 +161,7 @@ export function BaristaScene() {
     biker: null as BikerState | null,
     nextBiker: 400 + Math.floor(Math.random() * 600),
     bikerSpawnChance: 0, // counts spawns, triggers ~1 in 30
+    companionCats: [] as CompanionCat[], // AnnaSerene's cats
   });
 
   useEffect(() => {
@@ -173,6 +185,14 @@ export function BaristaScene() {
     };
     resize();
     window.addEventListener("resize", resize);
+
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    };
+    const onMouseLeave = () => { mouseRef.current = { x: -1, y: -1 }; };
+    canvas.addEventListener("mousemove", onMouseMove);
+    canvas.addEventListener("mouseleave", onMouseLeave);
 
     const ground = () => h - 6;
     const chairSeatY = (by: number) => by - 12 + 4;
@@ -223,17 +243,29 @@ export function BaristaScene() {
 
       const hasWerewolf = s.customers.some((c) => c.isWerewolf);
       const isWerewolf = !hasWerewolf && Math.random() < 0.08;
+      const hasAnna = s.customers.some((c) => c.isAnnaSerene);
+      const isAnnaSerene = !hasAnna && !isWerewolf && Math.random() < 0.06;
+
+      if (isAnnaSerene) {
+        // Spawn her two companion cats
+        s.companionCats = [
+          { offsetX: -12, offsetTarget: -12, phase: 0, sitting: false, sitTimer: 0, wanderTimer: 60 + Math.floor(Math.random() * 80) },
+          { offsetX: 10, offsetTarget: 10, phase: Math.random() * 100, sitting: false, sitTimer: 0, wanderTimer: 40 + Math.floor(Math.random() * 80) },
+        ];
+      }
 
       return {
-        x: -20, speed: isWerewolf ? 0.55 + Math.random() * 0.3 : 0.4 + Math.random() * 0.5,
-        color: isWerewolf ? "#8B6914" : COLORS[Math.floor(Math.random() * COLORS.length)],
-        height: isWerewolf ? 24 + Math.random() * 6 : ht,
-        hat: isWerewolf ? "none" as const : HATS[Math.floor(Math.random() * HATS.length)],
-        hasScarf: isWerewolf ? false : Math.random() > 0.7, armSwing: 0,
+        x: -20,
+        speed: isWerewolf ? 0.55 + Math.random() * 0.3 : isAnnaSerene ? 0.35 + Math.random() * 0.15 : 0.4 + Math.random() * 0.5,
+        color: isWerewolf ? "#8B6914" : isAnnaSerene ? "#FFB6C1" : COLORS[Math.floor(Math.random() * COLORS.length)],
+        height: isWerewolf ? 24 + Math.random() * 6 : isAnnaSerene ? 24 + Math.random() * 4 : ht,
+        hat: (isWerewolf || isAnnaSerene) ? "none" as const : HATS[Math.floor(Math.random() * HATS.length)],
+        hasScarf: (isWerewolf || isAnnaSerene) ? false : Math.random() > 0.7, armSwing: 0,
         served: false, leaving: false, holdingCup: false,
         waitX: CAFE_X + 20 + Math.random() * 20,
         sittingAt, sitTimer: 0, sitChair, seated: false,
         isWerewolf,
+        isAnnaSerene,
         benchAt, benchSeat, onBench: false,
       } as Customer;
     };
@@ -242,7 +274,7 @@ export function BaristaScene() {
       x: number, baseY: number, ht: number, color: string,
       hat: Customer["hat"], hasScarf: boolean, armPhase: number,
       walking: boolean, holdingCup: boolean, facingRight: boolean, sitting: boolean,
-      isWerewolf = false
+      isWerewolf = false, isAnnaSerene = false
     ) => {
       const headR = ht * 0.18;
       const bodyLen = ht * 0.4;
@@ -306,9 +338,54 @@ export function BaristaScene() {
         ctx.fill();
       }
 
+      // blonde hair for AnnaSerene
+      if (isAnnaSerene) {
+        const hairSway = walking ? Math.sin(armPhase * 0.8) * 1.5 : 0;
+        const dir = facingRight ? 1 : -1;
+        const backX = x - dir * headR; // back of head
+        const hairEndY = neckY + bodyLen * 0.55; // mid-back
+
+        // Strand 1: starts at eye level on face side, arcs over head, drops down back
+        ctx.strokeStyle = "#F5D76E";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        // start at eye level on the face side of the head
+        ctx.moveTo(x + dir * headR * 0.4, headY);
+        // arc up and over the head, hugging just outside the circle
+        ctx.bezierCurveTo(
+          x + dir * headR * 0.2, headY - headR * 1.3,  // up over the top, slightly outside
+          backX - dir * 2, headY - headR * 0.8,         // curving to the back
+          backX - dir * 1, headY + headR * 0.3           // arrive at back of head
+        );
+        // continue down the back
+        ctx.quadraticCurveTo(
+          backX - dir * 3 + hairSway, neckY + bodyLen * 0.3,
+          backX - dir * 1 + hairSway, hairEndY
+        );
+        ctx.stroke();
+
+        // Strand 2: starts slightly lower, intersects top of head circle, falls down back
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x + dir * headR * 0.2, headY - headR * 0.2);
+        ctx.bezierCurveTo(
+          x, headY - headR * 1.15,                      // through top of circle
+          backX - dir * 1, headY - headR * 0.5,
+          backX - dir * 2, headY + headR * 0.5
+        );
+        ctx.quadraticCurveTo(
+          backX - dir * 4 + hairSway, neckY + bodyLen * 0.35,
+          backX - dir * 2 + hairSway, hairEndY - 2
+        );
+        ctx.stroke();
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+      }
+
       // hat
-      if (isWerewolf) {
-        // no hat — ears are the feature
+      if (isWerewolf || isAnnaSerene) {
+        // no hat — werewolf has ears, AnnaSerene has hair
       } else if (hat === "beanie") {
         ctx.beginPath();
         ctx.arc(x, headY - headR, headR * 1.1, Math.PI, 0);
@@ -372,20 +449,6 @@ export function BaristaScene() {
         ctx.stroke();
       }
 
-      // werewolf tail
-      if (isWerewolf) {
-        const tailDir = facingRight ? -1 : 1;
-        const tailWag = walking ? Math.sin(armPhase * 2) * 3 : Math.sin(armPhase * 0.5) * 1.5;
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(x, hipY);
-        ctx.quadraticCurveTo(
-          x + tailDir * 10, hipY - 6 + tailWag,
-          x + tailDir * 14, hipY - 10 + tailWag
-        );
-        ctx.stroke();
-      }
 
       // arms
       const shoulderY = neckY + 4;
@@ -682,6 +745,57 @@ export function BaristaScene() {
         ctx.beginPath();
         ctx.moveTo(cx - 4, bodyY + 3); ctx.lineTo(cx - 3, cy);
         ctx.moveTo(cx + 5, bodyY + 3); ctx.lineTo(cx + 6, cy);
+        ctx.stroke();
+      }
+    };
+
+    // --- Draw companion cat (brown, smaller) ---
+    const drawCompanionCat = (cx: number, by: number, cat: CompanionCat) => {
+      const cy = by;
+      const bodyY = cy - 5;
+      ctx.strokeStyle = "#8B6340";
+      ctx.lineWidth = 1;
+      // body
+      ctx.beginPath();
+      ctx.ellipse(cx, bodyY, 5, 3, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      // head
+      ctx.beginPath();
+      ctx.arc(cx + 5, bodyY - 1.5, 2.8, 0, Math.PI * 2);
+      ctx.stroke();
+      // ears
+      ctx.beginPath();
+      ctx.moveTo(cx + 3.5, bodyY - 4);
+      ctx.lineTo(cx + 4.5, bodyY - 7);
+      ctx.lineTo(cx + 5.5, bodyY - 4);
+      ctx.moveTo(cx + 5.5, bodyY - 4);
+      ctx.lineTo(cx + 6.5, bodyY - 7);
+      ctx.lineTo(cx + 7.5, bodyY - 4);
+      ctx.stroke();
+      // eyes
+      ctx.fillStyle = "#6a4";
+      ctx.fillRect(cx + 4.5, bodyY - 2.5, 1, 1);
+      ctx.fillRect(cx + 6, bodyY - 2.5, 1, 1);
+      // tail
+      const tailWave = Math.sin(cat.phase * 0.08) * 3;
+      ctx.strokeStyle = "#8B6340";
+      ctx.beginPath();
+      ctx.moveTo(cx - 5, bodyY);
+      ctx.quadraticCurveTo(cx - 9, bodyY - 6 + tailWave, cx - 7, bodyY - 11 + tailWave);
+      ctx.stroke();
+      // legs
+      if (!cat.sitting) {
+        const legAnim = Math.sin(cat.phase * 0.2) * 1.5;
+        ctx.beginPath();
+        ctx.moveTo(cx - 3, bodyY + 2); ctx.lineTo(cx - 3 - legAnim, cy);
+        ctx.moveTo(cx, bodyY + 2); ctx.lineTo(cx + legAnim, cy);
+        ctx.moveTo(cx + 2, bodyY + 2); ctx.lineTo(cx + 2 - legAnim, cy);
+        ctx.moveTo(cx + 4, bodyY + 2); ctx.lineTo(cx + 4 + legAnim, cy);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(cx - 3, bodyY + 2); ctx.lineTo(cx - 2, cy);
+        ctx.moveTo(cx + 4, bodyY + 2); ctx.lineTo(cx + 5, cy);
         ctx.stroke();
       }
     };
@@ -1485,7 +1599,7 @@ export function BaristaScene() {
             const table = s.tables[c.sittingAt];
             const seatX = c.sitChair === 0 ? table.x - 18 : table.x + 18;
             drawStickFigure(seatX, by, c.height, c.color, c.hat, c.hasScarf, 0,
-              false, false, c.sitChair === 0, true, c.isWerewolf);
+              false, false, c.sitChair === 0, true, c.isWerewolf, c.isAnnaSerene);
             if (c.holdingCup) {
               const tableTopY = by - 12;
               const cupX = c.sitChair === 0 ? table.x - 5 : table.x + 1;
@@ -1507,7 +1621,7 @@ export function BaristaScene() {
             const bench = s.benches[c.benchAt];
             const seatX = c.benchSeat === 0 ? bench.x - 7 : bench.x + 7;
             drawStickFigure(seatX, by, c.height, c.color, c.hat, c.hasScarf, 0,
-              false, false, true, true, c.isWerewolf);
+              false, false, true, true, c.isWerewolf, c.isAnnaSerene);
             // cup in hand while on bench (no table to set it on)
             if (c.holdingCup) {
               const benchSeatY = by - 10;
@@ -1575,21 +1689,169 @@ export function BaristaScene() {
             || (c.served && c.sittingAt >= 0 && !c.seated)
             || (c.served && c.benchAt >= 0 && !c.onBench);
           drawStickFigure(c.x, by, c.height, c.color, c.hat, c.hasScarf, c.armSwing,
-            isWalking, c.holdingCup, true, false, c.isWerewolf);
+            isWalking, c.holdingCup, true, false, c.isWerewolf, c.isAnnaSerene);
         }
 
         return c.x < w + 30 || c.seated || c.onBench;
       });
 
+      // --- AnnaSerene's companion cats ---
+      const anna = s.customers.find((c) => c.isAnnaSerene);
+      if (anna && s.companionCats.length === 2) {
+        // Figure out Anna's current screen X
+        let annaX = anna.x;
+        if (anna.seated && anna.sittingAt >= 0) {
+          const table = s.tables[anna.sittingAt];
+          annaX = anna.sitChair === 0 ? table.x - 18 : table.x + 18;
+        } else if (anna.onBench && anna.benchAt >= 0) {
+          const bench = s.benches[anna.benchAt];
+          annaX = anna.benchSeat === 0 ? bench.x - 7 : bench.x + 7;
+        }
+        const annaStationary = anna.seated || anna.onBench || (!anna.leaving && anna.served && anna.x >= anna.waitX - 2);
+
+        for (const cc of s.companionCats) {
+          cc.phase++;
+          cc.wanderTimer--;
+
+          if (annaStationary) {
+            // Mill around: pick new wander targets near Anna
+            if (cc.wanderTimer <= 0) {
+              cc.wanderTimer = 60 + Math.floor(Math.random() * 120);
+              if (!cc.sitting && Math.random() < 0.35) {
+                cc.sitting = true;
+                cc.sitTimer = 80 + Math.floor(Math.random() * 200);
+              } else {
+                cc.sitting = false;
+                cc.offsetTarget = -18 + Math.random() * 36;
+              }
+            }
+            if (cc.sitting) {
+              cc.sitTimer--;
+              if (cc.sitTimer <= 0) {
+                cc.sitting = false;
+                cc.offsetTarget = -18 + Math.random() * 36;
+                cc.wanderTimer = 40 + Math.floor(Math.random() * 60);
+              }
+            }
+          } else {
+            // Walking with Anna — stay close
+            cc.sitting = false;
+            if (cc.wanderTimer <= 0) {
+              cc.wanderTimer = 30 + Math.floor(Math.random() * 60);
+              cc.offsetTarget = (cc.offsetX < 0 ? -1 : 1) * (6 + Math.random() * 10);
+            }
+          }
+
+          // Drift toward target
+          if (!cc.sitting) {
+            const diff = cc.offsetTarget - cc.offsetX;
+            cc.offsetX += diff * 0.04;
+          }
+
+          drawCompanionCat(annaX + cc.offsetX, by, cc);
+        }
+      } else if (!anna && s.companionCats.length > 0) {
+        s.companionCats = [];
+      }
+
+      // --- Hover name tags for special characters ---
+      const mx = mouseRef.current.x;
+      const my = mouseRef.current.y;
+      if (mx >= 0) {
+        interface NameTarget { x: number; topY: number; name: string }
+        const targets: NameTarget[] = [];
+
+        // Werewolf customers
+        for (const c of s.customers) {
+          if (c.isWerewolf) {
+            let cx = c.x;
+            let cy = by;
+            if (c.seated && c.sittingAt >= 0) {
+              const table = s.tables[c.sittingAt];
+              cx = c.sitChair === 0 ? table.x - 18 : table.x + 18;
+            } else if (c.onBench && c.benchAt >= 0) {
+              const bench = s.benches[c.benchAt];
+              cx = c.benchSeat === 0 ? bench.x - 7 : bench.x + 7;
+            }
+            targets.push({ x: cx, topY: cy - c.height, name: "Werwolfi3" });
+          }
+        }
+
+        // AnnaSerene
+        for (const c of s.customers) {
+          if (c.isAnnaSerene) {
+            let cx = c.x;
+            if (c.seated && c.sittingAt >= 0) {
+              const table = s.tables[c.sittingAt];
+              cx = c.sitChair === 0 ? table.x - 18 : table.x + 18;
+            } else if (c.onBench && c.benchAt >= 0) {
+              const bench = s.benches[c.benchAt];
+              cx = c.benchSeat === 0 ? bench.x - 7 : bench.x + 7;
+            }
+            targets.push({ x: cx, topY: by - c.height, name: "AnnaSerene" });
+          }
+        }
+
+        // Biker
+        if (s.biker) {
+          const bk = s.biker;
+          let bx = bk.x;
+          let btopY = by - bk.height;
+          if (bk.phase === "riding-in" || bk.phase === "riding-out") {
+            btopY = by - bk.height - 14; // on the bike, higher up
+          } else if (bk.phase === "sitting" && bk.benchIdx >= 0) {
+            const bench = s.benches[bk.benchIdx];
+            bx = bk.benchSeat === 0 ? bench.x - 7 : bench.x + 7;
+          } else if (bk.phase === "walking-to-bike" || bk.phase === "mount" || bk.phase === "dismount") {
+            bx = bk.bikeX + 2;
+          }
+          targets.push({ x: bx, topY: btopY, name: "Persuasian" });
+        }
+
+        // Draw name tag for hovered target
+        for (const t of targets) {
+          const hitW = 20;
+          const hitH = 40;
+          if (mx >= t.x - hitW && mx <= t.x + hitW && my >= t.topY - 10 && my <= t.topY + hitH) {
+            ctx.font = "bold 9px monospace";
+            const tw = ctx.measureText(t.name).width;
+            const px = 4;
+            const py = 2;
+            const bx = t.x - tw / 2 - px;
+            const tagY = t.topY - 14;
+            // background
+            ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+            ctx.beginPath();
+            const r = 3;
+            ctx.roundRect(bx, tagY - 9 - py, tw + px * 2, 12 + py * 2, r);
+            ctx.fill();
+            // border
+            ctx.strokeStyle = "#E31837";
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+            // text
+            ctx.fillStyle = "#fff";
+            ctx.textAlign = "center";
+            ctx.fillText(t.name, t.x, tagY);
+            ctx.textAlign = "start";
+          }
+        }
+      }
+
       animId = requestAnimationFrame(tick);
     };
 
     animId = requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", resize); };
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", resize);
+      canvas.removeEventListener("mousemove", onMouseMove);
+      canvas.removeEventListener("mouseleave", onMouseLeave);
+    };
   }, []);
 
   return (
-    <div className="w-full h-28 overflow-hidden pointer-events-none select-none">
+    <div className="w-full h-28 overflow-hidden select-none">
       <canvas ref={canvasRef} className="w-full h-full" aria-hidden="true" />
     </div>
   );

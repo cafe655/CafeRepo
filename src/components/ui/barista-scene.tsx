@@ -88,6 +88,20 @@ interface BenchState {
 const BENCH_X = [440, 500];
 const TREE_X = 540;
 
+interface BikerState {
+  x: number;
+  color: string;
+  height: number;
+  speed: number;
+  phase: "riding-in" | "dismount" | "walking-to-counter" | "waiting" | "walking-to-bench" | "sitting" | "walking-to-bike" | "mount" | "riding-out";
+  timer: number;
+  armSwing: number;
+  bikeX: number; // where bike is parked
+  benchIdx: number; // which bench to sit near
+  holdingCup: boolean;
+  pedalPhase: number;
+}
+
 const CUP_W = 5;
 const CUP_H = 6;
 const CAFE_X = 90;
@@ -132,6 +146,9 @@ export function BaristaScene() {
       { x: BENCH_X[0], seats: [null, null] },
       { x: BENCH_X[1], seats: [null, null] },
     ] as BenchState[],
+    biker: null as BikerState | null,
+    nextBiker: 400 + Math.floor(Math.random() * 600),
+    bikerSpawnChance: 0, // counts spawns, triggers ~1 in 30
   });
 
   useEffect(() => {
@@ -788,6 +805,83 @@ export function BaristaScene() {
       }
     };
 
+    // --- Draw bike (standalone, leaning) ---
+    const drawBikeLeaning = (bx: number, by: number) => {
+      ctx.strokeStyle = "#666";
+      ctx.lineWidth = 1.2;
+      // wheels
+      ctx.beginPath(); ctx.arc(bx - 6, by - 5, 5, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(bx + 6, by - 5, 5, 0, Math.PI * 2); ctx.stroke();
+      // frame — leaning slightly right
+      ctx.beginPath();
+      ctx.moveTo(bx - 6, by - 5); ctx.lineTo(bx + 1, by - 14); // down tube
+      ctx.lineTo(bx + 6, by - 5); // chain stay
+      ctx.moveTo(bx + 1, by - 14); ctx.lineTo(bx - 2, by - 14); // top tube
+      ctx.lineTo(bx - 6, by - 5); // seat tube
+      ctx.stroke();
+      // handlebars
+      ctx.beginPath(); ctx.moveTo(bx + 1, by - 14); ctx.lineTo(bx + 3, by - 17); ctx.stroke();
+      // seat
+      ctx.beginPath(); ctx.moveTo(bx - 3, by - 15); ctx.lineTo(bx + 0, by - 15); ctx.stroke();
+      // kickstand
+      ctx.beginPath(); ctx.moveTo(bx, by - 8); ctx.lineTo(bx + 4, by); ctx.stroke();
+    };
+
+    // --- Draw biker on bike (riding) ---
+    const drawBikerRiding = (bk: BikerState, by: number) => {
+      const rx = bk.x;
+      ctx.strokeStyle = "#666";
+      ctx.lineWidth = 1.2;
+      // wheels with spinning spokes
+      const spoke = bk.pedalPhase;
+      for (let wh = -1; wh <= 1; wh += 2) {
+        const wx = rx + wh * 8;
+        ctx.beginPath(); ctx.arc(wx, by - 5, 5, 0, Math.PI * 2); ctx.stroke();
+        // spokes
+        for (let sp = 0; sp < 3; sp++) {
+          const a = spoke + sp * (Math.PI * 2 / 3);
+          ctx.beginPath();
+          ctx.moveTo(wx, by - 5);
+          ctx.lineTo(wx + Math.cos(a) * 4.5, by - 5 + Math.sin(a) * 4.5);
+          ctx.stroke();
+        }
+      }
+      // frame
+      ctx.beginPath();
+      ctx.moveTo(rx - 8, by - 5); ctx.lineTo(rx, by - 14);
+      ctx.lineTo(rx + 8, by - 5);
+      ctx.moveTo(rx, by - 14); ctx.lineTo(rx - 3, by - 14);
+      ctx.lineTo(rx - 8, by - 5);
+      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(rx, by - 14); ctx.lineTo(rx + 2, by - 17); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(rx - 4, by - 15); ctx.lineTo(rx - 1, by - 15); ctx.stroke();
+      // rider on top
+      const ht = bk.height;
+      const headR = ht * 0.16;
+      const seatY = by - 16;
+      const hipY = seatY;
+      const bodyLen = ht * 0.35;
+      const neckY = hipY - bodyLen;
+      const headY = neckY - headR;
+      ctx.strokeStyle = bk.color;
+      ctx.lineWidth = 1.5;
+      // head
+      ctx.beginPath(); ctx.arc(rx - 1, headY, headR, 0, Math.PI * 2); ctx.stroke();
+      // eye
+      ctx.fillStyle = bk.color;
+      ctx.fillRect(rx - 1 + headR * 0.3, headY - 1, 1.5, 1.5);
+      // body (leaning forward)
+      ctx.beginPath(); ctx.moveTo(rx - 1, neckY + headR); ctx.lineTo(rx - 2, hipY); ctx.stroke();
+      // arms to handlebars
+      ctx.beginPath(); ctx.moveTo(rx - 1, neckY + headR + 3); ctx.lineTo(rx + 2, by - 17); ctx.stroke();
+      // legs pedaling
+      const pedal = Math.sin(bk.pedalPhase) * 4;
+      ctx.beginPath();
+      ctx.moveTo(rx - 2, hipY); ctx.lineTo(rx - 4 + pedal, by - 6);
+      ctx.moveTo(rx - 2, hipY); ctx.lineTo(rx - 4 - pedal, by - 6);
+      ctx.stroke();
+    };
+
     // --- Draw squirrel ---
     const drawSquirrel = (sq: SquirrelState, by: number) => {
       const postX = LIGHT_POSTS[sq.postIndex];
@@ -1173,6 +1267,127 @@ export function BaristaScene() {
           }
         }
         if (s.squirrel) drawSquirrel(s.squirrel, by);
+      }
+
+      // --- Biker ---
+      if (!s.biker) {
+        s.nextBiker--;
+        if (s.nextBiker <= 0) {
+          s.bikerSpawnChance++;
+          if (s.bikerSpawnChance % 30 === 0 || (s.bikerSpawnChance > 5 && Math.random() < 0.033)) {
+            const benchIdx = Math.random() > 0.5 ? 0 : 1;
+            s.biker = {
+              x: -30,
+              color: COLORS[Math.floor(Math.random() * COLORS.length)],
+              height: 22 + Math.random() * 6,
+              speed: 1.2 + Math.random() * 0.4,
+              phase: "riding-in",
+              timer: 0,
+              armSwing: 0,
+              bikeX: 0,
+              benchIdx,
+              holdingCup: false,
+              pedalPhase: 0,
+            };
+          }
+          s.nextBiker = 300 + Math.floor(Math.random() * 400);
+        }
+      }
+      if (s.biker) {
+        const bk = s.biker;
+        bk.armSwing += 0.12;
+        const counterX = CAFE_X + 30;
+        const benchX = s.benches[bk.benchIdx].x;
+
+        if (bk.phase === "riding-in") {
+          bk.pedalPhase += bk.speed * 0.15;
+          bk.x += bk.speed;
+          if (bk.x >= counterX - 20) {
+            bk.phase = "dismount";
+            bk.bikeX = bk.x;
+            bk.timer = 30;
+          }
+          drawBikerRiding(bk, by);
+        } else if (bk.phase === "dismount") {
+          bk.timer--;
+          drawBikeLeaning(bk.bikeX, by);
+          drawStickFigure(bk.bikeX + 5, by, bk.height, bk.color, "none", false, 0, false, false, true, false);
+          if (bk.timer <= 0) bk.phase = "walking-to-counter";
+        } else if (bk.phase === "walking-to-counter") {
+          bk.x += 0.5;
+          drawBikeLeaning(bk.bikeX, by);
+          if (bk.x >= counterX) {
+            bk.phase = "waiting";
+            bk.x = counterX;
+          }
+          drawStickFigure(bk.x, by, bk.height, bk.color, "none", false, bk.armSwing, true, false, true, false);
+        } else if (bk.phase === "waiting") {
+          drawBikeLeaning(bk.bikeX, by);
+          // gets served by barista when idle
+          if (s.baristaState === "idle") {
+            // hijack barista to make coffee for biker
+            s.baristaState = "tamping";
+            s.baristaTimer = 0;
+            s.servingCustomer = null; // biker is separate
+            bk.timer = 230; // wait for full barista cycle
+          }
+          bk.timer--;
+          if (bk.timer <= 0 && s.baristaState === "wiping") {
+            bk.holdingCup = true;
+            bk.phase = "walking-to-bench";
+          }
+          drawStickFigure(bk.x, by, bk.height, bk.color, "none", false, 0, false, bk.holdingCup, true, false);
+        } else if (bk.phase === "walking-to-bench") {
+          // push bike alongside
+          bk.x += 0.4;
+          bk.bikeX += 0.4;
+          drawBikeLeaning(bk.bikeX, by);
+          if (bk.x >= benchX - 20) {
+            bk.phase = "sitting";
+            bk.bikeX = benchX - 20;
+            bk.timer = 300 + Math.floor(Math.random() * 400);
+          }
+          drawStickFigure(bk.x, by, bk.height, bk.color, "none", false, bk.armSwing, true, true, true, false);
+        } else if (bk.phase === "sitting") {
+          bk.timer--;
+          drawBikeLeaning(bk.bikeX, by);
+          // draw sitting on bench area
+          drawStickFigure(benchX - 10, by, bk.height, bk.color, "none", false, 0, false, false, true, true);
+          // cup in hand
+          const benchSeatY = by - 10;
+          drawCup(benchX - 4, benchSeatY - CUP_H - 2);
+          // steam
+          if (s.frameCount % 12 === 0) {
+            s.cupSteams.push({
+              x: benchX - 4 + CUP_W / 2 + (Math.random() - 0.5) * 2,
+              y: benchSeatY - CUP_H - 3,
+              life: 20 + Math.floor(Math.random() * 10),
+              dx: (Math.random() - 0.5) * 1.5,
+            });
+          }
+          if (bk.timer <= 0) bk.phase = "walking-to-bike";
+        } else if (bk.phase === "walking-to-bike") {
+          bk.x = benchX - 10;
+          if (!bk.timer) bk.timer = 20;
+          bk.timer--;
+          drawBikeLeaning(bk.bikeX, by);
+          drawStickFigure(bk.x - (20 - bk.timer) * 0.5, by, bk.height, bk.color, "none", false, bk.armSwing, true, false, true, false);
+          if (bk.timer <= 0) {
+            bk.phase = "mount";
+            bk.x = bk.bikeX;
+            bk.timer = 20;
+          }
+        } else if (bk.phase === "mount") {
+          bk.timer--;
+          drawBikeLeaning(bk.bikeX, by);
+          drawStickFigure(bk.bikeX + 2, by, bk.height, bk.color, "none", false, 0, false, false, true, false);
+          if (bk.timer <= 0) bk.phase = "riding-out";
+        } else if (bk.phase === "riding-out") {
+          bk.pedalPhase += bk.speed * 0.15;
+          bk.x += bk.speed;
+          drawBikerRiding(bk, by);
+          if (bk.x > w + 40) s.biker = null;
+        }
       }
 
       // --- Cup steam on tables and benches ---

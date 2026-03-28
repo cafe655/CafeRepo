@@ -1,46 +1,53 @@
+import Image from "next/image";
 import { Container } from "@/components/ui/container";
 import { SiteCard } from "@/components/ui/site-card";
-import { sites } from "@/lib/site-config";
+
+const mainLinks = [
+  { title: <>Ai<br />Field<br />Notes</>, href: "/ai-field-notes" },
+  { title: <>Barista<br />Painting<br />Services</>, href: "/barista-painting" },
+  { title: <>Cafe655<br />on<br />Twitch</>, href: "/cafe655-on-twitch" },
+  { title: <>Cafe655<br />Personal</>, href: "/personal" },
+];
 
 export default function HomePage() {
-  const enabledSites = sites.filter((s) => s.enabled);
-
   return (
     <Container className="py-24">
       {/* Hero */}
       <section className="text-center">
         <h1 className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-          <span className="text-foreground">Cafe</span>
-          <span className="text-accent">655</span>
+          Welcome to the <span className="text-accent">Café</span>
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">
-          The digital cafe. Explore the spaces below.
-        </p>
       </section>
 
-      {/* Sub-site grid */}
-      {enabledSites.length > 0 ? (
-        <section className="mt-16">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {enabledSites.map((site) => (
+      {/* Cards */}
+      <section className="mt-32">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {mainLinks.map((link, i) =>
+            i === 3 ? (
+              <div key={link.href} className="relative">
+                {/* Avatar standing on top of the card */}
+                <div className="absolute bottom-[calc(100%-4px)] left-[35%] -translate-x-1/2 z-[60] pointer-events-none">
+                  <Image
+                    src="/cafe-avatar.png"
+                    alt="Cafe655 avatar holding a coffee mug"
+                    width={280}
+                    height={480}
+                    className="w-[160px] sm:w-[200px] lg:w-[240px] h-auto"
+                    priority
+                  />
+                </div>
+                <SiteCard href={link.href} title={link.title} />
+              </div>
+            ) : (
               <SiteCard
-                key={site.slug}
-                href={site.path}
-                title={site.name}
-                description={site.description}
+                key={link.href}
+                href={link.href}
+                title={link.title}
               />
-            ))}
-          </div>
-        </section>
-      ) : (
-        <section className="mt-16 text-center">
-          <div className="rounded-xl border border-border bg-surface p-12">
-            <p className="text-muted">
-              Sub-sites coming soon. Check back later.
-            </p>
-          </div>
-        </section>
-      )}
+            )
+          )}
+        </div>
+      </section>
     </Container>
   );
 }

@@ -3,7 +3,7 @@ import { SiteCard } from "@/components/ui/site-card";
 
 const personalLinks = [
   {
-    title: "The Pour is the Point",
+    title: <>The Pour<br />is the<br />Point</>,
     href: "/personal/the-pour-is-the-point",
   },
 ];

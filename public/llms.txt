@@ -1,15 +1,18 @@
 # Cafe655
 
-> The digital hub of Cafe655.
+> The digital cafe of Cafe655.
 
 ## About
 
-Cafe655 is a personal website and digital hub. It hosts multiple sub-sites covering different topics and projects.
+Cafe655 is a personal website and digital cafe. It hosts multiple sub-sites covering different topics and projects.
 
 ## Main Pages
 
-- [Home](https://cafe655.com): The main landing page and hub directory.
-- [Hub](https://cafe655.com/hub): The central hub with updates and links.
+- [Home](https://cafe655.com): The main landing page with links to all sub-sites.
+- [Ai Field Notes](https://cafe655.com/ai-field-notes): AI reference guides, podcast, and resources.
+- [Barista Painting Services](https://cafe655.com/barista-painting): Painting services.
+- [Cafe655 on Twitch](https://cafe655.com/cafe655-on-twitch): Twitch streaming content.
+- [Cafe655 Personal](https://cafe655.com/personal): Personal content and writing.
 
 ## Technical Details
 

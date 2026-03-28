@@ -8,16 +8,7 @@ export interface SiteConfig {
   enabled: boolean;
 }
 
-export const sites: SiteConfig[] = [
-  {
-    slug: "hub",
-    name: "The Cafe",
-    description: "The central cafe. Updates, links, and everything in between.",
-    path: "/hub",
-    subdomain: "hub",
-    enabled: true,
-  },
-];
+export const sites: SiteConfig[] = [];
 
 export const siteMetadata = {
   name: "Cafe655",

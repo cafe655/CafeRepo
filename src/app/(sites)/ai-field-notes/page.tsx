@@ -3,17 +3,17 @@ import { SiteCard } from "@/components/ui/site-card";
 
 const fieldNotes = [
   {
-    title: "Ai Field Notes Podcast",
+    title: <>Ai Field<br />Notes<br />Podcast</>,
     href: "https://www.youtube.com/playlist?list=PL8pCAZvJIBvJXb1VmAFh9gfJ61EgiwKDk",
     external: true,
   },
   {
-    title: "Ai Field Notes TikTok",
+    title: <>Ai Field<br />Notes<br />TikTok</>,
     href: "https://www.tiktok.com/@ai.field.notes",
     external: true,
   },
   {
-    title: "Claude Code Reference Guide",
+    title: <>Claude Code<br />Reference<br />Guide</>,
     href: "/ai-field-notes/claude-code-reference",
   },
 ];

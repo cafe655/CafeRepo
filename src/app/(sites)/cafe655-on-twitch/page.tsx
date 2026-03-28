@@ -3,12 +3,12 @@ import { SiteCard } from "@/components/ui/site-card";
 
 const twitchLinks = [
   {
-    title: "Watch Cafe655 on Twitch",
+    title: <>Watch<br />Cafe655<br />on Twitch</>,
     href: "https://www.twitch.tv/cafe655",
     external: true,
   },
   {
-    title: "Always Thank the Bus Driver",
+    title: <>Always Thank<br />the<br />Bus Driver</>,
     href: "/cafe655-on-twitch/always-thank-the-bus-driver",
   },
 ];

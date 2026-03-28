@@ -3,11 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { siteMetadata } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { label: "The Cafe", href: "/hub" },
   { label: "Ai Field Notes", href: "/ai-field-notes" },
   { label: "Barista Painting Services", href: "/barista-painting" },
   { label: "Cafe655 on Twitch", href: "/cafe655-on-twitch" },
@@ -20,11 +18,11 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md">
-      {/* Top row: brand only */}
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      {/* Top row: brand */}
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-accent transition-colors">
-            {siteMetadata.name}
+          <span className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground group-hover:text-accent transition-colors">
+            Cafe<span className="text-accent">655</span>
           </span>
         </Link>
 
@@ -63,9 +61,9 @@ export function Navbar() {
       {/* Border */}
       <div className="border-b border-border" />
 
-      {/* Secondary nav row: links */}
+      {/* Secondary nav row: links, center-justified */}
       <div className="hidden md:block border-b border-border">
-        <div className="mx-auto flex max-w-7xl items-center gap-1 px-4 sm:px-6 lg:px-8 py-2">
+        <div className="mx-auto flex max-w-7xl items-center justify-center gap-1 px-4 sm:px-6 lg:px-8 py-2">
           {navLinks.map((link) => (
             <Link
               key={link.href}

@@ -18,6 +18,7 @@ interface Customer {
   sitTimer: number;
   sitChair: 0 | 1;
   seated: boolean;
+  isWerewolf: boolean;
 }
 
 interface TableState {
@@ -27,6 +28,34 @@ interface TableState {
 
 // Barista states
 type BaristaState = "idle" | "tamping" | "pulling" | "sliding" | "wiping";
+
+interface CatState {
+  x: number;
+  speed: number;
+  phase: number; // leg animation
+  sitting: boolean;
+  sitTimer: number;
+  sitX: number; // where it decided to sit
+}
+
+interface BirdState {
+  x: number;
+  y: number;
+  state: "arriving" | "landed" | "leaving";
+  landTimer: number;
+  bobPhase: number;
+  flyDir: 1 | -1; // leaving direction
+  targetX: number; // where to land on the sign
+  targetY: number;
+  startX: number;
+  startY: number;
+  arriveProgress: number;
+}
+
+interface SplatState {
+  x: number;
+  life: number;
+}
 
 const CUP_W = 5;
 const CUP_H = 6;
@@ -55,6 +84,16 @@ export function BaristaScene() {
     baristaTimer: 0,
     servingCustomer: null as Customer | null,
     totalServed: 0,
+    // Extras
+    cat: null as CatState | null,
+    nextCat: 600 + Math.floor(Math.random() * 1200),
+    birds: [] as BirdState[],
+    nextBird: 400 + Math.floor(Math.random() * 800),
+    splats: [] as SplatState[],
+    frameCount: 0,
+    // String lights — fixed positions between tables
+    lights: [] as { x: number; y: number; twinkleOffset: number }[],
+    lightsInit: false,
   });
 
   useEffect(() => {
@@ -96,30 +135,42 @@ export function BaristaScene() {
       let sittingAt = -1;
       let sitChair: 0 | 1 = 0;
 
-      if (forceSit || Math.random() > 0.4) {
-        const shuffled = [0, 1, 2].sort(() => Math.random() - 0.5);
-        for (const ti of shuffled) {
-          if (!s.tables[ti].chairs[0]) { sittingAt = ti; sitChair = 0; break; }
-          else if (!s.tables[ti].chairs[1]) { sittingAt = ti; sitChair = 1; break; }
+      // check which chairs are claimed (seated OR someone walking toward them)
+      const claimed = new Set<string>();
+      for (const c of s.customers) {
+        if (c.sittingAt >= 0 && !c.leaving) {
+          claimed.add(`${c.sittingAt}-${c.sitChair}`);
         }
       }
 
+      if (forceSit || Math.random() > 0.4) {
+        const shuffled = [0, 1, 2].sort(() => Math.random() - 0.5);
+        for (const ti of shuffled) {
+          if (!s.tables[ti].chairs[0] && !claimed.has(`${ti}-0`)) { sittingAt = ti; sitChair = 0; break; }
+          else if (!s.tables[ti].chairs[1] && !claimed.has(`${ti}-1`)) { sittingAt = ti; sitChair = 1; break; }
+        }
+      }
+
+      const isWerewolf = Math.random() < 0.08; // ~8% chance
+
       return {
-        x: -20, speed: 0.4 + Math.random() * 0.5,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        height: ht,
-        hat: HATS[Math.floor(Math.random() * HATS.length)],
-        hasScarf: Math.random() > 0.7, armSwing: 0,
+        x: -20, speed: isWerewolf ? 0.55 + Math.random() * 0.3 : 0.4 + Math.random() * 0.5,
+        color: isWerewolf ? "#8B6914" : COLORS[Math.floor(Math.random() * COLORS.length)],
+        height: isWerewolf ? 24 + Math.random() * 6 : ht,
+        hat: isWerewolf ? "none" as const : HATS[Math.floor(Math.random() * HATS.length)],
+        hasScarf: isWerewolf ? false : Math.random() > 0.7, armSwing: 0,
         served: false, leaving: false, holdingCup: false,
         waitX: CAFE_X + 20 + Math.random() * 20,
         sittingAt, sitTimer: 0, sitChair, seated: false,
+        isWerewolf,
       } as Customer;
     };
 
     const drawStickFigure = (
       x: number, baseY: number, ht: number, color: string,
       hat: Customer["hat"], hasScarf: boolean, armPhase: number,
-      walking: boolean, holdingCup: boolean, facingRight: boolean, sitting: boolean
+      walking: boolean, holdingCup: boolean, facingRight: boolean, sitting: boolean,
+      isWerewolf = false
     ) => {
       const headR = ht * 0.18;
       const bodyLen = ht * 0.4;
@@ -147,11 +198,46 @@ export function BaristaScene() {
 
       // eyes
       const eyeDir = facingRight ? 1 : -1;
-      ctx.fillStyle = color;
-      ctx.fillRect(x + eyeDir * headR * 0.3 - 0.5, headY - 1, 1.5, 1.5);
+      if (isWerewolf) {
+        // glowing yellow eyes
+        ctx.fillStyle = "#FFD700";
+        ctx.fillRect(x + eyeDir * headR * 0.15 - 0.5, headY - 1.5, 2, 2);
+        ctx.fillRect(x + eyeDir * headR * 0.55 - 0.5, headY - 1.5, 2, 2);
+      } else {
+        ctx.fillStyle = color;
+        ctx.fillRect(x + eyeDir * headR * 0.3 - 0.5, headY - 1, 1.5, 1.5);
+      }
+
+      if (isWerewolf) {
+        // pointy ears
+        ctx.beginPath();
+        ctx.moveTo(x - headR * 0.6, headY - headR);
+        ctx.lineTo(x - headR * 0.3, headY - headR - 6);
+        ctx.lineTo(x - headR * 0.0, headY - headR);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x + headR * 0.0, headY - headR);
+        ctx.lineTo(x + headR * 0.3, headY - headR - 6);
+        ctx.lineTo(x + headR * 0.6, headY - headR);
+        ctx.stroke();
+
+        // snout
+        ctx.beginPath();
+        ctx.moveTo(x + eyeDir * headR, headY);
+        ctx.lineTo(x + eyeDir * (headR + 4), headY + 1);
+        ctx.lineTo(x + eyeDir * headR, headY + 3);
+        ctx.stroke();
+        // nose dot
+        ctx.fillStyle = "#222";
+        ctx.beginPath();
+        ctx.arc(x + eyeDir * (headR + 4), headY + 1, 1, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       // hat
-      if (hat === "beanie") {
+      if (isWerewolf) {
+        // no hat — ears are the feature
+      } else if (hat === "beanie") {
         ctx.beginPath();
         ctx.arc(x, headY - headR, headR * 1.1, Math.PI, 0);
         ctx.stroke();
@@ -211,6 +297,21 @@ export function BaristaScene() {
         ctx.lineTo(x - 4 + legSwing, baseY);
         ctx.moveTo(x, hipY);
         ctx.lineTo(x + 4 - legSwing, baseY);
+        ctx.stroke();
+      }
+
+      // werewolf tail
+      if (isWerewolf) {
+        const tailDir = facingRight ? -1 : 1;
+        const tailWag = walking ? Math.sin(armPhase * 2) * 3 : Math.sin(armPhase * 0.5) * 1.5;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x, hipY);
+        ctx.quadraticCurveTo(
+          x + tailDir * 10, hipY - 6 + tailWag,
+          x + tailDir * 14, hipY - 10 + tailWag
+        );
         ctx.stroke();
       }
 
@@ -401,6 +502,181 @@ export function BaristaScene() {
       });
     };
 
+    // --- Draw cat ---
+    const drawCat = (cat: CatState, by: number) => {
+      const cx = cat.x;
+      const cy = by;
+      ctx.strokeStyle = "#a0825a";
+      ctx.lineWidth = 1.2;
+      ctx.lineCap = "round";
+      // body (horizontal oval)
+      const bodyY = cy - 5;
+      ctx.beginPath();
+      ctx.ellipse(cx, bodyY, 7, 4, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      // head
+      ctx.beginPath();
+      ctx.arc(cx + 7, bodyY - 2, 3.5, 0, Math.PI * 2);
+      ctx.stroke();
+      // ears
+      ctx.beginPath();
+      ctx.moveTo(cx + 5, bodyY - 5);
+      ctx.lineTo(cx + 6, bodyY - 9);
+      ctx.lineTo(cx + 7.5, bodyY - 5);
+      ctx.moveTo(cx + 7.5, bodyY - 5);
+      ctx.lineTo(cx + 9, bodyY - 9);
+      ctx.lineTo(cx + 10, bodyY - 5);
+      ctx.stroke();
+      // eyes
+      ctx.fillStyle = "#5a5";
+      ctx.fillRect(cx + 6, bodyY - 3, 1.2, 1.2);
+      ctx.fillRect(cx + 8, bodyY - 3, 1.2, 1.2);
+      // tail (curvy, up)
+      const tailWave = Math.sin(cat.phase * 0.08) * 3;
+      ctx.strokeStyle = "#a0825a";
+      ctx.beginPath();
+      ctx.moveTo(cx - 7, bodyY);
+      ctx.quadraticCurveTo(cx - 12, bodyY - 8 + tailWave, cx - 10, bodyY - 14 + tailWave);
+      ctx.stroke();
+      // legs
+      if (!cat.sitting) {
+        const legAnim = Math.sin(cat.phase * 0.2) * 2;
+        ctx.beginPath();
+        ctx.moveTo(cx - 4, bodyY + 3); ctx.lineTo(cx - 4 - legAnim, cy);
+        ctx.moveTo(cx - 1, bodyY + 3); ctx.lineTo(cx - 1 + legAnim, cy);
+        ctx.moveTo(cx + 3, bodyY + 3); ctx.lineTo(cx + 3 - legAnim, cy);
+        ctx.moveTo(cx + 6, bodyY + 3); ctx.lineTo(cx + 6 + legAnim, cy);
+        ctx.stroke();
+      } else {
+        // tucked legs
+        ctx.beginPath();
+        ctx.moveTo(cx - 4, bodyY + 3); ctx.lineTo(cx - 3, cy);
+        ctx.moveTo(cx + 5, bodyY + 3); ctx.lineTo(cx + 6, cy);
+        ctx.stroke();
+      }
+    };
+
+    // --- Draw bird ---
+    const drawBird = (bird: BirdState) => {
+      ctx.strokeStyle = "#888";
+      ctx.lineWidth = 1;
+      if (bird.state === "landed") {
+        // sitting bird
+        const bx = bird.x;
+        const by = bird.y;
+        const bob = Math.sin(bird.bobPhase * 0.15) * 1;
+        ctx.beginPath();
+        ctx.ellipse(bx, by + bob, 3, 2, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(bx + 3, by - 1.5 + bob, 1.5, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = "#d4a843";
+        ctx.beginPath();
+        ctx.moveTo(bx + 4.5, by - 1.5 + bob);
+        ctx.lineTo(bx + 6.5, by - 1 + bob);
+        ctx.stroke();
+        ctx.strokeStyle = "#888";
+        ctx.fillStyle = "#222";
+        ctx.fillRect(bx + 3.2, by - 2 + bob, 0.8, 0.8);
+      } else {
+        // flying bird (arriving or leaving) — V wings
+        const bx = bird.x;
+        const by = bird.y + Math.sin(bird.bobPhase * 0.1) * 2;
+        const wingPhase = Math.sin(bird.bobPhase * 0.3) * 4;
+        ctx.beginPath();
+        ctx.moveTo(bx - 5, by + wingPhase);
+        ctx.lineTo(bx, by);
+        ctx.lineTo(bx + 5, by + wingPhase);
+        ctx.stroke();
+      }
+    };
+
+    // --- Draw splat ---
+    const drawSplat = (splat: SplatState, by: number) => {
+      const alpha = Math.min(splat.life / 60, 1);
+      ctx.fillStyle = `rgba(139, 69, 19, ${alpha * 0.6})`;
+      // coffee puddle
+      ctx.beginPath();
+      ctx.ellipse(splat.x, by - 1, 6, 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // droplets
+      ctx.fillStyle = `rgba(139, 69, 19, ${alpha * 0.4})`;
+      ctx.fillRect(splat.x - 8, by - 2, 2, 1.5);
+      ctx.fillRect(splat.x + 5, by - 3, 1.5, 1.5);
+      ctx.fillRect(splat.x - 3, by - 2, 1, 1);
+    };
+
+    // --- Draw string lights ---
+    const LIGHT_POSTS = [170, 240, 320, 390]; // wooden post X positions
+    const drawStringLights = (by: number, frame: number) => {
+      const s = stateRef.current;
+      const ropeY = by - 40;
+
+      // wooden posts
+      for (const px of LIGHT_POSTS) {
+        ctx.strokeStyle = "#5a3a1a";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(px, by);
+        ctx.lineTo(px, ropeY - 2);
+        ctx.stroke();
+        // post top cap
+        ctx.strokeStyle = "#6b4423";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(px - 3, ropeY - 2);
+        ctx.lineTo(px + 3, ropeY - 2);
+        ctx.stroke();
+      }
+
+      if (!s.lightsInit) {
+        // generate lights along rope segments between posts
+        for (let seg = 0; seg < LIGHT_POSTS.length - 1; seg++) {
+          const x0 = LIGHT_POSTS[seg];
+          const x1 = LIGHT_POSTS[seg + 1];
+          for (let lx = x0; lx <= x1; lx += 10) {
+            const segT = (lx - x0) / (x1 - x0);
+            const sag = Math.sin(segT * Math.PI) * 5;
+            s.lights.push({
+              x: lx,
+              y: ropeY + sag,
+              twinkleOffset: Math.random() * 1000,
+            });
+          }
+        }
+        s.lightsInit = true;
+      }
+
+      // draw rope between posts
+      ctx.strokeStyle = "#333";
+      ctx.lineWidth = 0.5;
+      for (let seg = 0; seg < LIGHT_POSTS.length - 1; seg++) {
+        const segLights = s.lights.filter(
+          (l) => l.x >= LIGHT_POSTS[seg] && l.x <= LIGHT_POSTS[seg + 1]
+        );
+        if (segLights.length > 0) {
+          ctx.beginPath();
+          ctx.moveTo(segLights[0].x, segLights[0].y);
+          for (let i = 1; i < segLights.length; i++) {
+            ctx.lineTo(segLights[i].x, segLights[i].y);
+          }
+          ctx.stroke();
+        }
+      }
+
+      // draw bulbs
+      for (const light of s.lights) {
+        const twinkle = Math.sin((frame + light.twinkleOffset) * 0.03);
+        const brightness = 0.3 + twinkle * 0.15;
+        const size = 1.2 + twinkle * 0.3;
+        ctx.fillStyle = `rgba(255, 220, 140, ${brightness})`;
+        ctx.beginPath();
+        ctx.arc(light.x, light.y + 2, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
     // Phase durations (in frames)
     const TAMP = 50;
     const PULL = 60;
@@ -410,6 +686,7 @@ export function BaristaScene() {
     const tick = () => {
       const s = stateRef.current;
       s.baristaTimer++;
+      s.frameCount++;
 
       ctx.clearRect(0, 0, w, h);
 
@@ -481,6 +758,104 @@ export function BaristaScene() {
       s.steam = s.steam.filter((p) => { p.y -= 0.4; p.life--; return p.life > 0; });
       drawSteam();
 
+      // --- String lights over tables ---
+      drawStringLights(by, s.frameCount);
+
+      // --- Cat ---
+      s.nextCat--;
+      if (!s.cat && s.nextCat <= 0) {
+        s.cat = {
+          x: -15,
+          speed: 0.3 + Math.random() * 0.2,
+          phase: 0,
+          sitting: false,
+          sitTimer: 0,
+          sitX: 160 + Math.random() * 200, // random spot in the table area
+        };
+        s.nextCat = 1200 + Math.floor(Math.random() * 1800);
+      }
+      if (s.cat) {
+        s.cat.phase++;
+        if (!s.cat.sitting) {
+          if (s.cat.x < s.cat.sitX && Math.random() > 0.002) {
+            s.cat.x += s.cat.speed;
+          } else if (s.cat.sitTimer === 0 && s.cat.x < w + 20) {
+            // decide to sit for a bit or keep walking
+            if (!s.cat.sitting && s.cat.x >= s.cat.sitX - 2 && s.cat.x < s.cat.sitX + 2) {
+              s.cat.sitting = true;
+              s.cat.sitTimer = 200 + Math.floor(Math.random() * 300);
+            } else {
+              s.cat.x += s.cat.speed;
+            }
+          } else {
+            s.cat.x += s.cat.speed;
+          }
+        } else {
+          s.cat.sitTimer--;
+          if (s.cat.sitTimer <= 0) {
+            s.cat.sitting = false;
+            s.cat.sitX = w + 30; // walk off stage right
+          }
+        }
+        drawCat(s.cat, by);
+        if (s.cat.x > w + 20) s.cat = null;
+      }
+
+      // --- Birds ---
+      s.nextBird--;
+      if (s.nextBird <= 0 && s.birds.length < 2) {
+        const signX = CAFE_X;
+        const signY = by - 70;
+        const fromLeft = Math.random() > 0.5;
+        const startX = fromLeft ? -20 : w + 20;
+        const targetX = signX - 20 + Math.random() * 40;
+        s.birds.push({
+          x: startX,
+          y: signY - 30,
+          state: "arriving",
+          landTimer: 180 + Math.floor(Math.random() * 240),
+          bobPhase: 0,
+          flyDir: Math.random() > 0.5 ? 1 : -1,
+          targetX,
+          targetY: signY - 2,
+          startX,
+          startY: signY - 30,
+          arriveProgress: 0,
+        });
+        s.nextBird = 600 + Math.floor(Math.random() * 1200);
+      }
+      s.birds = s.birds.filter((bird) => {
+        bird.bobPhase++;
+        if (bird.state === "arriving") {
+          bird.arriveProgress += 0.004;
+          const t = Math.min(bird.arriveProgress, 1);
+          // ease-out curve toward landing spot
+          const ease = 1 - (1 - t) * (1 - t);
+          bird.x = bird.startX + (bird.targetX - bird.startX) * ease;
+          bird.y = bird.startY + (bird.targetY - bird.startY) * ease;
+          if (t >= 1) {
+            bird.state = "landed";
+            bird.x = bird.targetX;
+            bird.y = bird.targetY;
+          }
+        } else if (bird.state === "landed") {
+          bird.landTimer--;
+          if (bird.landTimer <= 0) bird.state = "leaving";
+        } else {
+          bird.x += bird.flyDir * 1.5;
+          bird.y -= 0.4;
+        }
+        drawBird(bird);
+        return bird.x > -30 && bird.x < w + 30;
+      });
+
+      // --- Splats (coffee spills) ---
+      s.splats = s.splats.filter((sp) => {
+        sp.life--;
+        drawSplat(sp, by);
+        return sp.life > 0;
+      });
+
       // spawn — only if under cap and not too many waiting
       const totalAlive = s.customers.length;
       const numWaiting = s.customers.filter((c) => !c.served && !c.leaving && !c.seated).length;
@@ -519,7 +894,7 @@ export function BaristaScene() {
             const table = s.tables[c.sittingAt];
             const seatX = c.sitChair === 0 ? table.x - 18 : table.x + 18;
             drawStickFigure(seatX, by, c.height, c.color, c.hat, c.hasScarf, 0,
-              false, false, c.sitChair === 0, true);
+              false, false, c.sitChair === 0, true, c.isWerewolf);
             if (c.holdingCup) {
               const tableTopY = by - 12;
               const cupX = c.sitChair === 0 ? table.x - 5 : table.x + 1;
@@ -538,22 +913,41 @@ export function BaristaScene() {
             if (c.x < targetX - 1) {
               c.x += c.speed;
             } else {
-              c.seated = true;
-              c.x = targetX;
-              c.sitTimer = 300 + Math.floor(Math.random() * 600);
-              s.tables[c.sittingAt].chairs[c.sitChair] = c;
+              // verify chair is still free before sitting
+              if (s.tables[c.sittingAt].chairs[c.sitChair] === null) {
+                c.seated = true;
+                c.x = targetX;
+                c.sitTimer = 300 + Math.floor(Math.random() * 600);
+                s.tables[c.sittingAt].chairs[c.sitChair] = c;
+              } else {
+                // chair taken — just leave
+                c.sittingAt = -1;
+                c.leaving = true;
+              }
             }
           }
           // if served with no table, leaving is already true
         }
 
-        if (c.leaving) c.x += c.speed * 0.8;
+        if (c.leaving) {
+          c.x += c.speed * 0.8;
+          // coffee drop chance — only shortly after leaving counter
+          if (c.holdingCup && c.x > CAFE_X + 50 && c.x < CAFE_X + 70 && Math.random() < 0.002) {
+            s.splats.push({ x: c.x, life: 180 });
+            c.holdingCup = false;
+            // teleport back to just before the counter to "get back in line"
+            c.served = false;
+            c.leaving = false;
+            c.x = CAFE_X - 10;
+            c.waitX = CAFE_X + 20 + Math.random() * 20;
+          }
+        }
 
         if (!c.seated) {
           const isWalking = c.leaving || (!c.served && c.x < c.waitX) || (c.served && c.sittingAt >= 0 && !c.seated);
-          const facingRight = !c.leaving;
+          const facingRight = true; // everyone always walks left to right
           drawStickFigure(c.x, by, c.height, c.color, c.hat, c.hasScarf, c.armSwing,
-            isWalking, c.holdingCup, facingRight, false);
+            isWalking, c.holdingCup, facingRight, false, c.isWerewolf);
         }
 
         return c.x < w + 30 || c.seated;

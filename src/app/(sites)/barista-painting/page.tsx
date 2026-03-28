@@ -4,7 +4,7 @@ import { Container } from "@/components/ui/container";
 export default function BaristaPaintingPage() {
   return (
     <Container className="py-24">
-      <article className="relative">
+      <article className="relative min-h-[400px]">
         <h1 className="text-4xl font-bold tracking-tight">
           Barista Painting Services
         </h1>
@@ -12,14 +12,14 @@ export default function BaristaPaintingPage() {
           Coming soon.
         </p>
 
-        {/* Painter avatar — anchored to the right */}
-        <div className="absolute right-0 bottom-0 z-[60] pointer-events-none">
+        {/* Painter avatar — feet at bottom of article, head extends up freely */}
+        <div className="absolute right-[-50px] bottom-[-225px] z-[60] pointer-events-none overflow-visible">
           <Image
             src="/cafe-painter.png"
             alt="Cafe655 painter with tools and coffee"
             width={400}
             height={400}
-            className="w-[260px] sm:w-[320px] lg:w-[400px] h-auto"
+            className="w-[540px] sm:w-[660px] lg:w-[840px] h-auto"
             priority
           />
         </div>

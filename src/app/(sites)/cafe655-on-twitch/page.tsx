@@ -5,6 +5,11 @@ const twitchLinks = [
   {
     title: "Watch Cafe655 on Twitch",
     href: "https://www.twitch.tv/cafe655",
+    external: true,
+  },
+  {
+    title: "Always Link the Bus Driver",
+    href: "/cafe655-on-twitch/always-link-the-bus-driver",
   },
 ];
 
@@ -20,8 +25,7 @@ export default function Cafe655OnTwitchPage() {
             <Link
               key={link.href}
               href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
+              {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className="rounded-full border border-border bg-surface px-8 py-4 text-center text-lg font-medium text-foreground transition-all hover:border-accent hover:bg-surface-hover"
             >
               {link.title}

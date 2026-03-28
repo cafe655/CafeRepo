@@ -8,8 +8,8 @@ const twitchLinks = [
     external: true,
   },
   {
-    title: "Always Link the Bus Driver",
-    href: "/cafe655-on-twitch/always-link-the-bus-driver",
+    title: "Always Thank the Bus Driver",
+    href: "/cafe655-on-twitch/always-thank-the-bus-driver",
   },
 ];
 

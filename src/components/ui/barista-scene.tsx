@@ -96,8 +96,9 @@ interface BikerState {
   phase: "riding-in" | "dismount" | "walking-to-counter" | "waiting" | "walking-to-bench" | "sitting" | "walking-to-bike" | "mount" | "riding-out";
   timer: number;
   armSwing: number;
-  bikeX: number; // where bike is parked
-  benchIdx: number; // which bench to sit near
+  bikeX: number;
+  benchIdx: number;
+  benchSeat: 0 | 1;
   holdingCup: boolean;
   pedalPhase: number;
 }
@@ -1275,20 +1276,34 @@ export function BaristaScene() {
         if (s.nextBiker <= 0) {
           s.bikerSpawnChance++;
           if (s.bikerSpawnChance % 30 === 0 || (s.bikerSpawnChance > 5 && Math.random() < 0.033)) {
-            const benchIdx = Math.random() > 0.5 ? 0 : 1;
-            s.biker = {
-              x: -30,
-              color: COLORS[Math.floor(Math.random() * COLORS.length)],
-              height: 22 + Math.random() * 6,
-              speed: 1.2 + Math.random() * 0.4,
-              phase: "riding-in",
-              timer: 0,
-              armSwing: 0,
-              bikeX: 0,
-              benchIdx,
-              holdingCup: false,
-              pedalPhase: 0,
-            };
+            // find an open bench seat (check both claimed and seated)
+            const benchClaimed = new Set<string>();
+            for (const c of s.customers) {
+              if (c.benchAt >= 0 && !c.leaving) benchClaimed.add(`${c.benchAt}-${c.benchSeat}`);
+            }
+            let foundBench = -1;
+            let foundSeat: 0 | 1 = 0;
+            const shuffled = [0, 1].sort(() => Math.random() - 0.5);
+            for (const bi of shuffled) {
+              if (!s.benches[bi].seats[0] && !benchClaimed.has(`${bi}-0`)) { foundBench = bi; foundSeat = 0; break; }
+              else if (!s.benches[bi].seats[1] && !benchClaimed.has(`${bi}-1`)) { foundBench = bi; foundSeat = 1; break; }
+            }
+            if (foundBench >= 0) {
+              s.biker = {
+                x: -30,
+                color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                height: 22 + Math.random() * 6,
+                speed: 1.2 + Math.random() * 0.4,
+                phase: "riding-in",
+                timer: 0,
+                armSwing: 0,
+                bikeX: 0,
+                benchIdx: foundBench,
+                benchSeat: foundSeat,
+                holdingCup: false,
+                pedalPhase: 0,
+              };
+            }
           }
           s.nextBiker = 300 + Math.floor(Math.random() * 400);
         }
@@ -1342,30 +1357,41 @@ export function BaristaScene() {
           bk.x += 0.4;
           bk.bikeX += 0.4;
           drawBikeLeaning(bk.bikeX, by);
-          if (bk.x >= benchX - 20) {
-            bk.phase = "sitting";
-            bk.bikeX = benchX - 20;
-            bk.timer = 300 + Math.floor(Math.random() * 400);
+          const seatTargetX = bk.benchSeat === 0 ? benchX - 7 : benchX + 7;
+          if (bk.x >= seatTargetX) {
+            // claim the bench seat
+            if (s.benches[bk.benchIdx].seats[bk.benchSeat] === null) {
+              bk.phase = "sitting";
+              bk.bikeX = benchX - 22;
+              bk.timer = 300 + Math.floor(Math.random() * 400);
+              s.benches[bk.benchIdx].seats[bk.benchSeat] = {} as Customer; // placeholder to block seat
+            } else {
+              // seat taken, just ride away
+              bk.phase = "riding-out";
+            }
           }
           drawStickFigure(bk.x, by, bk.height, bk.color, "none", false, bk.armSwing, true, true, true, false);
         } else if (bk.phase === "sitting") {
           bk.timer--;
           drawBikeLeaning(bk.bikeX, by);
-          // draw sitting on bench area
-          drawStickFigure(benchX - 10, by, bk.height, bk.color, "none", false, 0, false, false, true, true);
-          // cup in hand
+          const seatX = bk.benchSeat === 0 ? benchX - 7 : benchX + 7;
+          drawStickFigure(seatX, by, bk.height, bk.color, "none", false, 0, false, false, true, true);
           const benchSeatY = by - 10;
-          drawCup(benchX - 4, benchSeatY - CUP_H - 2);
+          drawCup(seatX + 6, benchSeatY - CUP_H - 2);
           // steam
           if (s.frameCount % 12 === 0) {
             s.cupSteams.push({
-              x: benchX - 4 + CUP_W / 2 + (Math.random() - 0.5) * 2,
+              x: seatX + 6 + CUP_W / 2 + (Math.random() - 0.5) * 2,
               y: benchSeatY - CUP_H - 3,
               life: 20 + Math.floor(Math.random() * 10),
               dx: (Math.random() - 0.5) * 1.5,
             });
           }
-          if (bk.timer <= 0) bk.phase = "walking-to-bike";
+          if (bk.timer <= 0) {
+            // release bench seat
+            s.benches[bk.benchIdx].seats[bk.benchSeat] = null;
+            bk.phase = "walking-to-bike";
+          }
         } else if (bk.phase === "walking-to-bike") {
           bk.x = benchX - 10;
           if (!bk.timer) bk.timer = 20;

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Container } from "@/components/ui/container";
+import { SiteCard } from "@/components/ui/site-card";
 
 const personalLinks = [
   {
@@ -13,17 +13,15 @@ export default function PersonalPage() {
     <Container className="py-24">
       <article>
         <h1 className="text-4xl font-bold tracking-tight">
-          Caf&eacute; <span className="text-accent">655</span> Personal
+          Cafe<span className="text-accent">655</span> Personal
         </h1>
-        <nav className="mt-12 flex flex-col gap-4">
+        <nav className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {personalLinks.map((link) => (
-            <Link
+            <SiteCard
               key={link.href}
               href={link.href}
-              className="rounded-full border border-border bg-surface px-8 py-4 text-center text-lg font-medium text-foreground transition-all hover:border-accent hover:bg-surface-hover"
-            >
-              {link.title}
-            </Link>
+              title={link.title}
+            />
           ))}
         </nav>
       </article>

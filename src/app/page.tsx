@@ -14,16 +14,21 @@ export default function HomePage() {
           <span className="text-accent">655</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">
-          The digital hub. Explore the spaces below.
+          The digital cafe. Explore the spaces below.
         </p>
       </section>
 
       {/* Sub-site grid */}
       {enabledSites.length > 0 ? (
         <section className="mt-16">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {enabledSites.map((site) => (
-              <SiteCard key={site.slug} site={site} />
+              <SiteCard
+                key={site.slug}
+                href={site.path}
+                title={site.name}
+                description={site.description}
+              />
             ))}
           </div>
         </section>

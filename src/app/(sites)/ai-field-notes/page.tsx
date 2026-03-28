@@ -1,14 +1,14 @@
-import Link from "next/link";
 import { Container } from "@/components/ui/container";
+import { SiteCard } from "@/components/ui/site-card";
 
 const fieldNotes = [
   {
-    title: "AI Field Notes Podcast",
+    title: "Ai Field Notes Podcast",
     href: "https://www.youtube.com/playlist?list=PL8pCAZvJIBvJXb1VmAFh9gfJ61EgiwKDk",
     external: true,
   },
   {
-    title: "AI Field Notes TikTok",
+    title: "Ai Field Notes TikTok",
     href: "https://www.tiktok.com/@ai.field.notes",
     external: true,
   },
@@ -23,19 +23,17 @@ export default function AIFieldNotesPage() {
     <Container className="py-24">
       <article>
         <h1 className="text-4xl font-bold tracking-tight">
-          AI Field{" "}
+          Ai Field{" "}
           <span className="text-accent">Notes</span>
         </h1>
-        <nav className="mt-12 flex flex-col gap-4">
+        <nav className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {fieldNotes.map((note) => (
-            <Link
+            <SiteCard
               key={note.href}
               href={note.href}
-              {...(note.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              className="rounded-full border border-border bg-surface px-8 py-4 text-center text-lg font-medium text-foreground transition-all hover:border-accent hover:bg-surface-hover"
-            >
-              {note.title}
-            </Link>
+              title={note.title}
+              external={note.external}
+            />
           ))}
         </nav>
       </article>

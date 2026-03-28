@@ -11,8 +11,8 @@ export interface SiteConfig {
 export const sites: SiteConfig[] = [
   {
     slug: "hub",
-    name: "Hub",
-    description: "The central hub. Updates, links, and everything in between.",
+    name: "The Cafe",
+    description: "The central cafe. Updates, links, and everything in between.",
     path: "/hub",
     subdomain: "hub",
     enabled: true,
@@ -23,5 +23,5 @@ export const siteMetadata = {
   name: "Cafe655",
   domain: "cafe655.com",
   url: "https://cafe655.com",
-  description: "The digital hub of Cafe655.",
+  description: "The digital cafe of Cafe655.",
 };

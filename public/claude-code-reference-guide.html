@@ -14,7 +14,7 @@
   @keyframes tourGlow { 0%,80%,100% { box-shadow: 0 2px 12px rgba(255,111,97,0.15); } 90% { box-shadow: 0 0 18px 6px rgba(255,111,97,0.55), 0 0 4px 1px rgba(255,111,97,0.3); } }
   .header p { color: #b8b8cc; font-size: 1.1em; }
   .header .version { display: inline-block; background: #ff6f61; color: #fff; padding: 2px 12px; border-radius: 12px; font-size: 0.85em; margin-top: 8px; }
-  .nav { background: #111119; padding: 12px 20px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #2e2e42; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .nav { background: #111119; padding: 12px 20px; position: sticky; top: 49px; z-index: 100; border-bottom: 1px solid #2e2e42; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
   .nav a { color: #9aa4d4; text-decoration: none; padding: 6px 14px; border-radius: 6px; font-size: 0.88em; transition: all 0.2s; border: 1px solid transparent; }
   .nav a:hover { background: #1e1e30; color: #ff6f61; }
   .nav a.active { background: #1e1e38; color: #ff6f61; border-color: #ff6f61; font-weight: 600; }
@@ -93,6 +93,20 @@
 </style>
 </head>
 <body>
+
+<!-- Site navbar -->
+<div id="site-nav" style="position:sticky;top:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #262626;">
+  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;">
+    <a href="/" style="text-decoration:none;font-weight:700;font-size:1.15em;color:#fff;letter-spacing:-0.02em;">Cafe<span style="color:#E31837;">655</span></a>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+      <a href="/hub" style="color:#a3a3a3;text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;">The Cafe</a>
+      <a href="/ai-field-notes" style="color:#a3a3a3;text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;">Ai Field Notes</a>
+      <a href="/barista-painting" style="color:#a3a3a3;text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;">Barista Painting Services</a>
+      <a href="/cafe655-on-twitch" style="color:#a3a3a3;text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;">Cafe655 on Twitch</a>
+      <a href="/personal" style="color:#a3a3a3;text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;">Cafe655 Personal</a>
+    </div>
+  </div>
+</div>
 
 <div class="header">
   <h1>Claude Code Reference Guide</h1>

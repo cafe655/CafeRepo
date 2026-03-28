@@ -1,18 +1,11 @@
-import Link from "next/link";
 import { Container } from "@/components/ui/container";
+import { SiteCard } from "@/components/ui/site-card";
 
 const hubLinks = [
-  { label: "AI Field Notes", href: "/ai-field-notes" },
-  { label: "Barista Painting Services", href: "/barista-painting" },
-  { label: "Cafe655 on Twitch", href: "/cafe655-on-twitch" },
-  {
-    label: (
-      <>
-        Caf&eacute; <span className="text-accent">655</span> Personal
-      </>
-    ),
-    href: "/personal",
-  },
+  { title: "Ai Field Notes", href: "/ai-field-notes" },
+  { title: "Barista Painting Services", href: "/barista-painting" },
+  { title: "Cafe655 on Twitch", href: "/cafe655-on-twitch" },
+  { title: "Cafe655 Personal", href: "/personal" },
 ];
 
 export default function HubPage() {
@@ -20,17 +13,15 @@ export default function HubPage() {
     <Container className="py-24">
       <article>
         <h1 className="text-4xl font-bold tracking-tight">
-          The <span className="text-accent">Hub</span>
+          The <span className="text-accent">Cafe</span>
         </h1>
-        <nav className="mt-12 flex flex-col gap-4">
+        <nav className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {hubLinks.map((link) => (
-            <Link
+            <SiteCard
               key={link.href}
               href={link.href}
-              className="rounded-full border border-border bg-surface px-8 py-4 text-center text-lg font-medium text-foreground transition-all hover:border-accent hover:bg-surface-hover"
-            >
-              {link.label}
-            </Link>
+              title={link.title}
+            />
           ))}
         </nav>
       </article>

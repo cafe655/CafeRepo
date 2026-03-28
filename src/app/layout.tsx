@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/footer";
 import { JsonLd } from "@/components/seo/json-ld";
 import { organizationJsonLd } from "@/lib/structured-data";
 import { siteMetadata } from "@/lib/site-config";
+import { BaristaScene } from "@/components/ui/barista-scene";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -53,6 +54,7 @@ export default function RootLayout({
         <JsonLd data={organizationJsonLd()} />
         <Navbar />
         <main className="flex-1">{children}</main>
+        <BaristaScene />
         <Footer />
       </body>
     </html>

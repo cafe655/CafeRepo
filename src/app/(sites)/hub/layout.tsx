@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Hub",
-  description: "The central hub of Cafe655.",
+  title: "The Cafe",
+  description: "The central cafe of Cafe655.",
 };
 
 export default function HubLayout({

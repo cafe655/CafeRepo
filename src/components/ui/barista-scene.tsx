@@ -58,11 +58,13 @@ interface SplatState {
 }
 
 interface SquirrelState {
-  postIndex: number; // which LIGHT_POSTS index
+  postIndex: number; // which LIGHT_POSTS index (start)
+  destPostIndex: number; // which post to descend
   y: number;
-  phase: "climbing" | "sitting" | "descending" | "running";
+  phase: "climbing" | "sitting" | "onwire" | "descending" | "running";
   timer: number;
   runX: number;
+  wireX: number; // current x when on wire
   tailPhase: number;
 }
 
@@ -703,10 +705,10 @@ export function BaristaScene() {
       ctx.lineWidth = 1.2;
       ctx.lineCap = "round";
 
-      if (sq.phase === "running") {
-        // running along the ground
-        const rx = sq.runX;
-        const ry = by;
+      if (sq.phase === "running" || sq.phase === "onwire") {
+        // running horizontally (ground or wire)
+        const rx = sq.phase === "onwire" ? sq.wireX : sq.runX;
+        const ry = sq.phase === "onwire" ? sq.y + 8 : by;
         const legAnim = Math.sin(sq.tailPhase * 0.3) * 2;
         // body
         ctx.beginPath();
@@ -737,15 +739,46 @@ export function BaristaScene() {
         ctx.moveTo(rx - 4, ry - 4);
         ctx.quadraticCurveTo(rx - 8, ry - 10 + tailWave, rx - 5, ry - 14 + tailWave);
         ctx.stroke();
+      } else if (sq.phase === "sitting") {
+        // sitting on top of the post — horizontal body
+        const sx = postX;
+        const sy = sq.y;
+        // body
+        ctx.beginPath();
+        ctx.ellipse(sx, sy - 4, 4, 2.5, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        // head
+        ctx.beginPath();
+        ctx.arc(sx + 4, sy - 5, 2, 0, Math.PI * 2);
+        ctx.stroke();
+        // ear
+        ctx.beginPath();
+        ctx.moveTo(sx + 4, sy - 7);
+        ctx.lineTo(sx + 5, sy - 9);
+        ctx.lineTo(sx + 6, sy - 7);
+        ctx.stroke();
+        // eye
+        ctx.fillStyle = "#222";
+        ctx.fillRect(sx + 4.5, sy - 5.5, 0.8, 0.8);
+        // paws tucked
+        ctx.beginPath();
+        ctx.moveTo(sx - 2, sy - 2); ctx.lineTo(sx - 2, sy);
+        ctx.moveTo(sx + 2, sy - 2); ctx.lineTo(sx + 2, sy);
+        ctx.stroke();
+        // bushy tail curled up
+        const tailWave = Math.sin(sq.tailPhase * 0.1) * 2;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(sx - 4, sy - 4);
+        ctx.quadraticCurveTo(sx - 8, sy - 10 + tailWave, sx - 5, sy - 14 + tailWave);
+        ctx.stroke();
       } else {
-        // on the post (climbing, sitting, descending)
+        // on the post (climbing or descending) — vertical body gripping
         const sx = postX + 3;
         const sy = sq.y;
-        // body (vertical)
         ctx.beginPath();
         ctx.ellipse(sx, sy, 2.5, 4, 0, 0, Math.PI * 2);
         ctx.stroke();
-        // head
         ctx.beginPath();
         ctx.arc(sx, sy - 5.5, 2, 0, Math.PI * 2);
         ctx.stroke();
@@ -758,7 +791,6 @@ export function BaristaScene() {
         ctx.lineTo(sx + 1, sy - 9.5);
         ctx.lineTo(sx + 1.5, sy - 7.5);
         ctx.stroke();
-        // eye
         ctx.fillStyle = "#222";
         ctx.fillRect(sx + 1, sy - 6, 0.8, 0.8);
         // paws gripping post
@@ -977,13 +1009,17 @@ export function BaristaScene() {
       // --- Squirrel ---
       s.nextSquirrel--;
       if (!s.squirrel && s.nextSquirrel <= 0) {
-        const postIdx = Math.floor(Math.random() * LIGHT_POSTS.length);
+        const postIdx = Math.floor(Math.random() * (LIGHT_POSTS.length - 1)); // not the last post
+        // pick a destination post further right
+        const destIdx = postIdx + 1 + Math.floor(Math.random() * (LIGHT_POSTS.length - 1 - postIdx));
         s.squirrel = {
           postIndex: postIdx,
+          destPostIndex: Math.min(destIdx, LIGHT_POSTS.length - 1),
           y: by,
           phase: "climbing",
           timer: 0,
           runX: LIGHT_POSTS[postIdx],
+          wireX: LIGHT_POSTS[postIdx],
           tailPhase: 0,
         };
         s.nextSquirrel = 1500 + Math.floor(Math.random() * 2400);
@@ -992,20 +1028,49 @@ export function BaristaScene() {
         const sq = s.squirrel;
         sq.tailPhase++;
         const ropeY = by - 40;
+        const postTopY = ropeY - 2;
         if (sq.phase === "climbing") {
           sq.y -= 0.4;
-          if (sq.y <= ropeY + 5) {
+          if (sq.y <= postTopY) {
+            sq.y = postTopY;
             sq.phase = "sitting";
-            sq.timer = 120 + Math.floor(Math.random() * 180);
+            sq.timer = 80 + Math.floor(Math.random() * 120);
           }
         } else if (sq.phase === "sitting") {
           sq.timer--;
-          if (sq.timer <= 0) sq.phase = "descending";
+          if (sq.timer <= 0) {
+            sq.phase = "onwire";
+            sq.wireX = LIGHT_POSTS[sq.postIndex];
+          }
+        } else if (sq.phase === "onwire") {
+          // run along the wire toward destination post
+          const destX = LIGHT_POSTS[sq.destPostIndex];
+          sq.wireX += 0.6;
+          // follow the sag of the rope between posts
+          // find which segment we're on
+          let segStart = LIGHT_POSTS[sq.postIndex];
+          let segEnd = destX;
+          for (let i = 0; i < LIGHT_POSTS.length - 1; i++) {
+            if (sq.wireX >= LIGHT_POSTS[i] && sq.wireX < LIGHT_POSTS[i + 1]) {
+              segStart = LIGHT_POSTS[i];
+              segEnd = LIGHT_POSTS[i + 1];
+              break;
+            }
+          }
+          const segT = (sq.wireX - segStart) / (segEnd - segStart);
+          const sag = Math.sin(segT * Math.PI) * 5;
+          sq.y = ropeY + sag - 4; // sit on top of the wire
+          if (sq.wireX >= destX) {
+            sq.wireX = destX;
+            sq.y = postTopY;
+            sq.postIndex = sq.destPostIndex;
+            sq.phase = "descending";
+          }
         } else if (sq.phase === "descending") {
           sq.y += 0.5;
           if (sq.y >= by - 2) {
             sq.phase = "running";
-            sq.runX = LIGHT_POSTS[sq.postIndex];
+            sq.runX = LIGHT_POSTS[sq.destPostIndex];
           }
         } else if (sq.phase === "running") {
           sq.runX += 0.8;

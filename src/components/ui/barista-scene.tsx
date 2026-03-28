@@ -19,6 +19,10 @@ interface Customer {
   sitChair: 0 | 1;
   seated: boolean;
   isWerewolf: boolean;
+  // bench sitting
+  benchAt: number; // -1 = not on bench, 0/1 = bench index
+  benchSeat: 0 | 1;
+  onBench: boolean;
 }
 
 interface TableState {
@@ -75,10 +79,19 @@ interface CupSteam {
   dx: number;
 }
 
+interface BenchState {
+  x: number;
+  seats: [Customer | null, Customer | null];
+}
+
+// Bench positions — to the right of tables, with tree after
+const BENCH_X = [440, 500];
+const TREE_X = 540;
+
 const CUP_W = 5;
 const CUP_H = 6;
 const CAFE_X = 90;
-const MAX_CUSTOMERS = 8; // hard cap on total customers alive
+const MAX_CUSTOMERS = 10; // hard cap on total customers alive
 
 const COLORS = [
   "#7eb8da", "#a8d8a8", "#d4a8d4", "#f0c860", "#e8a87c",
@@ -115,6 +128,10 @@ export function BaristaScene() {
     squirrel: null as SquirrelState | null,
     nextSquirrel: 900 + Math.floor(Math.random() * 1800),
     cupSteams: [] as CupSteam[],
+    benches: [
+      { x: BENCH_X[0], seats: [null, null] },
+      { x: BENCH_X[1], seats: [null, null] },
+    ] as BenchState[],
   });
 
   useEffect(() => {
@@ -156,23 +173,37 @@ export function BaristaScene() {
       let sittingAt = -1;
       let sitChair: 0 | 1 = 0;
 
-      // check which chairs are claimed (seated OR someone walking toward them)
+      // check which chairs/bench seats are claimed
       const claimed = new Set<string>();
+      const benchClaimed = new Set<string>();
       for (const c of s.customers) {
-        if (c.sittingAt >= 0 && !c.leaving) {
-          claimed.add(`${c.sittingAt}-${c.sitChair}`);
-        }
+        if (c.sittingAt >= 0 && !c.leaving) claimed.add(`${c.sittingAt}-${c.sitChair}`);
+        if (c.benchAt >= 0 && !c.leaving) benchClaimed.add(`${c.benchAt}-${c.benchSeat}`);
       }
+
+      let benchAt = -1;
+      let benchSeat: 0 | 1 = 0;
 
       if (forceSit || Math.random() > 0.4) {
-        const shuffled = [0, 1, 2].sort(() => Math.random() - 0.5);
-        for (const ti of shuffled) {
-          if (!s.tables[ti].chairs[0] && !claimed.has(`${ti}-0`)) { sittingAt = ti; sitChair = 0; break; }
-          else if (!s.tables[ti].chairs[1] && !claimed.has(`${ti}-1`)) { sittingAt = ti; sitChair = 1; break; }
+        // 30% chance to pick a bench instead of a table
+        if (Math.random() < 0.3) {
+          const shuffled = [0, 1].sort(() => Math.random() - 0.5);
+          for (const bi of shuffled) {
+            if (!s.benches[bi].seats[0] && !benchClaimed.has(`${bi}-0`)) { benchAt = bi; benchSeat = 0; break; }
+            else if (!s.benches[bi].seats[1] && !benchClaimed.has(`${bi}-1`)) { benchAt = bi; benchSeat = 1; break; }
+          }
+        }
+        // if no bench, try a table
+        if (benchAt < 0) {
+          const shuffled = [0, 1, 2].sort(() => Math.random() - 0.5);
+          for (const ti of shuffled) {
+            if (!s.tables[ti].chairs[0] && !claimed.has(`${ti}-0`)) { sittingAt = ti; sitChair = 0; break; }
+            else if (!s.tables[ti].chairs[1] && !claimed.has(`${ti}-1`)) { sittingAt = ti; sitChair = 1; break; }
+          }
         }
       }
 
-      const isWerewolf = Math.random() < 0.08; // ~8% chance
+      const isWerewolf = Math.random() < 0.08;
 
       return {
         x: -20, speed: isWerewolf ? 0.55 + Math.random() * 0.3 : 0.4 + Math.random() * 0.5,
@@ -184,6 +215,7 @@ export function BaristaScene() {
         waitX: CAFE_X + 20 + Math.random() * 20,
         sittingAt, sitTimer: 0, sitChair, seated: false,
         isWerewolf,
+        benchAt, benchSeat, onBench: false,
       } as Customer;
     };
 
@@ -433,6 +465,64 @@ export function BaristaScene() {
       ctx.beginPath(); ctx.moveTo(tx + 14, tableY + 4); ctx.lineTo(tx + 22, tableY + 4); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(tx + 22, tableY - 4); ctx.lineTo(tx + 22, tableY + 4); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(tx + 15, tableY + 4); ctx.lineTo(tx + 15, by); ctx.moveTo(tx + 21, tableY + 4); ctx.lineTo(tx + 21, by); ctx.stroke();
+    };
+
+    const drawBench = (bx: number, by: number) => {
+      const seatY = by - 10;
+      const backY = seatY - 8;
+      // brown vertical supports (legs + back supports)
+      ctx.strokeStyle = "#5a3a1a";
+      ctx.lineWidth = 2;
+      // left leg
+      ctx.beginPath(); ctx.moveTo(bx - 14, seatY); ctx.lineTo(bx - 14, by); ctx.stroke();
+      // right leg
+      ctx.beginPath(); ctx.moveTo(bx + 14, seatY); ctx.lineTo(bx + 14, by); ctx.stroke();
+      // back supports
+      ctx.beginPath(); ctx.moveTo(bx - 14, backY); ctx.lineTo(bx - 14, seatY); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(bx + 14, backY); ctx.lineTo(bx + 14, seatY); ctx.stroke();
+      // green slats — seat (3 slats)
+      ctx.strokeStyle = "#2d6a2d";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(bx - 16, seatY - 1); ctx.lineTo(bx + 16, seatY - 1); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(bx - 16, seatY + 1); ctx.lineTo(bx + 16, seatY + 1); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(bx - 16, seatY + 3); ctx.lineTo(bx + 16, seatY + 3); ctx.stroke();
+      // green slats — back (2 slats)
+      ctx.beginPath(); ctx.moveTo(bx - 15, backY); ctx.lineTo(bx + 15, backY); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(bx - 15, backY + 3); ctx.lineTo(bx + 15, backY + 3); ctx.stroke();
+      // armrests
+      ctx.strokeStyle = "#5a3a1a";
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(bx - 16, seatY - 2); ctx.lineTo(bx - 16, backY + 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(bx + 16, seatY - 2); ctx.lineTo(bx + 16, backY + 2); ctx.stroke();
+    };
+
+    const drawTree = (tx: number, by: number, frame: number) => {
+      // trunk
+      ctx.strokeStyle = "#5a3a1a";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(tx, by);
+      ctx.lineTo(tx, by - 35);
+      ctx.stroke();
+      // branches
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(tx, by - 25);
+      ctx.lineTo(tx - 12, by - 32);
+      ctx.moveTo(tx, by - 28);
+      ctx.lineTo(tx + 10, by - 35);
+      ctx.moveTo(tx, by - 32);
+      ctx.lineTo(tx - 6, by - 40);
+      ctx.stroke();
+      // foliage (layered circles)
+      const sway = Math.sin(frame * 0.008) * 1;
+      ctx.fillStyle = "rgba(34, 90, 34, 0.7)";
+      ctx.beginPath(); ctx.arc(tx + sway, by - 42, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "rgba(40, 110, 40, 0.6)";
+      ctx.beginPath(); ctx.arc(tx - 6 + sway, by - 38, 10, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(tx + 8 + sway, by - 38, 9, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "rgba(50, 120, 50, 0.5)";
+      ctx.beginPath(); ctx.arc(tx + 2 + sway, by - 48, 8, 0, Math.PI * 2); ctx.fill();
     };
 
     const drawBarista = (bState: BaristaState, timer: number, phaseDuration: number) => {
@@ -849,6 +939,10 @@ export function BaristaScene() {
       // tables
       for (const table of s.tables) drawTable(table.x, by);
 
+      // benches + tree
+      for (const bench of s.benches) drawBench(bench.x, by);
+      drawTree(TREE_X, by, s.frameCount);
+
       // --- Barista state machine ---
       const waitingAtCounter = s.customers.find(
         (c) => !c.served && !c.leaving && !c.seated && c.x >= c.waitX - 2
@@ -872,7 +966,7 @@ export function BaristaScene() {
         if (s.servingCustomer) {
           s.servingCustomer.served = true;
           s.servingCustomer.holdingCup = true;
-          if (s.servingCustomer.sittingAt >= 0) {
+          if (s.servingCustomer.sittingAt >= 0 || s.servingCustomer.benchAt >= 0) {
             s.servingCustomer.leaving = false;
           } else {
             s.servingCustomer.leaving = true;
@@ -920,7 +1014,7 @@ export function BaristaScene() {
           phase: 0,
           sitting: false,
           sitTimer: 0,
-          sitX: 160 + Math.random() * 200, // random spot in the table area
+          sitX: 160 + Math.random() * 380, // table area through bench area
         };
         s.nextCat = 1200 + Math.floor(Math.random() * 1800);
       }
@@ -1081,8 +1175,7 @@ export function BaristaScene() {
         if (s.squirrel) drawSquirrel(s.squirrel, by);
       }
 
-      // --- Cup steam on tables ---
-      // emit steam from cups on tables
+      // --- Cup steam on tables and benches ---
       if (s.frameCount % 10 === 0) {
         for (const c of s.customers) {
           if (c.seated && c.holdingCup && c.sittingAt >= 0) {
@@ -1092,6 +1185,17 @@ export function BaristaScene() {
             s.cupSteams.push({
               x: cupX + CUP_W / 2 + (Math.random() - 0.5) * 2,
               y: tableTopY - CUP_H - 1,
+              life: 20 + Math.floor(Math.random() * 10),
+              dx: (Math.random() - 0.5) * 1.5,
+            });
+          }
+          if (c.onBench && c.holdingCup && c.benchAt >= 0) {
+            const bench = s.benches[c.benchAt];
+            const seatX = c.benchSeat === 0 ? bench.x - 7 : bench.x + 7;
+            const benchSeatY = by - 10;
+            s.cupSteams.push({
+              x: seatX + 6 + CUP_W / 2 + (Math.random() - 0.5) * 2,
+              y: benchSeatY - CUP_H - 3,
               life: 20 + Math.floor(Math.random() * 10),
               dx: (Math.random() - 0.5) * 1.5,
             });
@@ -1127,12 +1231,13 @@ export function BaristaScene() {
       s.customers = s.customers.filter((c) => {
         c.armSwing += c.speed * 0.15;
 
-        if (c.seated) {
+        // --- Seated at TABLE ---
+        if (c.seated && c.sittingAt >= 0) {
           c.sitTimer--;
           if (c.sitTimer <= 0) {
             c.seated = false;
             c.leaving = true;
-            if (c.sittingAt >= 0) s.tables[c.sittingAt].chairs[c.sitChair] = null;
+            s.tables[c.sittingAt].chairs[c.sitChair] = null;
             c.sittingAt = -1;
           } else {
             const table = s.tables[c.sittingAt];
@@ -1148,38 +1253,74 @@ export function BaristaScene() {
           }
         }
 
-        if (!c.leaving && !c.seated) {
+        // --- Seated on BENCH ---
+        if (c.onBench && c.benchAt >= 0) {
+          c.sitTimer--;
+          if (c.sitTimer <= 0) {
+            c.onBench = false;
+            c.leaving = true;
+            s.benches[c.benchAt].seats[c.benchSeat] = null;
+            c.benchAt = -1;
+          } else {
+            const bench = s.benches[c.benchAt];
+            const seatX = c.benchSeat === 0 ? bench.x - 7 : bench.x + 7;
+            drawStickFigure(seatX, by, c.height, c.color, c.hat, c.hasScarf, 0,
+              false, false, true, true, c.isWerewolf);
+            // cup in hand while on bench (no table to set it on)
+            if (c.holdingCup) {
+              const benchSeatY = by - 10;
+              const cupBenchX = seatX + 6;
+              drawCup(cupBenchX, benchSeatY - CUP_H - 2);
+            }
+            return true;
+          }
+        }
+
+        if (!c.leaving && !c.seated && !c.onBench) {
           if (!c.served && c.x < c.waitX) {
             c.x += c.speed;
           } else if (c.served && c.sittingAt >= 0) {
+            // walk to table
             const table = s.tables[c.sittingAt];
             const targetX = c.sitChair === 0 ? table.x - 18 : table.x + 18;
             if (c.x < targetX - 1) {
               c.x += c.speed;
             } else {
-              // verify chair is still free before sitting
               if (s.tables[c.sittingAt].chairs[c.sitChair] === null) {
                 c.seated = true;
                 c.x = targetX;
                 c.sitTimer = 300 + Math.floor(Math.random() * 600);
                 s.tables[c.sittingAt].chairs[c.sitChair] = c;
               } else {
-                // chair taken — just leave
                 c.sittingAt = -1;
                 c.leaving = true;
               }
             }
+          } else if (c.served && c.benchAt >= 0) {
+            // walk to bench
+            const bench = s.benches[c.benchAt];
+            const targetX = c.benchSeat === 0 ? bench.x - 7 : bench.x + 7;
+            if (c.x < targetX - 1) {
+              c.x += c.speed;
+            } else {
+              if (s.benches[c.benchAt].seats[c.benchSeat] === null) {
+                c.onBench = true;
+                c.x = targetX;
+                c.sitTimer = 300 + Math.floor(Math.random() * 600);
+                s.benches[c.benchAt].seats[c.benchSeat] = c;
+              } else {
+                c.benchAt = -1;
+                c.leaving = true;
+              }
+            }
           }
-          // if served with no table, leaving is already true
         }
 
         if (c.leaving) {
           c.x += c.speed * 0.8;
-          // coffee drop chance — only shortly after leaving counter
           if (c.holdingCup && c.x > CAFE_X + 50 && c.x < CAFE_X + 70 && Math.random() < 0.002) {
             s.splats.push({ x: c.x, life: 180 });
             c.holdingCup = false;
-            // teleport back to just before the counter to "get back in line"
             c.served = false;
             c.leaving = false;
             c.x = CAFE_X - 10;
@@ -1187,14 +1328,15 @@ export function BaristaScene() {
           }
         }
 
-        if (!c.seated) {
-          const isWalking = c.leaving || (!c.served && c.x < c.waitX) || (c.served && c.sittingAt >= 0 && !c.seated);
-          const facingRight = true; // everyone always walks left to right
+        if (!c.seated && !c.onBench) {
+          const isWalking = c.leaving || (!c.served && c.x < c.waitX)
+            || (c.served && c.sittingAt >= 0 && !c.seated)
+            || (c.served && c.benchAt >= 0 && !c.onBench);
           drawStickFigure(c.x, by, c.height, c.color, c.hat, c.hasScarf, c.armSwing,
-            isWalking, c.holdingCup, facingRight, false, c.isWerewolf);
+            isWalking, c.holdingCup, true, false, c.isWerewolf);
         }
 
-        return c.x < w + 30 || c.seated;
+        return c.x < w + 30 || c.seated || c.onBench;
       });
 
       animId = requestAnimationFrame(tick);

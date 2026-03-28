@@ -19,7 +19,7 @@ export default function BaristaPaintingPage() {
             alt="Cafe655 painter with tools and coffee"
             width={400}
             height={400}
-            className="w-[540px] sm:w-[660px] lg:w-[840px] h-auto"
+            className="w-[260px] sm:w-[320px] lg:w-[400px] h-auto"
             priority
           />
         </div>

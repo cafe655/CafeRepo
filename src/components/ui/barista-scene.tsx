@@ -221,7 +221,8 @@ export function BaristaScene() {
         }
       }
 
-      const isWerewolf = Math.random() < 0.08;
+      const hasWerewolf = s.customers.some((c) => c.isWerewolf);
+      const isWerewolf = !hasWerewolf && Math.random() < 0.08;
 
       return {
         x: -20, speed: isWerewolf ? 0.55 + Math.random() * 0.3 : 0.4 + Math.random() * 0.5,

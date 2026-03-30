@@ -7,19 +7,21 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0f0f17; color: #e8e8eb; line-height: 1.7; font-size: 16px; }
-  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 40px 20px; text-align: center; border-bottom: 2px solid #ff6f61; position: relative; }
+  .frozen-top { position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 20px 20px 14px; text-align: center; border-bottom: 2px solid #ff6f61; position: relative; }
   .header h1 { font-size: 2.2em; color: #f5f5f7; margin-bottom: 8px; }
   .tour-launch { position: absolute; left: 50%; top: 70%; transform: translateX(-50%) rotate(-8deg); margin-left: -300px; background: #fff; color: #ff6f61; font-weight: 700; font-size: 0.82em; padding: 7px 18px; border-radius: 20px; text-decoration: none; border: 2px solid #ff6f61; cursor: pointer; transition: all 0.2s; font-family: inherit; box-shadow: 0 2px 12px rgba(255,111,97,0.25); animation: tourGlow 6s ease-in-out infinite; }
   .tour-launch:hover { background: #ff6f61; color: #fff; box-shadow: 0 2px 16px rgba(255,111,97,0.5); animation: none; }
   @keyframes tourGlow { 0%,80%,100% { box-shadow: 0 2px 12px rgba(255,111,97,0.15); } 90% { box-shadow: 0 0 18px 6px rgba(255,111,97,0.55), 0 0 4px 1px rgba(255,111,97,0.3); } }
   .header p { color: #b8b8cc; font-size: 1.1em; }
   .header .version { display: inline-block; background: #ff6f61; color: #fff; padding: 2px 12px; border-radius: 12px; font-size: 0.85em; margin-top: 8px; }
-  .nav { background: #111119; padding: 12px 20px; position: sticky; top: 49px; z-index: 100; border-bottom: 1px solid #2e2e42; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .nav { background: #111119; padding: 8px 20px; border-bottom: 1px solid #2e2e42; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .frozen-controls { background: #0f0f17; padding: 10px 20px 12px; border-bottom: 1px solid #2e2e42; }
   .nav a { color: #9aa4d4; text-decoration: none; padding: 6px 14px; border-radius: 6px; font-size: 0.88em; transition: all 0.2s; border: 1px solid transparent; }
   .nav a:hover { background: #1e1e30; color: #ff6f61; }
   .nav a.active { background: #1e1e38; color: #ff6f61; border-color: #ff6f61; font-weight: 600; }
   .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
-  section { margin-bottom: 40px; scroll-margin-top: 70px; }
+  section { margin-bottom: 40px; }
   section h2 { color: #ff6f61; font-size: 1.6em; margin-bottom: 6px; padding-bottom: 8px; border-bottom: 1px solid #2e2e42; cursor: pointer; }
   section h2:hover { color: #ff8f83; }
   section h2 .count { font-size: 0.5em; color: #8888a0; font-weight: normal; vertical-align: middle; }
@@ -66,10 +68,10 @@
   .section-detail a.doc-link { display: inline-block; margin-top: 6px; color: #ff6f61; text-decoration: none; font-size: 0.88em; padding: 4px 12px; border: 1px solid #ff6f61; border-radius: 4px; transition: all 0.2s; }
   .section-detail a.doc-link:hover { background: #ff6f61; color: #fff; }
   footer { text-align: center; padding: 30px; color: #6a6a82; font-size: 0.85em; border-top: 1px solid #22223a; margin-top: 40px; }
-  .search-box { width: 100%; max-width: 400px; margin: 16px auto; display: block; padding: 10px 16px; background: #16162e; border: 1px solid #2e2e42; border-radius: 8px; color: #e8e8eb; font-size: 1em; outline: none; }
+  .search-box { width: 100%; max-width: 400px; margin: 8px auto; display: block; padding: 8px 16px; background: #16162e; border: 1px solid #2e2e42; border-radius: 8px; color: #e8e8eb; font-size: 1em; outline: none; }
   .search-box:focus { border-color: #ff6f61; }
   .search-box::placeholder { color: #6a6a82; }
-  .level-filter { display: flex; justify-content: center; gap: 8px; margin: 10px auto 0; max-width: 400px; }
+  .level-filter { display: flex; justify-content: center; gap: 8px; margin: 6px auto 0; max-width: 400px; }
   .level-btn { flex: 1; padding: 7px 14px; background: #16162e; color: #9aa4d4; border: 1px solid #2e2e42; border-radius: 6px; cursor: pointer; font-size: 0.88em; font-family: inherit; transition: all 0.2s; }
   .level-btn:hover { border-color: #ff6f61; color: #e8e8eb; }
   .level-btn.active { background: #1e1e38; color: #ff6f61; border-color: #ff6f61; font-weight: 600; }
@@ -94,56 +96,48 @@
 </head>
 <body>
 
-<!-- Site navbar -->
-<div id="site-nav" style="position:sticky;top:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #262626;">
-  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;">
-    <a href="/" style="text-decoration:none;font-weight:700;font-size:1.6em;color:#fff;letter-spacing:-0.02em;">Cafe<span style="color:#E31837;">655</span></a>
-    <div style="display:flex;gap:4px;flex-wrap:wrap;">
-      <a href="/ai-field-notes" style="color:#a3a3a3;text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;">Ai Field Notes</a>
-      <a href="/barista-painting" style="color:#a3a3a3;text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;">Barista Painting Services</a>
-      <a href="/cafe655-on-twitch" style="color:#a3a3a3;text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;">Cafe655 on Twitch</a>
-      <a href="/personal" style="color:#a3a3a3;text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;">Cafe655 Personal</a>
+<div class="frozen-top" id="frozenTop">
+  <div class="header">
+    <h1>Claude Code Reference Guide</h1>
+    <p>Complete Reference &mdash; Click any item for details</p>
+    <span class="version">Updated March 27, 2026</span>
+    <a href="#" onclick="startTour();return false;" class="tour-launch">Take the Tour</a>
+  </div>
+
+  <nav class="nav">
+    <a href="#slash-commands">Slash Commands</a>
+    <a href="#bundled-skills">Bundled Skills</a>
+    <a href="#cli-commands">CLI Commands</a>
+    <a href="#cli-flags">CLI Flags</a>
+    <a href="#keyboard-shortcuts">Shortcuts</a>
+    <a href="#vim-mode">Vim Mode</a>
+    <a href="#prompt-notation">Notation</a>
+    <a href="#connectors">Connectors</a>
+    <a href="#env-vars">Env Vars</a>
+    <a href="#mcp-commands">MCP</a>
+    <a href="#best-practices">Best Practices</a>
+    <a href="#workflows">Workflows</a>
+    <a href="#agent-teams">Agent Teams</a>
+    <a href="#output-styles">Output Styles</a>
+    <a href="#cost-management">Costs</a>
+    <a href="#cicd">CI/CD</a>
+    <a href="#troubleshooting">Troubleshoot</a>
+    <a href="#glossary">Glossary</a>
+    <a href="#config-files">Config Files</a>
+    <a href="#onboarding" style="color:#ff6f61;">New User Guide</a>
+  </nav>
+
+  <div class="frozen-controls">
+    <input type="text" class="search-box" id="searchBox" placeholder="Search everything..." oninput="filterAll()">
+    <div class="level-filter">
+      <button class="level-btn" data-level="beginner">Beginner</button>
+      <button class="level-btn" data-level="intermediate">Intermediate</button>
+      <button class="level-btn active" data-level="advanced">Advanced (All)</button>
     </div>
   </div>
 </div>
 
-<div class="header">
-  <h1>Claude Code Reference Guide</h1>
-  <p>Complete Reference &mdash; Click any item for details</p>
-  <span class="version">Updated March 27, 2026</span>
-  <a href="#" onclick="startTour();return false;" class="tour-launch">Take the Tour</a>
-</div>
-
-<nav class="nav">
-  <a href="#slash-commands">Slash Commands</a>
-  <a href="#bundled-skills">Bundled Skills</a>
-  <a href="#cli-commands">CLI Commands</a>
-  <a href="#cli-flags">CLI Flags</a>
-  <a href="#keyboard-shortcuts">Shortcuts</a>
-  <a href="#vim-mode">Vim Mode</a>
-  <a href="#prompt-notation">Notation</a>
-  <a href="#connectors">Connectors</a>
-  <a href="#env-vars">Env Vars</a>
-  <a href="#mcp-commands">MCP</a>
-  <a href="#best-practices">Best Practices</a>
-  <a href="#workflows">Workflows</a>
-  <a href="#agent-teams">Agent Teams</a>
-  <a href="#output-styles">Output Styles</a>
-  <a href="#cost-management">Costs</a>
-  <a href="#cicd">CI/CD</a>
-  <a href="#troubleshooting">Troubleshoot</a>
-  <a href="#glossary">Glossary</a>
-  <a href="#config-files">Config Files</a>
-  <a href="#onboarding" style="color:#ff6f61;">New User Guide</a>
-</nav>
-
-<div class="container">
-<input type="text" class="search-box" id="searchBox" placeholder="Search everything..." oninput="filterAll()">
-<div class="level-filter">
-  <button class="level-btn" data-level="beginner">Beginner</button>
-  <button class="level-btn" data-level="intermediate">Intermediate</button>
-  <button class="level-btn active" data-level="advanced">Advanced (All)</button>
-</div>
+<div class="container" id="scrollContent">
 
 <!-- All sections use same table structure. JS adds click behavior. -->
 
@@ -890,6 +884,23 @@
 <footer>Sources: <a href="https://code.claude.com/docs/en/commands" style="color:#8888a0">commands</a> | <a href="https://code.claude.com/docs/en/cli-reference" style="color:#8888a0">cli-reference</a> | <a href="https://code.claude.com/docs/en/interactive-mode" style="color:#8888a0">interactive-mode</a> | <a href="https://claude.com/connectors" style="color:#8888a0">connectors</a></footer>
 
 <script>
+// ===== FREEZE-PANE: measure frozen top and push content down =====
+function syncFrozenHeight() {
+  var frozen = document.getElementById('frozenTop');
+  var content = document.getElementById('scrollContent');
+  if (!frozen || !content) return;
+  var h = frozen.offsetHeight;
+  content.style.paddingTop = h + 'px';
+  // Set scroll-margin-top on every section so nav clicks land below the frozen bar
+  var sections = content.querySelectorAll('section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].style.scrollMarginTop = h + 16 + 'px';
+  }
+}
+syncFrozenHeight();
+window.addEventListener('resize', syncFrozenHeight);
+window.addEventListener('load', syncFrozenHeight);
+
 // ===== LEVEL FILTER DATA =====
 let currentLevel = 'advanced';
 
@@ -1682,7 +1693,8 @@ function filterAll() {
 
   function updateActiveNav() {
     let current = '';
-    const scrollY = window.scrollY + 90;
+    var frozenH = document.getElementById('frozenTop') ? document.getElementById('frozenTop').offsetHeight : 90;
+    const scrollY = window.scrollY + frozenH + 20;
     for (let i = sections.length - 1; i >= 0; i--) {
       if (sections[i].el.offsetTop <= scrollY) { current = sections[i].id; break; }
     }

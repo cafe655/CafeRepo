@@ -21,9 +21,9 @@ const episodes = [
 function twitchSrc(ep: (typeof episodes)[number]) {
   const parents = "parent=cafe655.com&parent=www.cafe655.com";
   if (ep.isCollection) {
-    return `https://player.twitch.tv/?${ep.id}&${parents}`;
+    return `https://player.twitch.tv/?${ep.id}&${parents}&autoplay=false`;
   }
-  return `https://player.twitch.tv/?video=${ep.id}&${parents}`;
+  return `https://player.twitch.tv/?video=${ep.id}&${parents}&autoplay=false`;
 }
 
 export default function AlwaysThankTheBusDriverPage() {

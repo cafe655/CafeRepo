@@ -192,37 +192,38 @@ ul.cl li.no-click{opacity:0.45;cursor:default;font-style:italic}
   <div class="stitle">Architecture Blueprint</div>
   <div class="arch-wrap">
     <svg viewBox="0 0 1060 520" xmlns="http://www.w3.org/2000/svg">
-      <g transform="translate(95,0)">
-      <text x="110" y="25" text-anchor="middle" fill="#FF0000" font-family="monospace" font-size="11" font-weight="bold" letter-spacing="2">DATA SOURCES</text>
-      <rect x="5" y="38" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="15" y="56" fill="#bbb" font-family="monospace" font-size="9">Workflowy</text><text x="203" y="56" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">219,062</text>
-      <rect x="5" y="68" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="15" y="86" fill="#bbb" font-family="monospace" font-size="9">Coaching DB</text><text x="203" y="86" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">302</text>
-      <rect x="5" y="98" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="15" y="116" fill="#bbb" font-family="monospace" font-size="9">Creative Writing</text><text x="203" y="116" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">200</text>
-      <rect x="5" y="128" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="15" y="146" fill="#bbb" font-family="monospace" font-size="9">Club Memories</text><text x="203" y="146" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">162</text>
-      <rect x="5" y="158" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="15" y="176" fill="#bbb" font-family="monospace" font-size="9">Session Log</text><text x="203" y="176" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">47</text>
-      <rect x="5" y="188" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="15" y="206" fill="#bbb" font-family="monospace" font-size="9">NotebookLM</text><text x="203" y="206" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">6</text>
-      <rect x="5" y="218" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="15" y="236" fill="#bbb" font-family="monospace" font-size="9">Memory Files</text><text x="203" y="236" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">3</text>
-      <rect x="5" y="248" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="15" y="266" fill="#bbb" font-family="monospace" font-size="9">Personality Tests</text><text x="203" y="266" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">2</text>
-      <text x="252" y="148" fill="#FF0000" font-family="monospace" font-size="8" font-weight="bold">INGEST</text>
-      <polygon points="238,155 280,155 280,150 294,158 280,166 280,161 238,161" fill="#FF0000" opacity="0.8"/>
-      <!-- PIPELINE -->
-      <rect x="305" y="28" width="210" height="252" rx="8" fill="#0a0a0a" stroke="#FF0000" stroke-width="1.5"/>
-      <text x="410" y="52" text-anchor="middle" fill="#FF0000" font-family="monospace" font-size="11" font-weight="bold" letter-spacing="2">DOCUMENTS</text>
-      <text x="410" y="78" text-anchor="middle" fill="#fff" font-family="monospace" font-size="18" font-weight="bold">219,784</text>
-      <text x="410" y="96" text-anchor="middle" fill="#666" font-family="monospace" font-size="9">raw docs · SQLite · FTS5</text>
-      <rect x="305" y="112" width="176" height="22" rx="4" fill="#151515" stroke="#2a2a2a"/><text x="393" y="128" text-anchor="middle" fill="#888" font-family="monospace" font-size="8">↓ COMPILE</text>
-      <rect x="305" y="140" width="176" height="22" rx="4" fill="#151515" stroke="#2a2a2a"/><text x="393" y="156" text-anchor="middle" fill="#888" font-family="monospace" font-size="8">↓ RELATE (2,871 edges)</text>
-      <rect x="305" y="168" width="176" height="22" rx="4" fill="#151515" stroke="#2a2a2a"/><text x="393" y="184" text-anchor="middle" fill="#888" font-family="monospace" font-size="8">↓ SYNTHESIZE</text>
-      <rect x="305" y="196" width="176" height="22" rx="4" fill="#151515" stroke="#2a2a2a"/><text x="393" y="212" text-anchor="middle" fill="#888" font-family="monospace" font-size="8">→ QUERY → answer</text>
-      <rect x="305" y="224" width="176" height="22" rx="4" fill="#151515" stroke="#2a2a2a"/><text x="393" y="240" text-anchor="middle" fill="#888" font-family="monospace" font-size="8">↻ LINT → maintain</text>
-      <text x="548" y="148" fill="#FF0000" font-family="monospace" font-size="8" font-weight="bold">OUTPUT</text>
-      <polygon points="535,155 577,155 577,150 591,158 577,166 577,161 535,161" fill="#FF0000" opacity="0.8"/>
-      <!-- COMPILED -->
-      <text x="760" y="25" text-anchor="middle" fill="#FF0000" font-family="monospace" font-size="11" font-weight="bold" letter-spacing="2">COMPILED WIKI</text>
-      <rect x="605" y="38" width="260" height="48" rx="6" fill="#0d0d0d" stroke="#FF0000"/><text x="615" y="58" fill="#fff" font-family="monospace" font-size="10" font-weight="bold">42 Entity Pages</text><text x="615" y="74" fill="#555" font-family="monospace" font-size="8">People · Tools · Projects · Places · Orgs</text>
-      <rect x="605" y="94" width="260" height="48" rx="6" fill="#0d0d0d" stroke="#FF0000"/><text x="615" y="114" fill="#fff" font-family="monospace" font-size="10" font-weight="bold">39 Concept Pages</text><text x="615" y="130" fill="#555" font-family="monospace" font-size="8">Frameworks · Methodologies · Principles</text>
-      <rect x="605" y="150" width="260" height="48" rx="6" fill="#0d0d0d" stroke="#FF0000"/><text x="615" y="170" fill="#fff" font-family="monospace" font-size="10" font-weight="bold">16 Area Overviews</text><text x="615" y="186" fill="#555" font-family="monospace" font-size="8">Workflowy Areas of Responsibility</text>
-      <rect x="605" y="206" width="260" height="48" rx="6" fill="#0d0d0d" stroke="#FF0000"/><text x="615" y="226" fill="#fff" font-family="monospace" font-size="10" font-weight="bold">7 Source Summaries</text><text x="615" y="242" fill="#555" font-family="monospace" font-size="8">Per-source compiled overviews</text>
-      </g>
+      <!-- DATA SOURCES: x=100, w=210, center=205 -->
+      <text x="205" y="25" text-anchor="middle" fill="#FF0000" font-family="monospace" font-size="11" font-weight="bold" letter-spacing="2">DATA SOURCES</text>
+      <rect x="100" y="38" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="110" y="56" fill="#bbb" font-family="monospace" font-size="9">Workflowy</text><text x="298" y="56" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">219,062</text>
+      <rect x="100" y="68" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="110" y="86" fill="#bbb" font-family="monospace" font-size="9">Coaching DB</text><text x="298" y="86" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">302</text>
+      <rect x="100" y="98" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="110" y="116" fill="#bbb" font-family="monospace" font-size="9">Creative Writing</text><text x="298" y="116" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">200</text>
+      <rect x="100" y="128" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="110" y="146" fill="#bbb" font-family="monospace" font-size="9">Club Memories</text><text x="298" y="146" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">162</text>
+      <rect x="100" y="158" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="110" y="176" fill="#bbb" font-family="monospace" font-size="9">Session Log</text><text x="298" y="176" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">47</text>
+      <rect x="100" y="188" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="110" y="206" fill="#bbb" font-family="monospace" font-size="9">NotebookLM</text><text x="298" y="206" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">6</text>
+      <rect x="100" y="218" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="110" y="236" fill="#bbb" font-family="monospace" font-size="9">Memory Files</text><text x="298" y="236" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">3</text>
+      <rect x="100" y="248" width="210" height="26" rx="4" fill="#0d0d0d" stroke="#2a2a2a"/><text x="110" y="266" fill="#bbb" font-family="monospace" font-size="9">Personality Tests</text><text x="298" y="266" text-anchor="end" fill="#FF0000" font-family="monospace" font-size="9" font-weight="bold">2</text>
+      <!-- INGEST arrow: gap center = 370 (310 to 430) -->
+      <text x="370" y="148" text-anchor="middle" fill="#FF0000" font-family="monospace" font-size="8" font-weight="bold">INGEST</text>
+      <polygon points="340,155 385,155 385,150 400,158 385,166 385,161 340,161" fill="#FF0000" opacity="0.8"/>
+      <!-- DOCUMENTS: x=430, w=210, center=535 -->
+      <rect x="430" y="28" width="210" height="252" rx="8" fill="#0a0a0a" stroke="#FF0000" stroke-width="1.5"/>
+      <text x="535" y="52" text-anchor="middle" fill="#FF0000" font-family="monospace" font-size="11" font-weight="bold" letter-spacing="2">DOCUMENTS</text>
+      <text x="535" y="78" text-anchor="middle" fill="#fff" font-family="monospace" font-size="18" font-weight="bold">219,784</text>
+      <text x="535" y="96" text-anchor="middle" fill="#666" font-family="monospace" font-size="9">raw docs · SQLite · FTS5</text>
+      <rect x="447" y="112" width="176" height="22" rx="4" fill="#151515" stroke="#2a2a2a"/><text x="535" y="128" text-anchor="middle" fill="#888" font-family="monospace" font-size="8">↓ COMPILE</text>
+      <rect x="447" y="140" width="176" height="22" rx="4" fill="#151515" stroke="#2a2a2a"/><text x="535" y="156" text-anchor="middle" fill="#888" font-family="monospace" font-size="8">↓ RELATE (2,871 edges)</text>
+      <rect x="447" y="168" width="176" height="22" rx="4" fill="#151515" stroke="#2a2a2a"/><text x="535" y="184" text-anchor="middle" fill="#888" font-family="monospace" font-size="8">↓ SYNTHESIZE</text>
+      <rect x="447" y="196" width="176" height="22" rx="4" fill="#151515" stroke="#2a2a2a"/><text x="535" y="212" text-anchor="middle" fill="#888" font-family="monospace" font-size="8">→ QUERY → answer</text>
+      <rect x="447" y="224" width="176" height="22" rx="4" fill="#151515" stroke="#2a2a2a"/><text x="535" y="240" text-anchor="middle" fill="#888" font-family="monospace" font-size="8">↻ LINT → maintain</text>
+      <!-- OUTPUT arrow: gap center = 700 (640 to 760) -->
+      <text x="700" y="148" text-anchor="middle" fill="#FF0000" font-family="monospace" font-size="8" font-weight="bold">OUTPUT</text>
+      <polygon points="670,155 715,155 715,150 730,158 715,166 715,161 670,161" fill="#FF0000" opacity="0.8"/>
+      <!-- COMPILED WIKI: x=760, w=260, center=890 -->
+      <text x="890" y="25" text-anchor="middle" fill="#FF0000" font-family="monospace" font-size="11" font-weight="bold" letter-spacing="2">COMPILED WIKI</text>
+      <rect x="760" y="38" width="260" height="48" rx="6" fill="#0d0d0d" stroke="#FF0000"/><text x="770" y="58" fill="#fff" font-family="monospace" font-size="10" font-weight="bold">42 Entity Pages</text><text x="770" y="74" fill="#555" font-family="monospace" font-size="8">People · Tools · Projects · Places · Orgs</text>
+      <rect x="760" y="94" width="260" height="48" rx="6" fill="#0d0d0d" stroke="#FF0000"/><text x="770" y="114" fill="#fff" font-family="monospace" font-size="10" font-weight="bold">39 Concept Pages</text><text x="770" y="130" fill="#555" font-family="monospace" font-size="8">Frameworks · Methodologies · Principles</text>
+      <rect x="760" y="150" width="260" height="48" rx="6" fill="#0d0d0d" stroke="#FF0000"/><text x="770" y="170" fill="#fff" font-family="monospace" font-size="10" font-weight="bold">16 Area Overviews</text><text x="770" y="186" fill="#555" font-family="monospace" font-size="8">Workflowy Areas of Responsibility</text>
+      <rect x="760" y="206" width="260" height="48" rx="6" fill="#0d0d0d" stroke="#FF0000"/><text x="770" y="226" fill="#fff" font-family="monospace" font-size="10" font-weight="bold">7 Source Summaries</text><text x="770" y="242" fill="#555" font-family="monospace" font-size="8">Per-source compiled overviews</text>
       <!-- INFRA -->
       <rect x="5" y="300" width="1050" height="38" rx="6" fill="#0a0a0a" stroke="#2a2a2a"/>
       <text x="530" y="316" text-anchor="middle" fill="#FF0000" font-family="monospace" font-size="10" font-weight="bold" letter-spacing="2">INFRASTRUCTURE</text>

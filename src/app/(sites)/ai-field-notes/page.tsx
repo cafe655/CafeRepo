@@ -16,6 +16,14 @@ const fieldNotes = [
     title: <>Claude Code<br />Reference<br />Guide</>,
     href: "/ai-field-notes/claude-code-reference",
   },
+  {
+    title: <>System<br />Architecture<br />Map</>,
+    href: "/ai-field-notes/system-architecture",
+  },
+  {
+    title: <>Claude in<br />Stream<br />Deck</>,
+    href: "/ai-field-notes/claude-in-streamdeck",
+  },
 ];
 
 export default function AIFieldNotesPage() {

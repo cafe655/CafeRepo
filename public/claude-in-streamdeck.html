@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude in Stream Deck — Natural Language Button Builder</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border-bottom: 1px solid #2a2a2a;
+      flex-wrap: wrap;
+    }
+
+    .site-nav .site-brand {
+      font-size: 1.25em;
+      font-weight: 700;
+      color: #f5f5f7;
+      text-decoration: none;
+      margin-right: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .site-nav .site-brand span {
+      color: #E31837;
+    }
+
+    .site-nav a.site-link {
+      color: #9e9eb8;
+      text-decoration: none;
+      font-size: 0.85em;
+      padding: 5px 12px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .site-nav a.site-link:hover {
+      color: #f5f5f7;
+      background: rgba(227, 24, 55, 0.12);
+    }
+
+    .site-nav a.site-link.current {
+      color: #E31837;
+      background: rgba(227, 24, 55, 0.1);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      border-bottom: 2px solid #d97757;
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero h1 span {
+      color: #d97757;
+    }
+
+    .hero .subtitle {
+      font-size: 1.2rem;
+      color: #a0a0b0;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(217, 119, 87, 0.15);
+      border: 1px solid #d97757;
+      color: #d97757;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .section h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .section p {
+      color: #b0b0b0;
+      margin-bottom: 1rem;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+      margin: 1.5rem 0;
+    }
+
+    .feature-card {
+      background: #141414;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 1.2rem;
+      transition: border-color 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: #d97757;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      color: #ffffff;
+      margin-bottom: 0.4rem;
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
+      color: #888;
+      margin: 0;
+    }
+
+    .how-it-works {
+      background: #141414;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 2rem;
+      margin: 1.5rem 0;
+    }
+
+    .step {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .step:last-child { margin-bottom: 0; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      background: #d97757;
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .step-text {
+      padding-top: 4px;
+    }
+
+    .step-text strong {
+      color: #ffffff;
+    }
+
+    .requirements {
+      list-style: none;
+      padding: 0;
+    }
+
+    .requirements li {
+      padding: 0.5rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      color: #b0b0b0;
+    }
+
+    .requirements li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.85rem;
+      width: 8px;
+      height: 8px;
+      background: #d97757;
+      border-radius: 50%;
+    }
+
+    .skill-section {
+      text-align: center;
+      padding: 3rem 2rem 1.5rem;
+      background: linear-gradient(180deg, #0a0a0a 0%, #141414 100%);
+      border-top: 1px solid #2a2a2a;
+    }
+
+    .skill-section h2 {
+      font-size: 1.8rem;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .skill-section > p {
+      color: #888;
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .code-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem 3rem;
+      background: linear-gradient(180deg, #141414 0%, #0a0a0a 100%);
+    }
+
+    .code-panel {
+      position: relative;
+      background: #0d0d0d;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .code-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: #1a1a1a;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .code-panel-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #d97757;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(217, 119, 87, 0.15);
+      border: 1px solid #d97757;
+      color: #d97757;
+      padding: 0.3rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: rgba(217, 119, 87, 0.3);
+    }
+
+    .copy-btn.copied {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: #22c55e;
+      color: #22c55e;
+    }
+
+    .copy-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .code-panel pre {
+      padding: 1rem;
+      overflow: auto;
+      max-height: 600px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: #c0c0c0;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .file-label {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+
+    .file-label code {
+      background: #1a1a1a;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      color: #d97757;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: #444;
+      font-size: 0.85rem;
+      border-top: 1px solid #1a1a1a;
+    }
+
+    .footer a {
+      color: #d97757;
+      text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .code-grid { grid-template-columns: 1fr; padding: 0 1.2rem 2rem; }
+      .container { padding: 2rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="site-nav">
+    <a href="https://www.cafe655.com" class="site-brand">Cafe<span>655</span></a>
+    <a href="https://www.cafe655.com/ai-field-notes" class="site-link current">Ai Field Notes</a>
+    <a href="https://www.cafe655.com/barista-painting" class="site-link">Barista Painting Services</a>
+    <a href="https://www.cafe655.com/cafe655-on-twitch" class="site-link">Cafe655 on Twitch</a>
+    <a href="https://www.cafe655.com/personal" class="site-link">Cafe655 Personal</a>
+  </div>
+
+  <div class="hero">
+    <div class="badge">Claude Code Skill</div>
+    <h1>Claude in <span>Stream Deck</span></h1>
+    <p class="subtitle">Describe buttons in plain English. Claude builds the JSON, places them on your deck, and restarts the app. No manual config editing.</p>
+  </div>
+
+  <div class="container">
+
+    <div class="section">
+      <h2>What Is This?</h2>
+      <p>A skill for <strong>Claude Code</strong> (Anthropic's CLI tool) that gives Claude full control over your Elgato Stream Deck configuration. Instead of manually editing JSON or clicking through the Stream Deck GUI, you describe what you want and Claude handles everything — writing the config, generating button images, and restarting Stream Deck so your new buttons appear instantly.</p>
+      <p>This was built through extensive real-world testing across 40+ plugins, 300+ buttons, and dozens of multi-action sequences. The prompt includes hard-won lessons about plugin settings keys, JSON formatting pitfalls, and action structures that actually work.</p>
+    </div>
+
+    <div class="section">
+      <h2>What It Can Build</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>Single-Action Buttons</h3>
+          <p>Hotkeys, text paste, open files, launch URLs, run apps</p>
+        </div>
+        <div class="feature-card">
+          <h3>Multi-Action Sequences</h3>
+          <p>Chain steps with delays — open terminal, navigate, launch, type commands</p>
+        </div>
+        <div class="feature-card">
+          <h3>Key Logic Buttons</h3>
+          <p>Different actions for single press, double press, and long press</p>
+        </div>
+        <div class="feature-card">
+          <h3>Full Page Layouts</h3>
+          <p>Describe a theme and Claude plans and builds every button</p>
+        </div>
+        <div class="feature-card">
+          <h3>Plugin Buttons</h3>
+          <p>Any installed plugin — with verified, correct settings keys</p>
+        </div>
+        <div class="feature-card">
+          <h3>Custom Images</h3>
+          <p>Auto-generated colored backgrounds, icon compositing with Pillow</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>How It Works</h2>
+      <div class="how-it-works">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">You say something like <strong>"Build me a button that opens my project folder and launches VS Code"</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Claude reads your current deck layout from the <strong>JSON manifest files</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Claude writes a Python script that builds the button config and <strong>writes it directly to the manifest</strong> (never through Bash, which mangles paths)</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text">Claude <strong>restarts Stream Deck</strong> and your new button appears immediately</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Requirements</h2>
+      <ul class="requirements">
+        <li><strong>Claude Code</strong> — Anthropic's CLI tool for Claude</li>
+        <li><strong>Python 3.10+</strong> with Pillow installed (<code>pip install Pillow</code>)</li>
+        <li><strong>Elgato Stream Deck</strong> — any model (XL, MK.2, Mini, Pedal, Plus)</li>
+        <li><strong>Stream Deck software</strong> installed on Windows</li>
+        <li>Familiarity with Claude Code skills (<code>~/.claude/skills/</code>)</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Quick Start</h2>
+      <div class="how-it-works">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Copy the <strong>Prompt</strong> below and save it as <code>~/.claude/skills/streamdeck/skill.md</code></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Open the file and replace the <code>[PLACEHOLDER]</code> values with your system paths</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Start Claude Code and say: <strong>"Build me a Stream Deck button"</strong></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="skill-section">
+    <h2>Get the Skill</h2>
+    <p>Everything you need to start building Stream Deck buttons with Claude Code. Copy the README for setup instructions and the Prompt to use as your Claude Code skill file.</p>
+  </div>
+
+  <div class="code-grid">
+    <div class="code-panel">
+      <div class="code-panel-header">
+        <span class="code-panel-title">README.md</span>
+        <button class="copy-btn" onclick="copyCode('readme-code', this)">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+          </svg>
+          Copy
+        </button>
+      </div>
+      <pre id="readme-code"># Claude in Stream Deck
+
+## What Is This?
+
+A Claude Code skill that turns your Stream Deck into a voice-commanded (well, text-commanded) control surface. You describe buttons in plain English, and Claude builds them — writing the JSON config, placing them on the right page, and restarting Stream Deck so they appear instantly.
+
+No manual JSON editing. No digging through plugin docs. Just tell Claude what you want.
+
+## What It Can Build
+
+- **Single-action buttons** — hotkeys, text paste, open files/URLs, launch apps
+- **Multi-action sequences** — chain multiple steps with delays (e.g., open terminal, navigate to a folder, launch an app, type commands)
+- **Key Logic buttons** — different actions for single press, double press, and long press
+- **Full pages** — describe a theme and Claude lays out all the buttons
+- **Custom plugin buttons** — any installed plugin, with correct settings keys
+
+## Requirements
+
+- **Claude Code** (Anthropic's CLI tool)
+- **Python 3.10+** with `Pillow` installed (`pip install Pillow`)
+- **Elgato Stream Deck** (any model — XL, MK.2, Mini, Pedal, Plus)
+- **Stream Deck software** installed and running on Windows
+- Familiarity with Claude Code skills (placing files in `~/.claude/skills/`)
+
+## Quick Start
+
+1. Copy the Prompt and save it as `~/.claude/skills/streamdeck/skill.md`
+2. Open the prompt and fill in the `[PLACEHOLDERS]` with your system paths
+3. Start Claude Code and say: "Build me a Stream Deck button that opens Google Chrome"
+4. Claude reads your deck layout, builds the button, writes it, and restarts Stream Deck
+
+## How It Works
+
+Stream Deck stores its configuration as JSON manifest files — one per page, nested inside profile directories. Claude reads these files to understand your current layout, writes new button JSON directly via Python (never through Bash, which mangles paths), and restarts the Stream Deck process so changes take effect immediately.
+
+The skill includes:
+- JSON structure templates for every action type
+- Multi-action sequencing with delays
+- Key Logic (single/double/long press)
+- Plugin settings schemas for 40+ plugins
+- Marketplace search integration
+- Automatic sync to pick up manual GUI changes
+
+## Key Lessons Learned
+
+These are hard-won discoveries from extensive testing:
+
+1. **Never pass JSON through Bash arguments.** Bash mangles backslashes and forward slashes. Always write a Python script that reads/modifies/writes the manifest JSON directly.
+2. **Plugin settings keys don't match their property inspector HTML IDs.** Always verify from a real working button before building a new plugin type.
+3. **Page indexing is 0-based.** "Page 1" in human terms = index 0 in the API.
+4. **Don't set custom images on plugin buttons that render their own content.** It overwrites the plugin's dynamic display.
+5. **Copy entire settings objects from working buttons** — plugins need stored arrays like `screens` and `applications`.
+6. **Stream Deck must be restarted** after JSON changes. Kill and relaunch the process.
+
+## File Structure
+
+```
+~/.claude/skills/streamdeck/
+  skill.md          # The skill prompt
+```
+
+Stream Deck config lives at:
+```
+%APPDATA%/Elgato/StreamDeck/ProfilesV3/   # Profiles and page manifests
+%APPDATA%/Elgato/StreamDeck/Plugins/      # Installed plugins
+```
+
+## Customization
+
+The prompt is designed to be modified. Key sections to personalize:
+
+- **System Location** — update paths to match your Python and Stream Deck install
+- **Device Layout** — adjust for your Stream Deck model (XL=8x4, MK.2=5x3, Mini=3x2)
+- **General Rules** — set your default profile name and color conventions
+- **Verified Plugin Settings** — add your own tested plugins as you discover correct keys
+
+## License
+
+This is a community-shared Claude Code skill. Use it, modify it, share it.</pre>
+    </div>
+
+    <div class="code-panel">
+      <div class="code-panel-header">
+        <span class="code-panel-title">PROMPT.md — Save as ~/.claude/skills/streamdeck/skill.md</span>
+        <button class="copy-btn" onclick="copyCode('prompt-code', this)">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+          </svg>
+          Copy
+        </button>
+      </div>
+      <pre id="prompt-code">---
+name: streamdeck
+description: &gt;
+  Claude in Stream Deck — translate natural language to Stream Deck button/page changes.
+  Trigger when the user says "add a button", "build me a page", "Stream Deck", "deck button",
+  "new button", "remove button", "what's on my deck", "show my deck",
+  or any variation of wanting to modify Stream Deck configuration.
+allowed-tools: Bash Read
+argument-hint: [natural language description] e.g. "add a button that opens Spotify"
+---
+
+# Claude in Stream Deck
+
+You are a Stream Deck configuration assistant. The user describes buttons and pages in plain English, you translate to Stream Deck JSON configuration.
+
+## System Location
+
+- **Stream Deck config:** `[YOUR_APPDATA]/Elgato/StreamDeck/ProfilesV3/`
+- **Plugins:** `[YOUR_APPDATA]/Elgato/StreamDeck/Plugins/`
+- **Python:** `[YOUR_PYTHON_PATH]` (needs Pillow installed for image generation)
+- **Stream Deck app:** `[YOUR_STREAMDECK_EXE_PATH]` (e.g., `C:/Program Files/Elgato/StreamDeck/StreamDeck.exe`)
+
+&gt; **Setup:** Replace all `[PLACEHOLDER]` values above with your actual system paths.
+
+## Device Layout
+
+Adjust for your device model:
+
+| Model | Columns | Rows | Total Buttons |
+|-------|---------|------|---------------|
+| Stream Deck XL | 8 | 4 | 32 |
+| Stream Deck MK.2 | 5 | 3 | 15 |
+| Stream Deck Mini | 3 | 2 | 6 |
+| Stream Deck + | 4 | 2 | 8 (+ 4 dials) |
+| Stream Deck Pedal | 3 | 1 | 3 |
+
+- Position format in JSON: `"col,row"` where col = 0-based left-to-right, row = 0-based top-to-bottom
+- **Page indexing is 0-based.** When the user says "page 1" they mean the first page = index 0. Always subtract 1.
+
+## Core Workflow
+
+1. **Understand intent.** Parse what the user wants: action type, content, target page/position.
+2. **Identify profile.** If not specified, use the default profile. Only ask if ambiguous.
+3. **Check current state.** Read the page manifest JSON to see what's there. Find an empty slot if position not specified.
+4. **Build the button.** Write a Python script that reads the page manifest, adds the button JSON, and writes it back. **NEVER pass JSON through Bash command-line arguments** — Bash mangles backslashes and forward slashes.
+5. **Execute.** Run the Python script.
+6. **Restart Stream Deck.** Kill and reopen so changes appear:
+   ```bash
+   taskkill //IM "StreamDeck.exe" //F 2&gt;/dev/null; sleep 2; start "" "[YOUR_STREAMDECK_EXE_PATH]"
+   ```
+
+**The user's description is the approval.** Build it, install it, restart the deck. No confirmation loop needed.
+
+## Finding Your Profile and Page Files
+
+Stream Deck stores profiles as `.sdProfile` directories inside `ProfilesV3/`. Each contains:
+- `manifest.json` — profile metadata, device model, and page UUIDs
+- `Profiles/` — subdirectories named by UUID, one per page
+  - `&lt;PAGE-UUID&gt;/manifest.json` — the page manifest with all button definitions
+  - `&lt;PAGE-UUID&gt;/Images/` — button images
+
+To find the right profile:
+```python
+import json, os, glob
+
+profiles_dir = '[YOUR_APPDATA]/Elgato/StreamDeck/ProfilesV3'
+for pd in glob.glob(os.path.join(profiles_dir, '*.sdProfile')):
+    manifest = os.path.join(pd, 'manifest.json')
+    with open(manifest, 'r', encoding='utf-8') as f:
+        m = json.load(f)
+    print(f"{m.get('Name')} | Model: {m.get('Device', {}).get('Model')} | Dir: {os.path.basename(pd)}")
+```
+
+## JSON Structure: Single Button
+
+```json
+{
+  "ActionID": "&lt;uuid4&gt;",
+  "LinkedTitle": true,
+  "Name": "&lt;action display name&gt;",
+  "Plugin": {"Name": "&lt;plugin name&gt;", "UUID": "&lt;plugin-uuid&gt;", "Version": "&lt;version&gt;"},
+  "Resources": null,
+  "Settings": {},
+  "State": 0,
+  "States": [{
+    "FontFamily": "", "FontSize": 12, "FontStyle": "", "FontUnderline": false,
+    "OutlineThickness": 2, "ShowTitle": true,
+    "Title": "BUTTON\nLABEL", "TitleAlignment": "middle", "TitleColor": "#ffffff"
+  }],
+  "UUID": "&lt;action-uuid&gt;"
+}
+```
+
+**Default style:** Titles in ALL CAPS, 12pt font.
+
+## Common System Action UUIDs
+
+| Action | UUID | Settings |
+|--------|------|----------|
+| Text (paste) | `com.elgato.streamdeck.system.text` | `pastedText`, `isSendingEnter`, `isTypingMode` |
+| Hotkey | `com.elgato.streamdeck.system.hotkey` | `Hotkeys` array with key codes |
+| Open file/folder | `com.elgato.streamdeck.system.open` | `path` |
+| Open URL | `com.elgato.streamdeck.system.website` | `URL` |
+| Multi Action | `com.elgato.streamdeck.multiactions.routine` | `Actions` array |
+| Key Logic | `com.elgato.streamdeck.keys.logic` | `Actions` array (single/double/long) |
+| Go to Page | `com.elgato.streamdeck.page.goto` | `PageIndex` |
+| Delay (in multi-action) | `com.elgato.streamdeck.multiactions.delay` | `delay` (ms) |
+
+**Important:** Use `com.elgato.streamdeck.system.website` for URLs, NOT `com.elgato.streamdeck.system.open` (which is for files/folders).
+
+## JSON Structure: Multi-Action
+
+Multi-actions sequence multiple steps into one button press:
+
+```json
+{
+  "ActionID": "&lt;uuid4&gt;",
+  "LinkedTitle": true,
+  "Name": "Multi Action",
+  "Plugin": {"Name": "Multi Action", "UUID": "com.elgato.streamdeck.multiactions", "Version": "1.0"},
+  "Resources": null,
+  "Settings": {},
+  "State": 0,
+  "States": [{"Title": "MY\nBUTTON", "TitleAlignment": "middle", "TitleColor": "#ffffff"}],
+  "UUID": "com.elgato.streamdeck.multiactions.routine",
+  "Actions": [
+    {"Actions": [
+      { /* Step 1: any action object */ },
+      {
+        "ActionID": "&lt;uuid4&gt;", "Name": "Delay",
+        "Plugin": {"Name": "Multi Action", "UUID": "com.elgato.streamdeck.multiactions", "Version": "1.0"},
+        "Settings": {"delay": 1000}, "State": 0, "States": [{}],
+        "UUID": "com.elgato.streamdeck.multiactions.delay"
+      },
+      { /* Step 3: another action */ }
+    ]},
+    {"Actions": []}
+  ]
+}
+```
+
+**Rules:**
+- Each step is a full action object inside `Actions[0].Actions[]`
+- Delays are separate steps with `delay` in milliseconds
+- `Actions[1]` is for toggle multi-actions (off-press) — leave empty for standard
+- Any action type can be a step: text, hotkey, plugin actions, delays, etc.
+
+## JSON Structure: Key Logic
+
+Different actions for single press, double press, and long press:
+
+```json
+{
+  "ActionID": "&lt;uuid4&gt;",
+  "LinkedTitle": true,
+  "Name": "Key Logic",
+  "Plugin": {"Name": "Keys", "UUID": "com.elgato.streamdeck.keys", "Version": "1.0"},
+  "Resources": null,
+  "Settings": {},
+  "State": 0,
+  "States": [{"Title": "MY\nBUTTON", "TitleAlignment": "middle", "TitleColor": "#ffffff"}],
+  "UUID": "com.elgato.streamdeck.keys.logic",
+  "Actions": [
+    { /* Single press action */ },
+    { /* Double press action */ },
+    { /* Long press action */ }
+  ]
+}
+```
+
+## Hotkey Action Structure
+
+The Windows key and modifier keys use this format:
+
+```json
+{
+  "ActionID": "&lt;uuid4&gt;",
+  "Name": "Hotkey",
+  "Plugin": {"Name": "Activate a Key Command", "UUID": "com.elgato.streamdeck.system.hotkey", "Version": "1.0"},
+  "Settings": {
+    "Coalesce": true,
+    "Hotkeys": [{
+      "KeyCmd": false, "KeyCtrl": true, "KeyModifiers": 2,
+      "KeyOption": false, "KeyShift": false,
+      "NativeCode": 0, "QTKeyCode": 33554431, "VKeyCode": -1
+    }]
+  },
+  "State": 0, "States": [{}],
+  "UUID": "com.elgato.streamdeck.system.hotkey"
+}
+```
+
+Modifier flags: `KeyCtrl` = Ctrl, `KeyShift` = Shift, `KeyOption` = Alt, `KeyCmd` = Win key.
+
+## Text Action Structure
+
+```json
+{
+  "ActionID": "&lt;uuid4&gt;",
+  "Name": "Text",
+  "Plugin": {"Name": "Text", "UUID": "com.elgato.streamdeck.system.text", "Version": "1.0"},
+  "Settings": {
+    "Hotkey": {"KeyModifiers": 0, "QTKeyCode": 33554431, "VKeyCode": -1},
+    "isSendingEnter": true,
+    "isTypingMode": false,
+    "pastedText": "your text here"
+  },
+  "State": 0, "States": [{}],
+  "UUID": "com.elgato.streamdeck.system.text"
+}
+```
+
+- `isSendingEnter: true` = paste text then press Enter
+- `isSendingEnter: false` = paste text only (leave cursor in place)
+- `isTypingMode: true` = type character-by-character instead of paste
+
+## Button Images
+
+- **PNGs:** 144x144 for XL @2x, 72x72 for standard
+- **GIFs work** — animated GIFs display on buttons natively
+- Place images in the page's `Images/` folder and reference as `"Image": "Images/filename.png"`
+- Generate solid color backgrounds with Pillow:
+  ```python
+  from PIL import Image
+  img = Image.new('RGBA', (288, 288), (217, 119, 87, 255))
+  img.save('path/to/Images/my_bg.png')
+  ```
+- **DO NOT set custom images on plugin buttons that render their own content** (clocks, CPU monitors, timers, etc.) — it overwrites the plugin's dynamic display
+
+## Critical Build Rules
+
+1. **NEVER pass button JSON through Bash command-line arguments.** Bash mangles backslashes (Windows paths) and forward slashes. Always write a Python script that reads/modifies/writes the manifest JSON directly.
+
+2. **Plugin settings keys don't match property inspector HTML IDs.** Always verify settings from a real working button before building a new plugin type for the first time. The approach: configure one button via the Stream Deck GUI, read the resulting JSON, use those exact keys.
+
+3. **Copy entire settings objects from working buttons** including arrays like `screens` and `applications` — plugins need these stored arrays.
+
+4. **For plugins that render their own button face** (clocks, counters, timers, live displays): use minimal States matching the plugin manifest defaults. Extra State fields can interfere with rendering.
+
+5. **For system actions** (text, hotkey, open, multi-action, key logic): full States customization works fine.
+
+## Verified Plugin Settings
+
+These plugins have been tested. The "Real Key" column shows the correct settings keys:
+
+| Plugin | Action | Real Key | Common Wrong Guess | Notes |
+|--------|--------|----------|-------------------|-------|
+| World Time | worldtime | `city`, `showCityName`, `background`, `timeFormat` | `backgroundColor`, `showCity` | Minimal States |
+| Days Until | daysuntil.action | `vKrabs_EventName`, `vKrabs_EventDate` | `daysUntilText`, `daysUntilDate` | All keys use `vKrabs_` prefix |
+| Windows Mover | windowsmover | `screen` (singular), `resizeWindow`, `height`/`width` in pixels | `screens` (plural), percentage values | Pixel values, not percentages |
+| Focus Window | focuswindow | `process`, `childWindow`, `restoreWindow` | `processName`, `bringToFront` | Process name without .exe |
+| SuperMacro | supermacro | `inputText`, `longPressInputText` | `command` | Syntax: `{{ctrl}{a}}` |
+| Advanced Launcher | advancedlauncher | `application`, `appArguments`, `bringToFront` | — | Full exe path |
+| Soundboard | soundboard.playaudio | `path`, `volume`, `actionType`, `fadeLen` | — | Needs `Resources.file` UUID |
+| Tomato Timer | tomato.clock | `work_time`, `short_break_time`, `long_break_time` | — | Times in minutes |
+| CPU Monitor | cpu.cpu | (none needed) | — | Just add it |
+
+## Example: Building a Multi-Action Button via Python
+
+```python
+import json, uuid
+
+def make_uuid():
+    return str(uuid.uuid4())
+
+def make_text(text, send_enter=True):
+    return {
+        "ActionID": make_uuid(),
+        "LinkedTitle": True,
+        "Name": "Text",
+        "Plugin": {"Name": "Text", "UUID": "com.elgato.streamdeck.system.text", "Version": "1.0"},
+        "Resources": None,
+        "Settings": {
+            "Hotkey": {"KeyModifiers": 0, "QTKeyCode": 33554431, "VKeyCode": -1},
+            "isSendingEnter": send_enter,
+            "isTypingMode": False,
+            "pastedText": text
+        },
+        "State": 0,
+        "States": [{"Title": ""}],
+        "UUID": "com.elgato.streamdeck.system.text"
+    }
+
+def make_delay(ms):
+    return {
+        "ActionID": make_uuid(),
+        "LinkedTitle": True,
+        "Name": "Delay",
+        "Plugin": {"Name": "Multi Action", "UUID": "com.elgato.streamdeck.multiactions", "Version": "1.0"},
+        "Resources": None,
+        "Settings": {"delay": ms},
+        "State": 0,
+        "States": [{}],
+        "UUID": "com.elgato.streamdeck.multiactions.delay"
+    }
+
+# Read the page manifest
+page_manifest = '[PATH_TO_PAGE]/manifest.json'
+with open(page_manifest, 'r', encoding='utf-8') as f:
+    m = json.load(f)
+
+# Build the button
+button = {
+    "ActionID": make_uuid(),
+    "LinkedTitle": True,
+    "Name": "Multi Action",
+    "Plugin": {"Name": "Multi Action", "UUID": "com.elgato.streamdeck.multiactions", "Version": "1.0"},
+    "Resources": None,
+    "Settings": {},
+    "State": 0,
+    "States": [{
+        "FontFamily": "", "FontSize": 12, "FontStyle": "", "FontUnderline": False,
+        "OutlineThickness": 2, "ShowTitle": True,
+        "Title": "MY\nBUTTON", "TitleAlignment": "middle", "TitleColor": "#ffffff"
+    }],
+    "UUID": "com.elgato.streamdeck.multiactions.routine",
+    "Actions": [
+        {"Actions": [
+            make_text("echo hello", True),
+            make_delay(1000),
+            make_text("echo world", True),
+        ]},
+        {"Actions": []}
+    ]
+}
+
+# Place at position col=0, row=1
+m['Controllers'][0]['Actions']['0,1'] = button
+
+# Write back
+with open(page_manifest, 'w', encoding='utf-8') as f:
+    json.dump(m, f, indent=2)
+```
+
+Then restart Stream Deck:
+```bash
+taskkill //IM "StreamDeck.exe" //F 2&gt;/dev/null; sleep 2; start "" "[YOUR_STREAMDECK_EXE_PATH]"
+```</pre>
+    </div>
+  </div>
+
+  <div class="footer">
+    Built with Claude Code by the AI Clubhouse
+  </div>
+
+  <script>
+    function copyCode(elementId, button) {
+      const codeElement = document.getElementById(elementId);
+      const text = codeElement.textContent;
+
+      navigator.clipboard.writeText(text).then(function() {
+        button.classList.add('copied');
+        button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg> Copied!';
+
+        setTimeout(function() {
+          button.classList.remove('copied');
+          button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg> Copy';
+        }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>

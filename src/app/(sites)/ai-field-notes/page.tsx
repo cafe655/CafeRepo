@@ -24,6 +24,10 @@ const fieldNotes = [
     title: <>Claude in<br />Stream<br />Deck</>,
     href: "/ai-field-notes/claude-in-streamdeck",
   },
+  {
+    title: <>Ai Coach<br />Builder</>,
+    href: "/ai-field-notes/ai-coach-builder",
+  },
 ];
 
 export default function AIFieldNotesPage() {

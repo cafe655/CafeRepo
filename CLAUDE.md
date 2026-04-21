@@ -97,6 +97,60 @@ Example: adding a new pill link inside AI Field Notes:
 3. Add the link to the `fieldNotes` array in `src/app/(sites)/ai-field-notes/page.tsx`
 4. Commit and push
 
+## Required: Site Nav Bar on Every Static HTML Page
+
+**Every static HTML file in `public/` MUST include the shared site nav bar at the top of `<body>`.** This is non-negotiable — the navbar provides consistent navigation back to the rest of the site and keeps the user inside the Cafe655 experience instead of stranded on a standalone page.
+
+Reference implementations (copy from any of these):
+- `public/claude-in-streamdeck.html`
+- `public/claude-code-reference-guide.html`
+- `public/cafe655-rag.html`
+- `public/one-ounce-pour.html`
+
+### What to copy
+
+**1. The `.site-nav` CSS block** — add these rules inside the page's `<style>` (right after the `body` rules):
+
+```css
+.site-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; padding: 10px 16px;
+  border-bottom: 1px solid #2a2a2a; flex-wrap: wrap;
+}
+.site-nav .site-brand {
+  font-size: 1.25em; font-weight: 700; color: #f5f5f7;
+  text-decoration: none; margin-right: 18px; letter-spacing: -0.02em;
+}
+.site-nav .site-brand span { color: #E31837; }
+.site-nav a.site-link {
+  color: #9e9eb8; text-decoration: none; font-size: 0.85em;
+  padding: 5px 12px; border-radius: 6px; transition: all 0.2s;
+}
+.site-nav a.site-link:hover { color: #f5f5f7; background: rgba(227, 24, 55, 0.12); }
+.site-nav a.site-link.current { color: #E31837; background: rgba(227, 24, 55, 0.1); }
+```
+
+**2. The navbar HTML** — as the first child of `<body>`:
+
+```html
+<div class="site-nav">
+  <a href="https://www.cafe655.com" class="site-brand">Cafe<span>655</span></a>
+  <a href="https://www.cafe655.com/ai-field-notes" class="site-link">Ai Field Notes</a>
+  <a href="https://www.cafe655.com/barista-painting" class="site-link">Barista Painting Services</a>
+  <a href="https://www.cafe655.com/cafe655-on-twitch" class="site-link">Cafe655 on Twitch</a>
+  <a href="https://www.cafe655.com/personal" class="site-link">Cafe655 Personal</a>
+</div>
+```
+
+**3. Add `class="site-link current"`** to the link matching the section this page belongs to (e.g., an AI Field Notes page marks the "Ai Field Notes" link as `current`).
+
+### Rule
+
+Before committing a new or updated static HTML file in `public/`, verify the site nav bar is present. If Cafe hands you a raw HTML file to publish, add the navbar before pushing. Do not ship a public HTML page without it.
+
 ## Current Site Map
 
 | URL | What's There |

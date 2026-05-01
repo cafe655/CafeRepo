@@ -118,6 +118,11 @@ button.pt-nav:disabled{opacity:0.35;cursor:not-allowed}
 h1{font-size:22px;font-weight:500;margin:0 0 0.5rem}
 .subtitle{font-size:14px;color:var(--color-text-secondary);margin:0 0 1.5rem}
 
+/* Affordance hint */
+.pt-hint{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#E31837}
+.pt-hint-arrow{display:inline-block;font-size:18px;color:#E31837;animation:ptArrowNudge 1.6s ease-in-out infinite}
+@keyframes ptArrowNudge{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+
 /* Site navbar (always dark, regardless of page color scheme) */
 #site-nav a:hover{background:rgba(227,24,55,0.12);color:#f5f5f7 !important}
 </style>
@@ -145,11 +150,16 @@ h1{font-size:22px;font-weight:500;margin:0 0 0.5rem}
 <div style="padding: 0.5rem 0;">
   <h2 class="sr-only">Interactive timeline of how the periodic table was discovered, from 1789 to 2016, with nine historical eras to step through.</h2>
 
-  <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
-    <div>
-      <div id="pt-year" style="font-size: 28px; font-weight: 500; line-height: 1;" aria-live="polite">1789</div>
-      <div id="pt-era-name" style="font-size: 14px; color: var(--color-text-secondary); margin-top: 4px;">Lavoisier's elements</div>
-    </div>
+  <div style="margin-bottom: 12px;">
+    <div id="pt-year" style="font-size: 28px; font-weight: 500; line-height: 1;" aria-live="polite">1789</div>
+    <div id="pt-era-name" style="font-size: 14px; color: var(--color-text-secondary); margin-top: 4px;">Lavoisier's elements</div>
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap;">
+    <span class="pt-hint">
+      Experience the Development
+      <span class="pt-hint-arrow" aria-hidden="true">&rarr;</span>
+    </span>
     <div style="display: flex; gap: 6px; align-items: center;">
       <button class="pt-nav" id="pt-prev" aria-label="Previous era">&larr;</button>
       <span id="pt-counter" style="font-size: 12px; color: var(--color-text-secondary); min-width: 30px; text-align: center;">1/9</span>

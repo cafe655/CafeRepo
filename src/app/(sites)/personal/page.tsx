@@ -6,6 +6,10 @@ const personalLinks = [
     title: <>The Pour<br />is the<br />Point</>,
     href: "/personal/the-pour-is-the-point",
   },
+  {
+    title: <>The Personal<br />Periodic<br />Table</>,
+    href: "/personal/the-personal-periodic-table",
+  },
 ];
 
 export default function PersonalPage() {

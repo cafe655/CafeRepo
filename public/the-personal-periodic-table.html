@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discovery of the Periodic Table — Cafe655</title>
+<style>
+:root{
+  --color-background-primary:#ffffff;
+  --color-background-secondary:#f5f4ef;
+  --color-text-primary:#1a1a1a;
+  --color-text-secondary:rgba(0,0,0,0.62);
+  --color-text-tertiary:rgba(0,0,0,0.45);
+  --color-border-tertiary:rgba(0,0,0,0.1);
+  --color-border-secondary:rgba(0,0,0,0.25);
+  --border-radius-md:8px;
+  --border-radius-lg:12px;
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --color-background-primary:#1a1a1a;
+    --color-background-secondary:#262624;
+    --color-text-primary:#f0eee6;
+    --color-text-secondary:rgba(240,238,230,0.6);
+    --color-text-tertiary:rgba(240,238,230,0.45);
+    --color-border-tertiary:rgba(255,255,255,0.1);
+    --color-border-secondary:rgba(255,255,255,0.28);
+  }
+}
+
+*{box-sizing:border-box}
+body{margin:0;padding:1.5rem 1rem;font-family:var(--font-sans);background:var(--color-background-primary);color:var(--color-text-primary);line-height:1.5}
+.wrap{max-width:740px;margin:0 auto}
+
+button{font-family:inherit;background:transparent;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);color:inherit;cursor:pointer;transition:background 150ms,transform 100ms}
+button:hover{background:var(--color-background-secondary)}
+button:active{transform:scale(0.97)}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* SVG color ramps - light mode default */
+.c-coral rect{fill:#FAECE7;stroke:#993C1D}
+.c-coral text.t{fill:#712B13}
+.c-coral text.ts{fill:#993C1D}
+.c-pink rect{fill:#FBEAF0;stroke:#993556}
+.c-pink text.t{fill:#72243E}
+.c-pink text.ts{fill:#993556}
+.c-amber rect{fill:#FAEEDA;stroke:#854F0B}
+.c-amber text.t{fill:#633806}
+.c-amber text.ts{fill:#854F0B}
+.c-gray rect{fill:#F1EFE8;stroke:#5F5E5A}
+.c-gray text.t{fill:#444441}
+.c-gray text.ts{fill:#5F5E5A}
+.c-green rect{fill:#EAF3DE;stroke:#3B6D11}
+.c-green text.t{fill:#27500A}
+.c-green text.ts{fill:#3B6D11}
+.c-blue rect{fill:#E6F1FB;stroke:#185FA5}
+.c-blue text.t{fill:#0C447C}
+.c-blue text.ts{fill:#185FA5}
+.c-purple rect{fill:#EEEDFE;stroke:#534AB7}
+.c-purple text.t{fill:#3C3489}
+.c-purple text.ts{fill:#534AB7}
+.c-teal rect{fill:#E1F5EE;stroke:#0F6E56}
+.c-teal text.t{fill:#085041}
+.c-teal text.ts{fill:#0F6E56}
+.c-red rect{fill:#FCEBEB;stroke:#A32D2D}
+.c-red text.t{fill:#791F1F}
+.c-red text.ts{fill:#A32D2D}
+
+/* SVG color ramps - dark mode */
+@media (prefers-color-scheme: dark){
+  .c-coral rect{fill:#712B13;stroke:#F0997B}
+  .c-coral text.t{fill:#F5C4B3}
+  .c-coral text.ts{fill:#F0997B}
+  .c-pink rect{fill:#72243E;stroke:#ED93B1}
+  .c-pink text.t{fill:#F4C0D1}
+  .c-pink text.ts{fill:#ED93B1}
+  .c-amber rect{fill:#633806;stroke:#EF9F27}
+  .c-amber text.t{fill:#FAC775}
+  .c-amber text.ts{fill:#EF9F27}
+  .c-gray rect{fill:#444441;stroke:#B4B2A9}
+  .c-gray text.t{fill:#D3D1C7}
+  .c-gray text.ts{fill:#B4B2A9}
+  .c-green rect{fill:#27500A;stroke:#97C459}
+  .c-green text.t{fill:#C0DD97}
+  .c-green text.ts{fill:#97C459}
+  .c-blue rect{fill:#0C447C;stroke:#85B7EB}
+  .c-blue text.t{fill:#B5D4F4}
+  .c-blue text.ts{fill:#85B7EB}
+  .c-purple rect{fill:#3C3489;stroke:#AFA9EC}
+  .c-purple text.t{fill:#CECBF6}
+  .c-purple text.ts{fill:#AFA9EC}
+  .c-teal rect{fill:#085041;stroke:#5DCAA5}
+  .c-teal text.t{fill:#9FE1CB}
+  .c-teal text.ts{fill:#5DCAA5}
+  .c-red rect{fill:#791F1F;stroke:#F09595}
+  .c-red text.t{fill:#F7C1C1}
+  .c-red text.ts{fill:#F09595}
+}
+
+/* Widget styles */
+.pt-cell{transition:transform 800ms cubic-bezier(0.4,0,0.2,1),opacity 600ms ease}
+.pt-cell rect{stroke-width:0.5}
+.pt-cell:hover rect{stroke-width:1.5;cursor:pointer}
+.pt-gap{transition:opacity 500ms ease}
+.pt-gap rect{fill:none;stroke-width:1.2;stroke-dasharray:3 2;stroke:var(--color-border-secondary)}
+.pt-pulse rect{animation:ptPulse 1.8s ease 1}
+@keyframes ptPulse{0%,100%{stroke-width:0.5}40%{stroke-width:3.5}}
+.pt-dot{width:13px;height:13px;border-radius:50%;padding:0;background:var(--color-background-primary);border:1.5px solid var(--color-border-secondary);cursor:pointer;transition:all 200ms;flex-shrink:0}
+.pt-dot:hover{transform:scale(1.3)}
+.pt-dot.active{background:var(--color-text-primary);border-color:var(--color-text-primary)}
+.pt-dot.past{background:var(--color-text-secondary);border-color:var(--color-text-secondary)}
+button.pt-nav{padding:4px 12px;font-size:14px;line-height:1}
+button.pt-nav:disabled{opacity:0.35;cursor:not-allowed}
+.pt-tick{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:0}
+
+h1{font-size:22px;font-weight:500;margin:0 0 0.5rem}
+.subtitle{font-size:14px;color:var(--color-text-secondary);margin:0 0 1.5rem}
+
+/* Site navbar (always dark, regardless of page color scheme) */
+#site-nav a:hover{background:rgba(227,24,55,0.12);color:#f5f5f7 !important}
+</style>
+</head>
+<body>
+
+<!-- Site navbar -->
+<div id="site-nav" style="position:sticky;top:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #262626;">
+  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;">
+    <a href="/" style="text-decoration:none;font-weight:700;font-size:1.6em;color:#fff;letter-spacing:-0.02em;">Cafe<span style="color:#E31837;">655</span></a>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+      <a href="/ai-field-notes" style="color:#a3a3a3;text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;transition:all 0.2s;">Ai Field Notes</a>
+      <a href="/barista-painting" style="color:#a3a3a3;text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;transition:all 0.2s;">Barista Painting Services</a>
+      <a href="/cafe655-on-twitch" style="color:#a3a3a3;text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;transition:all 0.2s;">Cafe655 on Twitch</a>
+      <a href="/personal" style="color:#E31837;background:rgba(227,24,55,0.1);text-decoration:none;font-size:0.85em;padding:4px 10px;border-radius:6px;transition:all 0.2s;">Cafe655 Personal</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<h1>The discovery of the periodic table</h1>
+<p class="subtitle">Step through nine moments of insight, from a list with no order to 118 elements in their assigned places. Use the arrow buttons, the timeline dots, or your keyboard arrows.</p>
+
+<div style="padding: 0.5rem 0;">
+  <h2 class="sr-only">Interactive timeline of how the periodic table was discovered, from 1789 to 2016, with nine historical eras to step through.</h2>
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+    <div>
+      <div id="pt-year" style="font-size: 28px; font-weight: 500; line-height: 1;" aria-live="polite">1789</div>
+      <div id="pt-era-name" style="font-size: 14px; color: var(--color-text-secondary); margin-top: 4px;">Lavoisier's elements</div>
+    </div>
+    <div style="display: flex; gap: 6px; align-items: center;">
+      <button class="pt-nav" id="pt-prev" aria-label="Previous era">&larr;</button>
+      <span id="pt-counter" style="font-size: 12px; color: var(--color-text-secondary); min-width: 30px; text-align: center;">1/9</span>
+      <button class="pt-nav" id="pt-next" aria-label="Next era">&rarr;</button>
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 12px; margin-bottom: 12px;">
+    <svg id="pt-svg" viewBox="0 0 700 370" style="width: 100%; height: auto; display: block;" role="img" aria-labelledby="pt-svg-desc">
+      <desc id="pt-svg-desc">Periodic table arrangement at the selected historical era.</desc>
+      <text id="pt-ln-label" x="6" y="296" style="font-size: 9px; fill: var(--color-text-tertiary); opacity: 0; transition: opacity 600ms ease;">Lanthanides</text>
+      <text id="pt-an-label" x="6" y="332" style="font-size: 9px; fill: var(--color-text-tertiary); opacity: 0; transition: opacity 600ms ease;">Actinides</text>
+    </svg>
+  </div>
+
+  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; margin-bottom: 14px; min-height: 88px;">
+    <p id="pt-description" style="margin: 0; font-size: 14px; line-height: 1.6;" aria-live="polite"></p>
+  </div>
+
+  <div id="pt-timeline" style="display: flex; align-items: flex-start; padding: 4px 0; position: relative;"></div>
+
+  <div id="pt-legend" style="display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11px; color: var(--color-text-secondary); margin-top: 14px;"></div>
+</div>
+
+<section class="essay" style="margin-top: 3.5rem; padding-top: 2.5rem; border-top: 1px solid var(--color-border-tertiary);">
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 1.25rem; line-height: 1.3;">Personal Development as Discovery not Effort</h2>
+  <p style="font-size: 15px; line-height: 1.75; margin: 0 0 1.1rem; color: var(--color-text-primary);">The discovery of the order of the periodic table has deeply affected how I seek to make improvements in my life and personal productivity systems. I have developed an entire mental framework I call "ForgeFlow", which is the pursuit of "effortless infrastructure maintenance to create a beautiful, useful environment", which was heavily influenced by the historic understanding of how the periodic table was developed.</p>
+  <p style="font-size: 15px; line-height: 1.75; margin: 0 0 1.1rem; color: var(--color-text-primary);">Mendeleev didn't invent the periodic table. He discovered it. The elements already had an order - atomic structure, chemical behavior, repeating patterns across rows and columns - and that order existed whether anyone mapped it or not. What Mendeleev did was recognize the pattern, arrange the pieces to match it, and then trust it so completely that he left gaps for elements nobody had ever seen. He was right. The universe had already decided where gallium belonged. He just found the GPS coordinates of its home.</p>
+  <p style="font-size: 15px; line-height: 1.75; margin: 0 0 1.1rem; color: var(--color-text-primary);">That idea changed how I think about productivity, environment design, and the systems I build for my life and work. Most productivity frameworks start by inventing rules and then muscling you into compliance. ForgeFlow starts from the opposite direction: the order is already there. Your energy has a rhythm. Your environment has leverage points. Your relationships have a natural architecture. The work isn't to fabricate a system and force yourself to follow it - it's to observe what's already true and arrange your tools to match.</p>
+  <p style="font-size: 15px; line-height: 1.75; margin: 0; color: var(--color-text-primary);">When you stop inventing and start discovering, the friction drops out. Not because the work disappears, but because you're finally pushing in the same direction the current was already flowing. That's what the periodic table proved two centuries ago, and it's what I keep proving to myself every morning with a cup of coffee, a checklist, and a system that runs because it was found, not forced.</p>
+</section>
+
+</div>
+
+<script>
+(function(){
+const NS='http://www.w3.org/2000/svg';
+
+// [z, sym, name, period, group, year, category]
+const E=[
+[1,'H','Hydrogen',1,1,1766,'nm'],[2,'He','Helium',1,18,1895,'ng'],
+[3,'Li','Lithium',2,1,1817,'al'],[4,'Be','Beryllium',2,2,1798,'ae'],
+[5,'B','Boron',2,13,1808,'ml'],[6,'C','Carbon',2,14,-3000,'nm'],
+[7,'N','Nitrogen',2,15,1772,'nm'],[8,'O','Oxygen',2,16,1774,'nm'],
+[9,'F','Fluorine',2,17,1886,'hg'],[10,'Ne','Neon',2,18,1898,'ng'],
+[11,'Na','Sodium',3,1,1807,'al'],[12,'Mg','Magnesium',3,2,1808,'ae'],
+[13,'Al','Aluminum',3,13,1825,'pm'],[14,'Si','Silicon',3,14,1824,'ml'],
+[15,'P','Phosphorus',3,15,1669,'nm'],[16,'S','Sulfur',3,16,-3000,'nm'],
+[17,'Cl','Chlorine',3,17,1774,'hg'],[18,'Ar','Argon',3,18,1894,'ng'],
+[19,'K','Potassium',4,1,1807,'al'],[20,'Ca','Calcium',4,2,1808,'ae'],
+[21,'Sc','Scandium',4,3,1879,'tm'],[22,'Ti','Titanium',4,4,1791,'tm'],
+[23,'V','Vanadium',4,5,1801,'tm'],[24,'Cr','Chromium',4,6,1797,'tm'],
+[25,'Mn','Manganese',4,7,1774,'tm'],[26,'Fe','Iron',4,8,-3000,'tm'],
+[27,'Co','Cobalt',4,9,1735,'tm'],[28,'Ni','Nickel',4,10,1751,'tm'],
+[29,'Cu','Copper',4,11,-3000,'tm'],[30,'Zn','Zinc',4,12,-1000,'tm'],
+[31,'Ga','Gallium',4,13,1875,'pm'],[32,'Ge','Germanium',4,14,1886,'ml'],
+[33,'As','Arsenic',4,15,1250,'ml'],[34,'Se','Selenium',4,16,1817,'nm'],
+[35,'Br','Bromine',4,17,1826,'hg'],[36,'Kr','Krypton',4,18,1898,'ng'],
+[37,'Rb','Rubidium',5,1,1861,'al'],[38,'Sr','Strontium',5,2,1808,'ae'],
+[39,'Y','Yttrium',5,3,1794,'tm'],[40,'Zr','Zirconium',5,4,1789,'tm'],
+[41,'Nb','Niobium',5,5,1801,'tm'],[42,'Mo','Molybdenum',5,6,1778,'tm'],
+[43,'Tc','Technetium',5,7,1937,'tm'],[44,'Ru','Ruthenium',5,8,1844,'tm'],
+[45,'Rh','Rhodium',5,9,1803,'tm'],[46,'Pd','Palladium',5,10,1803,'tm'],
+[47,'Ag','Silver',5,11,-3000,'tm'],[48,'Cd','Cadmium',5,12,1817,'tm'],
+[49,'In','Indium',5,13,1863,'pm'],[50,'Sn','Tin',5,14,-2000,'pm'],
+[51,'Sb','Antimony',5,15,-1500,'ml'],[52,'Te','Tellurium',5,16,1782,'ml'],
+[53,'I','Iodine',5,17,1811,'hg'],[54,'Xe','Xenon',5,18,1898,'ng'],
+[55,'Cs','Cesium',6,1,1860,'al'],[56,'Ba','Barium',6,2,1808,'ae'],
+[57,'La','Lanthanum',8,3,1839,'ln'],[58,'Ce','Cerium',8,4,1803,'ln'],
+[59,'Pr','Praseodymium',8,5,1885,'ln'],[60,'Nd','Neodymium',8,6,1885,'ln'],
+[61,'Pm','Promethium',8,7,1945,'ln'],[62,'Sm','Samarium',8,8,1879,'ln'],
+[63,'Eu','Europium',8,9,1901,'ln'],[64,'Gd','Gadolinium',8,10,1880,'ln'],
+[65,'Tb','Terbium',8,11,1843,'ln'],[66,'Dy','Dysprosium',8,12,1886,'ln'],
+[67,'Ho','Holmium',8,13,1878,'ln'],[68,'Er','Erbium',8,14,1843,'ln'],
+[69,'Tm','Thulium',8,15,1879,'ln'],[70,'Yb','Ytterbium',8,16,1878,'ln'],
+[71,'Lu','Lutetium',8,17,1907,'ln'],
+[72,'Hf','Hafnium',6,4,1923,'tm'],[73,'Ta','Tantalum',6,5,1802,'tm'],
+[74,'W','Tungsten',6,6,1783,'tm'],[75,'Re','Rhenium',6,7,1925,'tm'],
+[76,'Os','Osmium',6,8,1803,'tm'],[77,'Ir','Iridium',6,9,1803,'tm'],
+[78,'Pt','Platinum',6,10,1735,'tm'],[79,'Au','Gold',6,11,-3000,'tm'],
+[80,'Hg','Mercury',6,12,-1500,'tm'],[81,'Tl','Thallium',6,13,1861,'pm'],
+[82,'Pb','Lead',6,14,-3000,'pm'],[83,'Bi','Bismuth',6,15,1500,'pm'],
+[84,'Po','Polonium',6,16,1898,'ml'],[85,'At','Astatine',6,17,1940,'hg'],
+[86,'Rn','Radon',6,18,1900,'ng'],
+[87,'Fr','Francium',7,1,1939,'al'],[88,'Ra','Radium',7,2,1898,'ae'],
+[89,'Ac','Actinium',9,3,1899,'an'],[90,'Th','Thorium',9,4,1828,'an'],
+[91,'Pa','Protactinium',9,5,1913,'an'],[92,'U','Uranium',9,6,1789,'an'],
+[93,'Np','Neptunium',9,7,1940,'an'],[94,'Pu','Plutonium',9,8,1940,'an'],
+[95,'Am','Americium',9,9,1944,'an'],[96,'Cm','Curium',9,10,1944,'an'],
+[97,'Bk','Berkelium',9,11,1949,'an'],[98,'Cf','Californium',9,12,1950,'an'],
+[99,'Es','Einsteinium',9,13,1952,'an'],[100,'Fm','Fermium',9,14,1952,'an'],
+[101,'Md','Mendelevium',9,15,1955,'an'],[102,'No','Nobelium',9,16,1958,'an'],
+[103,'Lr','Lawrencium',9,17,1961,'an'],
+[104,'Rf','Rutherfordium',7,4,1964,'tm'],[105,'Db','Dubnium',7,5,1968,'tm'],
+[106,'Sg','Seaborgium',7,6,1974,'tm'],[107,'Bh','Bohrium',7,7,1981,'tm'],
+[108,'Hs','Hassium',7,8,1984,'tm'],[109,'Mt','Meitnerium',7,9,1982,'tm'],
+[110,'Ds','Darmstadtium',7,10,1994,'tm'],[111,'Rg','Roentgenium',7,11,1994,'tm'],
+[112,'Cn','Copernicium',7,12,1996,'tm'],[113,'Nh','Nihonium',7,13,2003,'pm'],
+[114,'Fl','Flerovium',7,14,1999,'pm'],[115,'Mc','Moscovium',7,15,2003,'pm'],
+[116,'Lv','Livermorium',7,16,2000,'pm'],[117,'Ts','Tennessine',7,17,2010,'hg'],
+[118,'Og','Oganesson',7,18,2002,'ng']
+];
+
+const CAT={al:'coral',ae:'pink',tm:'amber',pm:'gray',ml:'green',nm:'blue',hg:'purple',ng:'teal',ln:'red',an:'red'};
+const LBL={al:'Alkali metal',ae:'Alkaline earth',tm:'Transition metal',pm:'Post-transition',ml:'Metalloid',nm:'Nonmetal',hg:'Halogen',ng:'Noble gas',ln:'Lanthanide / actinide'};
+const SWATCH={al:'#D85A30',ae:'#D4537E',tm:'#BA7517',pm:'#888780',ml:'#639922',nm:'#378ADD',hg:'#7F77DD',ng:'#1D9E75',ln:'#E24B4A'};
+
+const eras=[
+{year:1789,title:"Lavoisier's elements",layout:'scattered',knownBy:1789,
+desc:'Antoine Lavoisier publishes the first modern list \u2014 33 "simple substances" he believes can\u0027t be broken down further. He\u0027s mostly right, though his list also includes light, heat, and a handful of oxides he mistook for elements. No pattern yet, just a roster.'},
+{year:1829,title:"D\u00f6bereiner's triads",layout:'triads',knownBy:1829,
+desc:'Johann D\u00f6bereiner notices that some elements come in groups of three with shared chemistry \u2014 and the middle one\u0027s atomic weight is the average of the other two. The first crack in the idea that elements are random.'},
+{year:1864,title:"Newlands's law of octaves",layout:'octaves',knownBy:1864,
+desc:'John Newlands lines up the elements by atomic weight and notices every eighth one repeats \u2014 like notes in a musical scale. The Chemical Society laughs him out of the room. He\u0027s basically right.'},
+{year:1869,title:"Mendeleev's table",layout:'modern',knownBy:1869,showGaps:[21,31,32],
+desc:'Dmitri Mendeleev arranges every known element by atomic weight, breaking the line into rows so elements with similar chemistry stack into columns. The radical move: he leaves gaps where the pattern demands an element nobody has found yet, and predicts what those elements will look like.'},
+{year:1875,title:'Gallium found',layout:'modern',knownBy:1875,showGaps:[21,32],highlight:31,
+desc:'Paul-\u00c9mile Lecoq de Boisbaudran isolates a new metal \u2014 exactly where Mendeleev\u0027s gap predicted "eka-aluminum," with the right density and the right melting point. The table stops being a hypothesis and becomes a tool.'},
+{year:1898,title:'Noble gases',layout:'modern',knownBy:1898,
+desc:'William Ramsay and colleagues discover an entire family of unreactive gases nobody saw coming \u2014 argon, helium, neon, krypton, xenon. They don\u0027t fit anywhere on the existing table. So a brand new column gets added on the right.'},
+{year:1913,title:"Moseley's atomic numbers",layout:'modern',knownBy:1913,
+desc:'Henry Moseley uses X-rays to count the protons in each atom and shows the table should be ordered by that number, not by atomic weight. A few stubborn anomalies \u2014 tellurium and iodine, argon and potassium \u2014 finally line up correctly.'},
+{year:1945,title:"Seaborg's actinides",layout:'modern',knownBy:1945,
+desc:'Glenn Seaborg argues the heavy radioactive elements aren\u0027t transition metals \u2014 they\u0027re an f-block series like the lanthanides. Uranium and its neighbors slide down to a new row at the bottom. A Nobel Prize and an element named after him follow.'},
+{year:2016,title:'Row 7 complete',layout:'modern',knownBy:2016,
+desc:'After decades of synthesizing elements one atom at a time, the last four superheavies get official names: nihonium, moscovium, tennessine, oganesson. Period 7 is full. 118 elements, every one in the place Mendeleev\u0027s logic said it had to be.'}
+];
+
+const scatterMap={
+H:{x:60,y:40},N:{x:200,y:30},O:{x:330,y:50},C:{x:460,y:35},S:{x:580,y:50},
+P:{x:120,y:100},Cl:{x:250,y:110},Sb:{x:380,y:95},As:{x:510,y:115},Ag:{x:640,y:95},
+Bi:{x:60,y:170},Co:{x:190,y:180},Cu:{x:310,y:160},Sn:{x:440,y:185},Fe:{x:560,y:170},
+Mn:{x:130,y:240},Hg:{x:270,y:250},Mo:{x:400,y:230},Ni:{x:530,y:245},Au:{x:640,y:225},
+Pt:{x:90,y:305},Pb:{x:230,y:315},W:{x:380,y:300},Zn:{x:510,y:310}
+};
+
+const triadMap={
+Li:{x:128,y:100},Na:{x:128,y:160},K:{x:128,y:220},
+Ca:{x:268,y:100},Sr:{x:268,y:160},Ba:{x:268,y:220},
+S:{x:408,y:100},Se:{x:408,y:160},Te:{x:408,y:220},
+Cl:{x:548,y:100},Br:{x:548,y:160},I:{x:548,y:220}
+};
+
+const octaveLayout=[
+['H','Li','Be','B','C','N','O'],
+['F','Na','Mg','Al','Si','P','S'],
+['Cl','K','Ca','Cr','Ti','Mn','Fe'],
+['Co','Cu','Zn','Y','In','As','Se'],
+['Br','Rb','Sr','La','Zr','Mo','Ru'],
+['I','Ag','Cd','Sn','Sb','Te','Cs'],
+['Pt','Au','Hg','Tl','Pb','Bi','Os']
+];
+const octaveMap={};
+octaveLayout.forEach((row,r)=>{row.forEach((sym,c)=>{octaveMap[sym]={x:224+c*36,y:50+r*36};});});
+
+function modernPos(el,era){
+if(el[5]>era.knownBy)return null;
+let p=el[3],g=el[4];
+if(era.year<1945&&el[0]>=89&&el[0]<=94){p=7;g=el[0]-89+3;}
+const x=(g-1)*36+30;
+let y=(p-1)*36+30;
+if(p>=8)y+=14;
+return{x,y};
+}
+
+function computePos(el,era){
+if(era.layout==='scattered')return scatterMap[el[1]]||null;
+if(era.layout==='triads')return triadMap[el[1]]||null;
+if(era.layout==='octaves')return octaveMap[el[1]]||null;
+if(era.layout==='modern')return modernPos(el,era);
+return null;
+}
+
+function fmtY(y){if(y<-1500)return'antiquity';if(y<0)return'~'+Math.abs(y)+' BCE';if(y<1500)return'medieval';return y;}
+
+const svg=document.getElementById('pt-svg');
+
+const triadHeaders=[{x:145,y:84,t:'Alkali'},{x:285,y:84,t:'Alkaline earth'},{x:425,y:84,t:'Chalcogens'},{x:565,y:84,t:'Halogens'}];
+const triadLabelEls=[];
+triadHeaders.forEach(h=>{
+  const t=document.createElementNS(NS,'text');
+  t.setAttribute('x',h.x);t.setAttribute('y',h.y);
+  t.setAttribute('text-anchor','middle');
+  t.style.fontSize='10px';t.style.fill='var(--color-text-tertiary)';
+  t.style.opacity='0';t.style.transition='opacity 500ms ease';
+  t.textContent=h.t;
+  svg.appendChild(t);triadLabelEls.push(t);
+});
+
+E.forEach(el=>{
+const g=document.createElementNS(NS,'g');
+g.setAttribute('id','pt-el-'+el[0]);
+g.setAttribute('class','pt-cell c-'+CAT[el[6]]);
+g.style.opacity='0';g.style.transform='translate(350px,180px)';
+const ti=document.createElementNS(NS,'title');
+ti.textContent=el[1]+' \u2014 '+el[2]+' ('+el[0]+'). Discovered '+fmtY(el[5])+'.';
+g.appendChild(ti);
+const r=document.createElementNS(NS,'rect');
+r.setAttribute('width','34');r.setAttribute('height','34');r.setAttribute('rx','3');
+g.appendChild(r);
+const zT=document.createElementNS(NS,'text');
+zT.setAttribute('x','4');zT.setAttribute('y','11');zT.setAttribute('class','ts');
+zT.style.fontSize='7px';zT.textContent=el[0];
+g.appendChild(zT);
+const sT=document.createElementNS(NS,'text');
+sT.setAttribute('x','17');sT.setAttribute('y','25');sT.setAttribute('class','t');
+sT.style.fontSize='12px';sT.style.fontWeight='500';sT.style.textAnchor='middle';
+sT.textContent=el[1];
+g.appendChild(sT);
+svg.appendChild(g);
+});
+
+const gaps=[{z:21,p:4,g:3},{z:31,p:4,g:13},{z:32,p:4,g:14}];
+gaps.forEach(gp=>{
+const g=document.createElementNS(NS,'g');
+g.setAttribute('id','pt-gap-'+gp.z);
+g.setAttribute('class','pt-gap');
+g.style.opacity='0';
+const r=document.createElementNS(NS,'rect');
+r.setAttribute('width','34');r.setAttribute('height','34');r.setAttribute('rx','3');
+g.appendChild(r);
+const t=document.createElementNS(NS,'text');
+t.setAttribute('x','17');t.setAttribute('y','26');
+t.style.fontSize='15px';t.style.fontWeight='500';t.style.textAnchor='middle';
+t.style.fill='var(--color-text-tertiary)';t.textContent='?';
+g.appendChild(t);
+const x=(gp.g-1)*36+30;const y=(gp.p-1)*36+30;
+g.style.transform='translate('+x+'px,'+y+'px)';
+svg.appendChild(g);
+});
+
+const tl=document.getElementById('pt-timeline');
+const ln=document.createElement('div');
+ln.style.cssText='position:absolute;left:30px;right:30px;top:11px;height:1px;background:var(--color-border-tertiary);z-index:0;';
+tl.appendChild(ln);
+eras.forEach((era,i)=>{
+const tk=document.createElement('div');tk.className='pt-tick';
+const dot=document.createElement('button');
+dot.className='pt-dot';dot.dataset.idx=i;
+dot.title=era.year+' \u2014 '+era.title;
+dot.style.position='relative';dot.style.zIndex='1';
+dot.addEventListener('click',()=>render(i));
+tk.appendChild(dot);
+const lbl=document.createElement('span');
+lbl.style.cssText='font-size:10px;color:var(--color-text-secondary);white-space:nowrap;';
+lbl.textContent=era.year;tk.appendChild(lbl);
+tl.appendChild(tk);
+});
+
+const lg=document.getElementById('pt-legend');
+Object.keys(SWATCH).forEach(k=>{
+const it=document.createElement('span');
+it.style.cssText='display:flex;align-items:center;gap:5px;';
+const sw=document.createElement('span');
+sw.style.cssText='width:10px;height:10px;border-radius:2px;background:'+SWATCH[k]+';display:inline-block;';
+it.appendChild(sw);
+it.appendChild(document.createTextNode(LBL[k]));
+lg.appendChild(it);
+});
+
+let cur=0;
+function render(idx){
+cur=idx;const era=eras[idx];
+document.getElementById('pt-year').textContent=era.year;
+document.getElementById('pt-era-name').textContent=era.title;
+document.getElementById('pt-counter').textContent=(idx+1)+'/'+eras.length;
+document.getElementById('pt-description').textContent=era.desc;
+document.getElementById('pt-prev').disabled=idx===0;
+document.getElementById('pt-next').disabled=idx===eras.length-1;
+document.querySelectorAll('.pt-dot').forEach((d,i)=>{
+d.classList.toggle('active',i===idx);
+d.classList.toggle('past',i<idx);
+});
+E.forEach(el=>{
+const node=document.getElementById('pt-el-'+el[0]);
+const pos=computePos(el,era);
+if(pos){node.style.transform='translate('+pos.x+'px,'+pos.y+'px)';node.style.opacity='1';}
+else{node.style.opacity='0';}
+});
+document.querySelectorAll('.pt-gap').forEach(g=>{g.style.opacity='0';});
+if(era.showGaps){era.showGaps.forEach(z=>{const gp=document.getElementById('pt-gap-'+z);if(gp)gp.style.opacity='1';});}
+if(era.highlight){
+const node=document.getElementById('pt-el-'+era.highlight);
+if(node){setTimeout(()=>{node.classList.add('pt-pulse');setTimeout(()=>node.classList.remove('pt-pulse'),1900);},500);}
+}
+document.getElementById('pt-ln-label').style.opacity=(era.layout==='modern')?'1':'0';
+document.getElementById('pt-an-label').style.opacity=(era.layout==='modern'&&era.year>=1945)?'1':'0';
+triadLabelEls.forEach(t=>{t.style.opacity=(era.layout==='triads')?'1':'0';});
+}
+
+document.getElementById('pt-prev').addEventListener('click',()=>{if(cur>0)render(cur-1);});
+document.getElementById('pt-next').addEventListener('click',()=>{if(cur<eras.length-1)render(cur+1);});
+document.addEventListener('keydown',e=>{
+if(e.key==='ArrowLeft'&&cur>0)render(cur-1);
+if(e.key==='ArrowRight'&&cur<eras.length-1)render(cur+1);
+});
+
+render(0);
+})();
+</script>
+</body>
+</html>

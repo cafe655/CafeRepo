@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<title>Website Architecture Framework — Cafe655</title>
+<title>Website Architecture Framework v0.2 — Cafe655</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -38,15 +38,15 @@ body{background:var(--black);color:var(--text);font-family:'SF Mono','Cascadia C
 .site-nav a.site-link:hover { color: #f5f5f7; background: rgba(227, 24, 55, 0.12); }
 
 /* HERO */
-.hero{text-align:center;padding:3.5rem 1.25rem 1.5rem;max-width:900px;margin:0 auto}
+.hero{text-align:center;padding:3.5rem 1.25rem 1.5rem;max-width:920px;margin:0 auto}
 .hero .eyebrow{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.25em;margin-bottom:0.6rem}
 .hero h1{font-size:clamp(2rem,6.5vw,3.6rem);font-weight:900;letter-spacing:-0.03em;line-height:1.05;margin-bottom:0.6rem}
 .hero h1 .r{color:var(--red)}
-.hero .sub{font-size:0.92rem;color:var(--muted);max-width:680px;margin:1rem auto 0;line-height:1.75}
+.hero .sub{font-size:0.92rem;color:var(--muted);max-width:700px;margin:1rem auto 0;line-height:1.75}
 .hero .meta{font-size:0.7rem;color:var(--faint);margin-top:1.4rem;letter-spacing:0.1em;text-transform:uppercase}
 
 /* WRAP */
-.wrap{max-width:900px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
+.wrap{max-width:920px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
 
 /* TLDR / CALLOUT */
 .tldr{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:1.3rem 1.5rem;margin:1.5rem 0 2rem}
@@ -61,6 +61,17 @@ body{background:var(--black);color:var(--text);font-family:'SF Mono','Cascadia C
 }
 .callout b{color:var(--red);font-weight:700}
 
+.rule-callout{
+  background:linear-gradient(180deg,rgba(255,0,0,0.08),rgba(255,0,0,0.02));
+  border:1px solid var(--red-dim);
+  border-radius:8px;padding:0.95rem 1.1rem;margin:1rem 0;
+}
+.rule-callout-h{font-size:0.65rem;color:var(--red);text-transform:uppercase;letter-spacing:0.18em;font-weight:800;margin-bottom:0.5rem}
+.rule-callout p{font-size:0.83rem;color:var(--dim);margin:0.3rem 0;line-height:1.7}
+.rule-callout ol,.rule-callout ul{margin:0.4rem 0 0.4rem 1.2rem}
+.rule-callout li{font-size:0.82rem;color:var(--dim);line-height:1.65;margin:0.2rem 0}
+.rule-callout li b{color:var(--text);font-weight:700}
+
 /* LAYER STACK DIAGRAM */
 .stack{
   background:var(--card);border:1px solid var(--border);border-radius:12px;
@@ -73,16 +84,19 @@ body{background:var(--black);color:var(--text);font-family:'SF Mono','Cascadia C
   border-radius:6px;margin:0.25rem 0;font-size:0.8rem;
   transition:all 0.2s;
 }
+.layer-row.new{border-color:var(--red-dim);background:linear-gradient(90deg,rgba(255,0,0,0.05),var(--card2))}
 .layer-row:hover{border-color:var(--red-dim);background:var(--red-dark);transform:translateX(3px)}
 .layer-num{color:var(--red);font-weight:800;margin-right:0.7rem;width:1.5rem;display:inline-block;text-align:center}
 .layer-name{color:var(--text);font-weight:600;flex:1}
 .layer-tag{color:var(--muted);font-size:0.7rem;font-style:italic}
+.new-badge{display:inline-block;background:var(--red);color:#fff;font-size:0.55rem;padding:0.1rem 0.4rem;border-radius:3px;margin-left:0.4rem;font-weight:800;letter-spacing:0.1em;vertical-align:middle}
 
 /* SECTION HEADERS */
 .s-h{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.2em;margin:2.5rem 0 0.5rem;text-align:center}
 
 /* LAYER BLOCK */
 .layer-block{margin:1.2rem 0;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.layer-block.security{border-color:var(--red-dim);box-shadow:0 0 0 1px rgba(255,0,0,0.05)}
 details summary{
   list-style:none;cursor:pointer;
   padding:1.1rem 1.4rem;
@@ -107,17 +121,19 @@ details[open] summary{background:var(--card2);border-bottom:1px solid var(--bord
 .det-body{padding:1.3rem 1.5rem 1.5rem;background:var(--bg)}
 .det-body h4{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.15em;margin:1.4rem 0 0.6rem;font-weight:700}
 .det-body h4:first-child{margin-top:0}
+.det-body h5{font-size:0.82rem;color:var(--text);font-weight:700;margin:1.1rem 0 0.4rem;letter-spacing:-0.01em}
 .det-body p{font-size:0.85rem;color:var(--dim);margin:0.6rem 0;line-height:1.8}
 .det-body p b{color:var(--text);font-weight:700}
-.det-body ul{list-style:none;margin:0.5rem 0 0.8rem}
-.det-body ul li{
+.det-body ul,.det-body ol{list-style:none;margin:0.5rem 0 0.8rem}
+.det-body ul li,.det-body ol li{
   font-size:0.84rem;color:var(--dim);padding-left:1.3rem;position:relative;
   margin:0.35rem 0;line-height:1.7;
 }
-.det-body ul li::before{
-  content:"▸";color:var(--red);position:absolute;left:0.2rem;font-size:0.7rem;top:0.45rem;
-}
-.det-body ul li b{color:var(--text);font-weight:700}
+.det-body ul li::before{content:"▸";color:var(--red);position:absolute;left:0.2rem;font-size:0.7rem;top:0.45rem}
+.det-body ol{counter-reset:item}
+.det-body ol li{counter-increment:item}
+.det-body ol li::before{content:counter(item)".";color:var(--red);position:absolute;left:0.2rem;font-size:0.78rem;top:0.05rem;font-weight:700}
+.det-body ul li b,.det-body ol li b{color:var(--text);font-weight:700}
 .det-body a{color:var(--red);text-decoration:none;border-bottom:1px dotted var(--red-dim);transition:opacity 0.2s;word-break:break-word}
 .det-body a:hover{opacity:0.7}
 
@@ -167,6 +183,23 @@ table.tbl tr:last-child td{border-bottom:none}
 .phase-h{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.12em;font-weight:700;margin-bottom:0.3rem}
 .phase-body{font-size:0.83rem;color:var(--dim);line-height:1.7}
 
+/* AVAM block */
+.avam{
+  background:var(--card2);border:1px solid var(--red-dim);border-radius:8px;
+  padding:0.95rem 1.1rem;margin:1rem 0;
+}
+.avam-h{font-size:0.65rem;color:var(--red);text-transform:uppercase;letter-spacing:0.18em;font-weight:800;margin-bottom:0.5rem}
+.avam-step{font-size:0.83rem;color:var(--dim);margin:0.3rem 0;line-height:1.65}
+.avam-step b{color:var(--red);font-weight:800}
+
+/* DIAGRAM */
+.diag{
+  background:var(--code-bg);border:1px solid var(--border);border-radius:8px;
+  padding:0.85rem 1rem;font-size:0.74rem;color:var(--dim);
+  overflow-x:auto;line-height:1.6;margin:0.6rem 0 1rem;font-family:inherit;
+  white-space:pre;
+}
+
 /* FOOTER */
 .footer{text-align:center;padding:2.5rem 1.25rem;color:var(--faint);font-size:0.7rem;border-top:1px solid var(--border);margin-top:3rem}
 
@@ -179,7 +212,7 @@ table.tbl tr:last-child td{border-bottom:none}
   .sum-tagline{font-size:0.74rem}
   table.tbl{font-size:0.72rem}
   table.tbl th,table.tbl td{padding:0.45rem 0.55rem}
-  pre.code{font-size:0.7rem;padding:0.7rem 0.85rem}
+  pre.code,.diag{font-size:0.7rem;padding:0.7rem 0.85rem}
 }
 </style>
 </head>
@@ -194,9 +227,9 @@ table.tbl tr:last-child td{border-bottom:none}
 </div>
 
 <header class="hero">
-  <div class="eyebrow">Architectural Framework · v0.1 Outline</div>
+  <div class="eyebrow">Architectural Framework · v0.2</div>
   <h1>How to <span class="r">build</span> a website you can actually run.</h1>
-  <p class="sub">A 9-layer framework for solo non-developers building real production websites with an AI coding agent. Each layer pre-answers questions so neither you nor Claude has to re-decide them per page.</p>
+  <p class="sub">An eleven-layer framework for solo non-developers building real production websites with an AI coding agent. Now with security as a foundational layer, GitHub-centric workflow, and a deeper admin portal design. Each layer pre-answers questions so neither you nor Claude has to re-decide them per page.</p>
   <div class="meta">May 1, 2026 · For David (Cafe) + Claude</div>
 </header>
 
@@ -205,23 +238,25 @@ table.tbl tr:last-child td{border-bottom:none}
   <!-- ===== TL;DR ===== -->
   <div class="tldr">
     <div class="tldr-h">The Big Idea</div>
-    <p>The framework is organized as <b>layers</b>. Each layer pre-answers questions for the layer above it, so neither you nor the agent has to re-decide them per page or per project.</p>
+    <p>The framework is organized as <b>eleven layers</b>. Each layer pre-answers questions for the layer above it, so neither you nor the agent has to re-decide them per page or per project.</p>
     <p>The <b>lower</b> layers are read more often (by you, by Claude, on every change). The <b>upper</b> layers are read when you're making decisions or recovering history.</p>
-    <p>When operational, the contract is: <b>Claude reads layers 1–6 before writing any code</b>, and <b>writes to layers 7–9 as a side effect of its work</b>.</p>
+    <p>The contract: <b>Claude reads layers 1–7 before writing any code</b>. <b>Layer 4 (Security) is non-negotiable</b>. <b>Layer 9 (Version Control) is the substrate</b> every change runs on. <b>Layers 8 (Admin) and 10 (Operational Loop)</b> are the surfaces you use day-to-day. <b>Layer 11 (Decision Record)</b> is written as a side effect.</p>
   </div>
 
   <!-- ===== STACK ===== -->
   <div class="stack">
     <div class="stack-h">The Layer Stack</div>
-    <div class="layer-row"><span><span class="layer-num">9</span><span class="layer-name">Decision Record</span></span><span class="layer-tag">why we chose X</span></div>
-    <div class="layer-row"><span><span class="layer-num">8</span><span class="layer-name">Operational Loop</span></span><span class="layer-tag">deploy / verify</span></div>
-    <div class="layer-row"><span><span class="layer-num">7</span><span class="layer-name">Admin Interface</span></span><span class="layer-tag">how you edit</span></div>
-    <div class="layer-row"><span><span class="layer-num">6</span><span class="layer-name">Code Architecture</span></span><span class="layer-tag">how files sit</span></div>
-    <div class="layer-row"><span><span class="layer-num">5</span><span class="layer-name">Content Model</span></span><span class="layer-tag">what content is</span></div>
-    <div class="layer-row"><span><span class="layer-num">4</span><span class="layer-name">Design System</span></span><span class="layer-tag">how it looks</span></div>
+    <div class="layer-row"><span><span class="layer-num">11</span><span class="layer-name">Decision Record</span></span><span class="layer-tag">why we chose X</span></div>
+    <div class="layer-row"><span><span class="layer-num">10</span><span class="layer-name">Operational Loop</span></span><span class="layer-tag">deploy / verify</span></div>
+    <div class="layer-row new"><span><span class="layer-num">9</span><span class="layer-name">Version Control<span class="new-badge">NEW</span></span></span><span class="layer-tag">GitHub-centric</span></div>
+    <div class="layer-row"><span><span class="layer-num">8</span><span class="layer-name">Admin Portal</span></span><span class="layer-tag">how you edit</span></div>
+    <div class="layer-row"><span><span class="layer-num">7</span><span class="layer-name">Code Architecture</span></span><span class="layer-tag">how files sit</span></div>
+    <div class="layer-row"><span><span class="layer-num">6</span><span class="layer-name">Content Model</span></span><span class="layer-tag">what content is</span></div>
+    <div class="layer-row"><span><span class="layer-num">5</span><span class="layer-name">Design System</span></span><span class="layer-tag">how it looks</span></div>
+    <div class="layer-row new"><span><span class="layer-num">4</span><span class="layer-name">Security Layer<span class="new-badge">NEW</span></span></span><span class="layer-tag">how it stays safe</span></div>
     <div class="layer-row"><span><span class="layer-num">3</span><span class="layer-name">Agent Operating Manual</span></span><span class="layer-tag">how Claude reads it</span></div>
     <div class="layer-row"><span><span class="layer-num">2</span><span class="layer-name">Specification</span></span><span class="layer-tag">what we're building</span></div>
-    <div class="layer-row"><span><span class="layer-num">1</span><span class="layer-name">Mental Model</span></span><span class="layer-tag">foundational principles</span></div>
+    <div class="layer-row"><span><span class="layer-num">1</span><span class="layer-name">Mental Model</span></span><span class="layer-tag">foundational</span></div>
   </div>
 
 
@@ -243,16 +278,21 @@ table.tbl tr:last-child td{border-bottom:none}
       <h4>Core principles</h4>
       <ul>
         <li><b>Decisions, not options.</b> A good architecture <i>narrows</i> choice. One type ramp, one spacing scale, one component for "card." Every "or" is a future inconsistency.</li>
-        <li><b>Tokens, not values.</b> Components reference named tokens (<code class="inline">--bg-page</code>, <code class="inline">space-4</code>), never raw values. (W3C DTCG spec, Primer's foundational rule.)</li>
-        <li><b>Schema-first contracts.</b> Every shape — content, props, API responses, DB rows — has one canonical schema. Zod is the de-facto standard. The schema is the contract, the validator, <i>and</i> the type.</li>
-        <li><b>Constraint as feature.</b> Limited palettes, limited components, limited prose styles → consistency for free. Agents pick randomly when given options; humans get tired when given options.</li>
-        <li><b>Separation of concerns by layer.</b> Content ≠ presentation. Presentation ≠ layout. Layout ≠ structure.</li>
-        <li><b>Explicit over implicit.</b> Especially for AI agents: a written-down rule is followed, an inferred rule drifts.</li>
+        <li><b>Tokens, not values.</b> Components reference named tokens (<code class="inline">--bg-page</code>, <code class="inline">space-4</code>), never raw values.</li>
+        <li><b>Schema-first contracts.</b> Every shape has one canonical schema. Zod is the de-facto standard. The schema is the contract, the validator, <i>and</i> the type.</li>
+        <li><b>Constraint as feature.</b> Limited palettes, limited components, limited prose styles → consistency for free. Agents pick randomly when given options.</li>
+        <li><b>Separation of concerns by layer.</b> Content ≠ presentation ≠ layout ≠ structure.</li>
+        <li><b>Explicit over implicit.</b> A written-down rule is followed; an inferred rule drifts.</li>
         <li><b>Reversible defaults.</b> Pick patterns that can be replaced incrementally, not patterns that demand rewrites.</li>
-        <li><b>Vibe-coding requires guardrails.</b> "Talk to Claude and push" only stays sustainable if the framework catches drift automatically.</li>
+        <li><b>Vibe-coding requires guardrails.</b> Sustainable only if the framework catches drift automatically (typecheck, lint, schema validation, screenshot diffs, security review).</li>
+        <li><b>Security is a layer, not a sprinkle.</b> Every feature's threat model is considered before code is written, not after the breach.</li>
+        <li><b>The repo is the source of truth.</b> Not your laptop. The day GitHub is canonical, you can lose your laptop without losing work.</li>
       </ul>
 
-      <div class="fnote"><b>When fully developed:</b> a 1-page principles statement that other layers cite.</div>
+      <div class="rule-callout">
+        <div class="rule-callout-h">Framework Rules</div>
+        <p>Every architectural decision can be traced back to one or more of these principles. If a proposed pattern violates a principle, either the principle is wrong (debate, then rewrite) or the pattern is wrong.</p>
+      </div>
     </div>
   </details></div>
 
@@ -268,31 +308,43 @@ table.tbl tr:last-child td{border-bottom:none}
     </summary>
     <div class="det-body">
       <h4>Intent</h4>
-      <p>A spec is the artifact that gets written <i>before</i> code. It captures the "what" and the "why" so the agent doesn't have to invent answers from gaps in the prompt. Two dominant frameworks have emerged in 2025–2026: <b>GitHub Spec Kit</b> (Constitution → Specify → Clarify → Plan → Tasks → Implement) and Amazon's <b>Kiro</b> (Requirements → Design → Tasks).</p>
+      <p>A spec is the artifact that gets written <i>before</i> code. It captures the "what" and the "why" so the agent doesn't have to invent answers from gaps in the prompt.</p>
+
+      <h4>Two dominant frameworks (2025–2026)</h4>
+      <ul>
+        <li><b>GitHub Spec Kit</b> — Constitution → Specify → Clarify → Plan → Tasks → Implement</li>
+        <li><b>Amazon Kiro</b> — Requirements → Design → Tasks (with EARS-notation acceptance criteria)</li>
+      </ul>
 
       <h4>Components</h4>
       <ul>
         <li><b>specs/ directory</b> at repo root, one folder per feature.</li>
-        <li><b>spec.md</b> — what is being built, success criteria, out of scope. Acceptance criteria in EARS notation: <i>"When [trigger], the [system] shall [behavior]."</i></li>
-        <li><b>plan.md</b> — how we'll build it. Architectural choices, file changes, sequencing.</li>
+        <li><b>spec.md</b> — what is being built, success criteria, out of scope. EARS notation: <i>"When [trigger], the [system] shall [behavior]."</i></li>
+        <li><b>plan.md</b> — how we'll build it.</li>
         <li><b>tasks.md</b> — ordered, parallelizable work items.</li>
-        <li><b>Lifecycle:</b> spec → human review → plan → human review → implementation. Not optional, even for small features.</li>
-        <li><b>Solo-dev lightweight version:</b> for trivial changes, a single spec.md is enough. For anything touching multiple layers, do the full flow.</li>
+        <li><b>Lifecycle:</b> spec → human review → plan → human review → implementation.</li>
+        <li><b>Lightweight version</b> for trivial changes (typo fix, dep bump): a one-paragraph spec is fine. Anything touching multiple layers — and <i>always</i> Layer 4 — gets the full flow.</li>
       </ul>
 
-      <div class="callout"><b>Why this matters for AI-augmented dev:</b> Without a spec, the agent fills gaps with guesses; with a spec, the agent fills gaps with the spec. This is the single highest-leverage discipline change for solo vibe-coders.</div>
+      <div class="callout"><b>Why this matters for AI-augmented dev:</b> Without a spec, the agent fills gaps with guesses; with a spec, the agent fills gaps with the spec. Single highest-leverage discipline change for solo vibe-coders.</div>
+
+      <div class="rule-callout">
+        <div class="rule-callout-h">Framework Rules</div>
+        <ul>
+          <li>Every feature touching auth, payments, customer data, or DB schema requires a full spec → plan → tasks flow before code.</li>
+          <li>Specs are checked into the repo, not kept in chat.</li>
+          <li>Closed-out specs are archived to <code class="inline">specs/archive/</code>, not deleted.</li>
+        </ul>
+      </div>
 
       <div class="src-list">
         <h4>Sources</h4>
         <ul>
           <li><a href="https://github.com/github/spec-kit">GitHub Spec Kit</a></li>
           <li><a href="https://kiro.dev/">Kiro IDE</a></li>
-          <li><a href="https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html">Martin Fowler: Spec-Driven Development</a></li>
-          <li><a href="https://github.com/PaulDuvall/ai-development-patterns">PaulDuvall/ai-development-patterns</a></li>
+          <li><a href="https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html">Martin Fowler: SDD</a></li>
         </ul>
       </div>
-
-      <div class="fnote"><b>When fully developed:</b> spec.md / plan.md / tasks.md templates and a one-page "when to write a spec" decision rule.</div>
     </div>
   </details></div>
 
@@ -308,29 +360,38 @@ table.tbl tr:last-child td{border-bottom:none}
     </summary>
     <div class="det-body">
       <h4>Intent</h4>
-      <p><b>AGENTS.md</b> is the cross-tool spec (Linux Foundation, supported by Claude Code, OpenAI Codex, Cursor, Aider, Copilot, etc.) for briefing AI agents on a codebase. <b>CLAUDE.md</b> is the Claude-specific extension; many projects symlink them. Vercel does. The agent reads the <b>nearest</b> file in the directory tree, so subprojects can override the root.</p>
+      <p><b>AGENTS.md</b> is the cross-tool spec (Linux Foundation; supported by Claude Code, OpenAI Codex, Cursor, Aider, Copilot). <b>CLAUDE.md</b> is the Claude-specific extension. The agent reads the <b>nearest</b> file in the directory tree.</p>
 
       <h4>Components of a good AGENTS.md</h4>
-      <ul>
-        <li>Project overview (what & why, 2–3 lines)</li>
-        <li>Stack & versions (Next.js 16, Tailwind v4, Supabase, Vercel)</li>
+      <ol>
+        <li>Project overview (2–3 lines)</li>
+        <li>Stack & versions</li>
         <li>Codebase map (where things live)</li>
-        <li>Build/dev/test commands (exact strings to run)</li>
+        <li>Build/dev/test commands</li>
         <li>Code style — <i>only what tools can't enforce</i></li>
         <li>Testing instructions</li>
-        <li>Security / secrets boundaries</li>
-        <li>Commit / PR conventions</li>
+        <li>Security/secrets boundaries (cross-references Layer 4)</li>
+        <li>Commit/PR conventions (cross-references Layer 9)</li>
         <li>Known gotchas / anti-patterns</li>
-        <li>Pointers to deeper docs (progressive disclosure)</li>
-      </ul>
+        <li>Pointers to deeper docs</li>
+      </ol>
 
       <h4>Hard rules from the field</h4>
       <ul>
         <li><b>Brevity is load-bearing.</b> Frontier LLMs reliably follow ~150–200 instructions; Claude Code's system prompt already uses ~50. Target <b>under 300 lines</b>, ideally under 60. Every line costs context budget on every turn.</li>
         <li><b>Don't auto-generate.</b> Hand-craft. Auto-gen produces noise.</li>
-        <li><b>Progressive disclosure.</b> Root file thin, deeper docs (docs/auth.md, docs/db-conventions.md) loaded on demand.</li>
-        <li><b>Forbidden patterns belong here.</b> Explicit Don't list (no inline <code class="inline">style=</code>, no Tailwind arbitrary values, no <code class="inline">any</code>).</li>
+        <li><b>Progressive disclosure.</b> Root file thin, deeper docs (<code class="inline">docs/security.md</code>) loaded on demand.</li>
+        <li><b>Forbidden patterns belong here.</b> Explicit Don't list (no inline <code class="inline">style=</code>, no Tailwind arbitrary values, no <code class="inline">any</code>, no <code class="inline">getSession()</code> server-side).</li>
       </ul>
+
+      <div class="rule-callout">
+        <div class="rule-callout-h">Framework Rules</div>
+        <ul>
+          <li>AGENTS.md and CLAUDE.md are reviewed for PII before every commit.</li>
+          <li>AGENTS.md cross-references <code class="inline">docs/security.md</code> for the security checklist the agent must apply.</li>
+          <li>Symlink CLAUDE.md → AGENTS.md (or maintain both with Claude-specific bits in CLAUDE.md only).</li>
+        </ul>
+      </div>
 
       <div class="src-list">
         <h4>Sources</h4>
@@ -340,65 +401,258 @@ table.tbl tr:last-child td{border-bottom:none}
           <li><a href="https://www.humanlayer.dev/blog/writing-a-good-claude-md">HumanLayer: Writing a good CLAUDE.md</a></li>
         </ul>
       </div>
-
-      <div class="fnote"><b>When fully developed:</b> a template AGENTS.md plus a checklist for what <i>not</i> to put in it.</div>
     </div>
   </details></div>
 
 
-  <!-- ===== LAYER 4 ===== -->
-  <div class="layer-block"><details>
+  <!-- ===== LAYER 4 — SECURITY (NEW) ===== -->
+  <div class="layer-block security"><details>
     <summary>
       <div class="sum-text">
-        <div class="sum-tag">Layer 4</div>
-        <div class="sum-name">The Design System</div>
-        <div class="sum-tagline">Tokens, components, patterns — pre-decides every visual question.</div>
+        <div class="sum-tag">Layer 4 · NEW · foundational</div>
+        <div class="sum-name">The Security Layer</div>
+        <div class="sum-tagline">How the site stays safe — for you, your data, and (eventually) your customers.</div>
       </div>
     </summary>
     <div class="det-body">
       <h4>Intent</h4>
-      <p>Without a design system, every page reinvents type, color, spacing, motion. With one, the agent (and you) reach for the same tokens every time, and the site looks coherent without anyone having to think about it.</p>
+      <p>Security is foundational, not a polish step. Every feature's threat model is considered before code is written. The framework enforces a non-negotiable set of defaults so even AI-generated code can't introduce common vulnerabilities silently.</p>
+      <p>This layer is <b>read before every architectural decision in layers 5–11</b>.</p>
 
-      <h4>4.1 Tokens</h4>
+      <h4>4.1 OWASP Top 10 (2025) — what to defend against</h4>
+      <p>The 2025 list (Nov 2025) introduces two new categories: <b>A03 Software Supply Chain Failures</b> and <b>A10 Mishandling of Exceptional Conditions</b>. SSRF folded into A01.</p>
+      <table class="tbl">
+        <tr><th>#</th><th>Risk</th><th>Defense</th></tr>
+        <tr><td class="k">A01</td><td>Broken Access Control</td><td>Re-auth in every Server Action; default-deny RLS; authz at the data-access layer</td></tr>
+        <tr><td class="k">A02</td><td>Security Misconfiguration</td><td>Strict nonced CSP; security headers in next.config.ts</td></tr>
+        <tr><td class="k">A03</td><td>Software Supply Chain Failures</td><td>Lockfile committed; npm ci --frozen-lockfile; Dependabot; verify each new dep</td></tr>
+        <tr><td class="k">A04</td><td>Cryptographic Failures</td><td>Use Supabase Auth; HTTPS-only; httpOnly+Secure+SameSite=Lax cookies</td></tr>
+        <tr><td class="k">A05</td><td>Injection</td><td>Parameterized queries; sanitize HTML with DOMPurify; Zod-validate every input</td></tr>
+        <tr><td class="k">A06</td><td>Insecure Design</td><td>Threat-model before each feature; treat client as adversary</td></tr>
+        <tr><td class="k">A07</td><td>Vulnerable & Outdated Components</td><td>Dependabot weekly; npm audit in CI</td></tr>
+        <tr><td class="k">A08</td><td>Auth Failures</td><td>getUser() / getClaims() server-side; mandatory MFA; rate-limit login</td></tr>
+        <tr><td class="k">A09</td><td>Software/Data Integrity Failures</td><td>Pin versions; integrity attribute on external scripts</td></tr>
+        <tr><td class="k">A10</td><td>Mishandling Exceptional Conditions</td><td>Fail closed; never return error details to client; log full context server-side</td></tr>
+      </table>
+
+      <h4>4.2 Next.js 16-specific security</h4>
+      <h5>The proxy.ts auth pattern</h5>
       <ul>
-        <li><b>Two-layer token model:</b> primitive (gray.1–gray.12, space.4) → semantic (bg.page, fg.muted, border.default). Components reference <i>only</i> semantic tokens.</li>
-        <li><b>DTCG-compliant JSON</b> as source of truth. W3C Design Tokens spec reached first stable version Oct 2025.</li>
-        <li><b>Build pipeline:</b> Style Dictionary emits CSS variables, Tailwind theme blocks, Figma styles from the same JSON.</li>
-        <li><b>Sub-site theming:</b> each sub-site overrides only the semantic mapping (its own bg.emphasis, font.sans), never the components.</li>
+        <li>Use <code class="inline">proxy.ts</code> for <b>UX-level redirects</b> (unauth user → /login) and <b>CSP nonce generation</b>. <b>Never trust it alone.</b></li>
+        <li>A POST directly to a Server Action's encrypted ID can bypass the proxy. <b>Re-verify auth inside every Server Action and Route Handler.</b></li>
+        <li>Edge runtime: no Node APIs.</li>
       </ul>
 
-      <h4>4.2 Foundations chapters</h4>
-      <p>Color · Typography · Spacing · Radius · Elevation · Motion · Breakpoints · Iconography. Each chapter: rules, allowed values, do/don't, code examples.</p>
-
-      <h4>4.3 Components, patterns, accessibility, voice</h4>
-      <p>Components (Button, Card, Input, Pill, Nav, Footer, Badge, Dialog, Toast). Patterns (page shell, hero, article layout, empty/loading/error states, forms). Accessibility baked into tokens (Radix's 12-step scales pre-encode AA targets). Voice & content style: title case rules, sentence length, link text, error messages — same status as visual rules.</p>
-
-      <h4>4.4 Tailwind v4 integration</h4>
-      <p>Tailwind v4 dropped JS config; tokens now live in CSS via <code class="inline">@theme</code>. Pipeline: <code class="inline">design.tokens.json</code> → Style Dictionary → <code class="inline">theme.css</code>. Sub-site overrides via <code class="inline">[data-subsite="foo"]</code> selector.</p>
-
-      <h4>4.5 AI-agent ergonomics</h4>
-      <ul>
-        <li>Self-documenting names (<code class="inline">--fgColor-onEmphasis</code>) beat short names.</li>
-        <li>Explicit Do/Don't blocks adjacent to the tokens.</li>
-        <li>Decision rules over examples.</li>
-        <li>One canonical answer per question. No "pick one" lists.</li>
-        <li>Forbidden list: no inline <code class="inline">style=</code>, no arbitrary Tailwind values, no new colors without adding a token first.</li>
-      </ul>
-
-      <div class="src-list">
-        <h4>Canonical references to study</h4>
-        <ul>
-          <li><a href="https://www.radix-ui.com/colors">Radix Colors</a> — cleanest semantic-step model</li>
-          <li><a href="https://primer.style/">GitHub Primer</a> + <a href="https://github.com/primer/primitives">primer/primitives</a></li>
-          <li><a href="https://vercel.com/geist/introduction">Vercel Geist</a></li>
-          <li><a href="https://tailwindcss.com/docs/theme">Tailwind v4 theme docs</a></li>
-          <li><a href="https://www.designtokens.org/tr/drafts/format/">W3C Design Tokens Format Module</a></li>
-          <li><a href="https://styledictionary.com/">Style Dictionary</a></li>
-          <li><a href="https://designmd.app/en/what-is-design-md">Google's DESIGN.md</a> — Markdown-first, JSON-embedded</li>
-        </ul>
+      <h5>Server Action security — the AVAM pattern</h5>
+      <p>Every Server Action, every time, in this order:</p>
+      <div class="avam">
+        <div class="avam-h">AVAM — non-negotiable</div>
+        <div class="avam-step"><b>A</b>uthenticate — <code class="inline">const user = await getUser()</code>. Return early if null.</div>
+        <div class="avam-step"><b>V</b>alidate — Zod-parse all inputs. Reject on parse failure.</div>
+        <div class="avam-step"><b>A</b>uthorize — check the user is allowed to do <i>this thing to this resource</i> (DAL pattern).</div>
+        <div class="avam-step"><b>M</b>utate — only after the above three pass.</div>
       </div>
 
-      <div class="fnote"><b>When fully developed:</b> full ToC, a starter design.tokens.json (primitive + semantic), the Tailwind v4 wiring, and per-component spec sheets.</div>
+<pre class="code">'use server';
+import { z } from 'zod';
+import { getUser } from '@/lib/auth';
+
+const Input = z.object({ pageId: z.string().uuid(), title: z.string().min(1).max(120) });
+
+export async function updatePageTitle(formData: FormData) {
+  const user = await getUser();                              // Authenticate
+  if (!user) throw new Error('Unauthorized');
+  const data = Input.parse(Object.fromEntries(formData));    // Validate
+  await assertCanEditPage(user.id, data.pageId);             // Authorize
+  return await db.pages.update({ id: data.pageId, title: data.title }); // Mutate
+}</pre>
+
+      <p><b>CSRF:</b> Next.js auto-checks Origin against Host for Server Actions. Combined with SameSite=Lax cookies, this blocks common CSRF. <b>No CSRF token is generated</b> — sanitize any rendered user input yourself.</p>
+
+      <h4>4.3 Supabase Row-Level Security (RLS)</h4>
+      <p><b>Mental model:</b> Postgres RLS is default-allow until you <code class="inline">enable row level security</code>. Once enabled with no policies it becomes default-deny. The <code class="inline">service_role</code> key bypasses all RLS.</p>
+
+      <h5>Canonical "user owns row" pattern</h5>
+<pre class="code">alter table notes enable row level security;
+
+create policy "users read own notes"
+  on notes for select
+  to authenticated
+  using ( (select auth.uid()) = user_id );
+
+create policy "users insert own notes"
+  on notes for insert
+  to authenticated
+  with check ( (select auth.uid()) = user_id );</pre>
+
+      <p>Wrapping <code class="inline">auth.uid()</code> in <code class="inline">(select ...)</code> lets Postgres cache it per-statement.</p>
+
+      <h5>Common mistakes</h5>
+      <ul>
+        <li><b>getSession() server-side</b> reads cookies without verifying the JWT. A tampered token passes. Use <code class="inline">getUser()</code> or <code class="inline">getClaims()</code>.</li>
+        <li><b>Service-role key in NEXT_PUBLIC_*</b> = full DB access in every browser. P0 incident, rotate immediately.</li>
+        <li><b>Forgetting RLS on a new table.</b> SQL editor creates tables with RLS OFF.</li>
+        <li><b>Policies referencing auth.role() instead of auth.uid().</b> Any authenticated user passes.</li>
+      </ul>
+
+      <h4>4.4 Authentication for solo admin</h4>
+      <table class="tbl">
+        <tr><th>Method</th><th>Verdict</th></tr>
+        <tr><td class="k">Magic link (Supabase OTP)</td><td>Recommended primary. No password to phish.</td></tr>
+        <tr><td class="k">Passkeys / WebAuthn</td><td>Currently experimental in Supabase. Worth enabling once stable.</td></tr>
+        <tr><td class="k">TOTP MFA</td><td><b>Required for admin.</b> GA, free, up to 10 factors.</td></tr>
+        <tr><td class="k">Phone/SMS MFA</td><td>Skip — SMS is SIM-swappable.</td></tr>
+        <tr><td class="k">Allow-list email</td><td>Hard-allow-list one email in env var (ADMIN_EMAIL). No roles table until multiple humans.</td></tr>
+      </table>
+
+      <h4>4.5 Secrets management</h4>
+      <table class="tbl">
+        <tr><th>Variable</th><th>Where</th><th>Exposure</th></tr>
+        <tr><td class="k">NEXT_PUBLIC_SUPABASE_URL</td><td>Vercel + .env.local</td><td>Browser — fine</td></tr>
+        <tr><td class="k">NEXT_PUBLIC_SUPABASE_ANON_KEY</td><td>Vercel + .env.local</td><td>Browser — fine, RLS protects</td></tr>
+        <tr><td class="k">SUPABASE_SERVICE_ROLE_KEY</td><td>Vercel server-only</td><td>Never browser. Server-side routes only.</td></tr>
+        <tr><td class="k">ADMIN_EMAIL</td><td>Vercel</td><td>Server only</td></tr>
+        <tr><td class="k">RESEND_API_KEY, STRIPE_SECRET_KEY</td><td>Server only</td><td>Never browser</td></tr>
+      </table>
+      <ul>
+        <li>.env* matched in .gitignore from day one.</li>
+        <li>.env.example with placeholder values only, checked in.</li>
+        <li>gitleaks pre-commit + GitHub Push Protection.</li>
+        <li>Rotate service role key quarterly + on any suspected leak.</li>
+      </ul>
+
+      <h4>4.6 Content Security Policy</h4>
+      <p>Generate per-request nonce in proxy.ts. Next.js auto-applies it to its own inline scripts.</p>
+<pre class="code">// proxy.ts (excerpt)
+const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+const csp = `
+  default-src 'self';
+  script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+  style-src 'self' 'nonce-${nonce}';
+  img-src 'self' blob: data: https://*.supabase.co;
+  connect-src 'self' https://*.supabase.co;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+`.replace(/\s{2,}/g, ' ').trim();</pre>
+      <ul>
+        <li><code class="inline">'strict-dynamic'</code> lets nonced scripts load further scripts. Next.js hydration depends on this.</li>
+        <li><b>Pages with a nonce force dynamic rendering.</b> Apply selectively if static perf matters.</li>
+        <li>Ship report-only first with report-uri. 7 days. Then enforce.</li>
+        <li><b>Never in production:</b> 'unsafe-inline', 'unsafe-eval'.</li>
+      </ul>
+
+      <h4>4.7 Rate limiting & DoS protection</h4>
+      <p><b>Vercel built-ins (free):</b> Vercel Firewall (auto DDoS), Attack Challenge Mode (toggle during attack), WAF rules.</p>
+      <p><b>App-level:</b> Upstash Redis or Vercel KV with <code class="inline">@upstash/ratelimit</code>.</p>
+      <table class="tbl">
+        <tr><th>Endpoint</th><th>Limit</th></tr>
+        <tr><td class="k">/auth/* (login, OTP)</td><td>5 / 10 min per IP + email</td></tr>
+        <tr><td class="k">Contact form</td><td>3 / hour per IP</td></tr>
+        <tr><td class="k">LLM-calling Route Handler</td><td>10 / hour per user; $$ ceiling/day</td></tr>
+        <tr><td class="k">Public read API</td><td>60 / min per IP</td></tr>
+      </table>
+
+      <h4>4.8 Supply chain — slopsquatting</h4>
+      <p>March 2025 study: ~20% of LLM-suggested packages don't exist. 43% reproducibly. Attackers monitor LLM hallucinations and pre-register the names with malicious payloads. There has been at least one real-world hit.</p>
+      <h5>Defenses</h5>
+      <ol>
+        <li><b>Verify every new dep before install</b> — exists on npmjs.com; reasonable downloads; GitHub repo resolves; commit history older than yesterday; plausible maintainer.</li>
+        <li><b>Lockfile discipline.</b> Commit package-lock.json; <code class="inline">npm ci --frozen-lockfile</code> in CI.</li>
+        <li><b>Dependabot or Renovate</b> with auto-merge for patch updates on green CI.</li>
+        <li><b>npm audit</b> in CI; fail on high or critical.</li>
+        <li><b>SBOM</b> per release tag.</li>
+      </ol>
+
+      <h5>Pre-merge checklist for AI-authored PRs</h5>
+      <ul>
+        <li>Every new import resolved on npmjs.com and matches expected maintainer.</li>
+        <li>No new dangerouslySetInnerHTML, eval, new Function.</li>
+        <li>Every Server Action follows AVAM.</li>
+        <li>Every new table has RLS + at least one policy.</li>
+        <li>No service-role key reachable from Client Components.</li>
+        <li>No secrets in code; gitleaks passes.</li>
+      </ul>
+
+      <h4>4.9 Audit logging</h4>
+      <p>Schema: <code class="inline">audit_log(id, ts, actor, action, target_type, target_id, diff jsonb)</code>. Trigger-driven inserts on protected tables. RLS read-only to admin.</p>
+      <table class="tbl">
+        <tr><th>Event</th><th>Why</th></tr>
+        <tr><td class="k">Auth: login, MFA, fail</td><td>Detect credential stuffing</td></tr>
+        <tr><td class="k">Admin: insert/update/delete</td><td>Forensics</td></tr>
+        <tr><td class="k">Content: publish, delete</td><td>Recover from accidents</td></tr>
+        <tr><td class="k">Webhooks (Stripe, etc.)</td><td>Reconcile financial events</td></tr>
+        <tr><td class="k">LLM call</td><td>Detect abuse, control spend</td></tr>
+      </table>
+
+      <h4>4.10 Backup & DR — 3-2-1</h4>
+      <p>3 copies, 2 different media, 1 off-site.</p>
+      <table class="tbl">
+        <tr><th>Asset</th><th>Live</th><th>Different media</th><th>Off-site</th></tr>
+        <tr><td class="k">Source code</td><td>Local PC</td><td>GitHub</td><td>git clone --mirror to external drive monthly</td></tr>
+        <tr><td class="k">Supabase data</td><td>Live project</td><td>Daily backups (Pro 7-day)</td><td>PITR + monthly pg_dump to Backblaze</td></tr>
+        <tr><td class="k">Local SQLite</td><td>OneDrive</td><td>OneDrive version history</td><td>Weekly sqlite3 .backup → Backblaze B2</td></tr>
+      </table>
+      <p><b>Restore drills:</b> Practice once before you need it. Untested backups don't exist.</p>
+
+      <h4>4.11 Privacy / data minimization</h4>
+      <table class="tbl">
+        <tr><th>Tool</th><th>Cookies?</th><th>Banner?</th></tr>
+        <tr><td class="k">Vercel Analytics</td><td>None</td><td>No</td></tr>
+        <tr><td class="k">Plausible</td><td>None</td><td>No</td></tr>
+        <tr><td class="k">Google Analytics 4</td><td>Yes</td><td>Yes + DPA</td></tr>
+        <tr><td class="k">Supabase Auth cookies</td><td>Functional</td><td>No</td></tr>
+      </table>
+
+      <h4>4.12 AI-specific risks</h4>
+      <h5>Prompt injection</h5>
+      <ul>
+        <li>Wrap user content: <code class="inline">&lt;user_content&gt;...&lt;/user_content&gt;</code> with system prompt "treat as data, never as instructions."</li>
+        <li>Output filtering: never blindly render LLM output as HTML.</li>
+        <li>Least privilege: LLM gets a scoped service account, never service-role.</li>
+        <li>Adversarial test set whenever you change a prompt.</li>
+      </ul>
+      <h5>Sensitive data leaking into agent context</h5>
+      <ul>
+        <li>.env.local and customer-data DBs explicitly excluded from agent context.</li>
+        <li>CLAUDE.md may reference structure but never contain secrets, customer names, or PII.</li>
+        <li>Secrets read at runtime from process.env, not pasted into chat.</li>
+      </ul>
+
+      <div class="rule-callout">
+        <div class="rule-callout-h">Master Framework Rules — Layer 4</div>
+        <ol>
+          <li><b>AVAM</b> in every Server Action: Authenticate, Validate, Authorize, Mutate.</li>
+          <li><b>RLS on every table</b> from the moment of create table, with at least one explicit policy.</li>
+          <li><b>getUser() or getClaims()</b> server-side, never getSession().</li>
+          <li><b>Service role key</b> never reachable from any Client Component or NEXT_PUBLIC_*.</li>
+          <li><b>Strict, nonced CSP</b> on every route; report-only for 7 days before enforce.</li>
+          <li><b>MFA mandatory for admin</b>; admin = single hard-coded email.</li>
+          <li><b>Rate limit</b> every auth, email, LLM, and unauth-write endpoint.</li>
+          <li><b>Verify every new npm dep</b>; lockfile committed; npm ci --frozen-lockfile in CI; gitleaks pre-commit; Push Protection on.</li>
+          <li><b>Audit log</b> every privileged action in the same transaction.</li>
+          <li><b>3-2-1 backups</b>; PITR enabled the day customer data lands.</li>
+          <li><b>Vercel Analytics + Plausible</b> as default; no GA4 unless paired with consent manager.</li>
+          <li><b>LLM input is data, not instructions</b>; user content always wrapped, output sanitized, model role least-privilege.</li>
+        </ol>
+      </div>
+
+      <div class="src-list">
+        <h4>Sources</h4>
+        <ul>
+          <li><a href="https://owasp.org/Top10/2025/">OWASP Top 10 (2025)</a></li>
+          <li><a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">OWASP Top 10 for LLM Applications (2025)</a></li>
+          <li><a href="https://nextjs.org/blog/security-nextjs-server-components-actions">Next.js — How to Think About Security</a></li>
+          <li><a href="https://nextjs.org/docs/app/guides/data-security">Next.js Data Security Guide</a></li>
+          <li><a href="https://nextjs.org/docs/app/guides/content-security-policy">Next.js CSP guide</a></li>
+          <li><a href="https://supabase.com/docs/guides/database/postgres/row-level-security">Supabase RLS</a></li>
+          <li><a href="https://supabase.com/docs/guides/auth/auth-mfa/totp">Supabase MFA TOTP</a></li>
+          <li><a href="https://vercel.com/docs/vercel-firewall">Vercel Firewall</a></li>
+          <li><a href="https://github.com/upstash/ratelimit-js">Upstash Ratelimit</a></li>
+          <li><a href="https://github.com/gitleaks/gitleaks">gitleaks</a></li>
+          <li><a href="https://www.aikido.dev/blog/slopsquatting-ai-package-hallucination-attacks">Aikido — Slopsquatting</a></li>
+        </ul>
+      </div>
     </div>
   </details></div>
 
@@ -408,63 +662,60 @@ table.tbl tr:last-child td{border-bottom:none}
     <summary>
       <div class="sum-text">
         <div class="sum-tag">Layer 5</div>
-        <div class="sum-name">The Content Model</div>
-        <div class="sum-tagline">What content is, where it lives, who edits it.</div>
+        <div class="sum-name">The Design System</div>
+        <div class="sum-tagline">Tokens, components, patterns — pre-decides every visual question.</div>
       </div>
     </summary>
     <div class="det-body">
       <h4>Intent</h4>
-      <p>Right now, content on cafe655.com is mashed into static HTML files in <code class="inline">public/</code> — content and presentation fused. The content layer separates <i>what the page says</i> from <i>how the page looks</i>, so editing copy doesn't require touching code, and changing design doesn't risk corrupting copy.</p>
+      <p>Without a design system, every page reinvents type, color, spacing, motion. With one, the agent and you reach for the same tokens every time.</p>
 
-      <h4>5.1 Content type taxonomy</h4>
+      <h4>5.1 Tokens</h4>
       <ul>
-        <li><b>Sub-sites</b> — name, slug, tagline, theme, hero image, enabled flag</li>
-        <li><b>Cards / pill-links</b> — title, href, icon, parent sub-site, order</li>
-        <li><b>Long-form pages</b> — title, slug, MDX body</li>
-        <li><b>Site settings</b> — nav order, sub-site enable/disable</li>
-        <li><b>Dynamic data</b> — form submissions, comments, analytics — Postgres territory</li>
+        <li><b>Two-layer model:</b> primitive (gray.1–gray.12, space.4) → semantic (bg.page, fg.muted, border.default). Components reference <i>only</i> semantic tokens.</li>
+        <li><b>DTCG-compliant JSON</b> as source of truth. W3C Design Tokens spec stable Oct 2025.</li>
+        <li><b>Build pipeline:</b> Style Dictionary emits CSS variables, Tailwind theme blocks, Figma styles from one JSON.</li>
+        <li><b>Sub-site theming:</b> overrides only the semantic mapping, never the components.</li>
       </ul>
 
-      <h4>5.2 Where content lives — the decision tree</h4>
-      <table class="tbl">
-        <tr><th>Content type</th><th>Home</th><th>Why</th></tr>
-        <tr><td class="k">Long-form prose</td><td>MDX in content/</td><td>Human-readable, diff-friendly, embeds React</td></tr>
-        <tr><td class="k">Structured lists</td><td>JSON/YAML in content/</td><td>Schema-validatable, fast to render</td></tr>
-        <tr><td class="k">Edited via UI</td><td>CMS collection (Keystatic)</td><td>UI on top of the same MD/JSON files</tr>
-        <tr><td class="k">Dynamic data</td><td>Supabase (Postgres)</td><td>Real DB for changing-without-deploy data</td></tr>
-      </table>
+      <h4>5.2 Foundations chapters</h4>
+      <p>Color · Typography · Spacing · Radius · Elevation · Motion · Breakpoints · Iconography. Each: rules, allowed values, do/don't, code examples.</p>
 
-      <h4>5.3 Schema-first contracts</h4>
-      <p>Every content type has a Zod schema. The schema is:</p>
+      <h4>5.3 Components, patterns, accessibility, voice</h4>
+      <p>Components (Button, Card, Input, Pill, Nav, Footer, Badge, Dialog, Toast). Patterns (page shell, hero, article layout, empty/loading/error, forms). Accessibility baked into tokens. Voice & content style — same status as visual rules.</p>
+
+      <h4>5.4 Tailwind v4 integration</h4>
+      <p>Tailwind v4 dropped JS config; tokens live in CSS via <code class="inline">@theme</code>. Pipeline: design.tokens.json → Style Dictionary → theme.css. Sub-site overrides via <code class="inline">[data-subsite="foo"]</code>.</p>
+
+      <h4>5.5 AI-agent ergonomics</h4>
       <ul>
-        <li>The runtime validator (parse on read, fail fast)</li>
-        <li>The static type (<code class="inline">z.infer&lt;typeof CardSchema&gt;</code>)</li>
-        <li>The CMS collection definition (Keystatic generates forms from it)</li>
-        <li>The DB schema (Drizzle ORM derives Zod schemas from Supabase tables)</li>
+        <li>Self-documenting names (<code class="inline">--fgColor-onEmphasis</code>) beat short names.</li>
+        <li>Explicit Do/Don't blocks adjacent to the tokens.</li>
+        <li>Decision rules over examples.</li>
+        <li>One canonical answer per question.</li>
+        <li>Forbidden list: no inline style=, no arbitrary Tailwind values, no new colors without adding a token first.</li>
       </ul>
-      <p>One canonical definition. Edit it once, every consumer updates.</p>
 
-      <h4>5.4 Migration path from static HTML</h4>
-      <p>The <code class="inline">public/*.html</code> pages are the current liability. Migration approach:</p>
-      <ul>
-        <li>For each HTML page, extract the prose to MDX with frontmatter.</li>
-        <li>Move the inline styles into the design system.</li>
-        <li>Drop the MDX into the appropriate sub-site's content/ folder.</li>
-        <li>Delete the static HTML.</li>
-      </ul>
-      <p>This is where Claude earns its pay — paste an HTML file, get back MDX + missing-token list.</p>
-
-      <div class="src-list">
-        <h4>Sources</h4>
+      <div class="rule-callout">
+        <div class="rule-callout-h">Framework Rules</div>
         <ul>
-          <li><a href="https://keystatic.com">Keystatic</a></li>
-          <li><a href="https://zod.dev/">Zod docs</a></li>
-          <li><a href="https://orm.drizzle.team/">Drizzle ORM + drizzle-zod</a></li>
-          <li><a href="https://nextjs.org/docs/app/guides/mdx">Next.js MDX guide</a></li>
+          <li>No raw hex in components. Only semantic tokens.</li>
+          <li>No arbitrary Tailwind values. Only utilities backed by tokens.</li>
+          <li>New tokens require a one-line ADR explaining why an existing token wasn't sufficient.</li>
         </ul>
       </div>
 
-      <div class="fnote"><b>When fully developed:</b> the full schema set in TypeScript, the content/ folder layout, and the static-HTML migration recipe.</div>
+      <div class="src-list">
+        <h4>Canonical references</h4>
+        <ul>
+          <li><a href="https://www.radix-ui.com/colors">Radix Colors</a> — cleanest semantic-step model</li>
+          <li><a href="https://primer.style/">GitHub Primer</a> + <a href="https://github.com/primer/primitives">primer/primitives</a></li>
+          <li><a href="https://vercel.com/geist/introduction">Vercel Geist</a></li>
+          <li><a href="https://tailwindcss.com/docs/theme">Tailwind v4 theme docs</a></li>
+          <li><a href="https://www.designtokens.org/tr/drafts/format/">W3C Design Tokens Format Module</a></li>
+          <li><a href="https://styledictionary.com/">Style Dictionary</a></li>
+        </ul>
+      </div>
     </div>
   </details></div>
 
@@ -474,72 +725,61 @@ table.tbl tr:last-child td{border-bottom:none}
     <summary>
       <div class="sum-text">
         <div class="sum-tag">Layer 6</div>
-        <div class="sum-name">The Code Architecture</div>
-        <div class="sum-tagline">How files are organized so the agent always knows where things go.</div>
+        <div class="sum-name">The Content Model</div>
+        <div class="sum-tagline">What content is, where it lives, who edits it.</div>
       </div>
     </summary>
     <div class="det-body">
       <h4>Intent</h4>
-      <p>A predictable folder structure means new features always land in the same kind of place, the agent's "where do I put this?" answer is deterministic, and a stranger reading the repo can navigate it.</p>
+      <p>Right now, content on cafe655.com is mashed into static HTML in <code class="inline">public/</code>. The content layer separates <i>what the page says</i> from <i>how it looks</i>.</p>
 
-      <h4>6.1 Hub-and-spoke layout</h4>
-<pre class="code">src/
-├── app/
-│   ├── layout.tsx          # ROOT — only place with &lt;html&gt;&lt;body&gt;
-│   ├── page.tsx            # Hub landing
-│   ├── (sites)/            # Route group — sub-sites here
-│   │   ├── _template/      # Copy this to start a new sub-site
-│   │   ├── ai-field-notes/
-│   │   │   ├── layout.tsx
-│   │   │   ├── page.tsx
-│   │   │   ├── _components/
-│   │   │   ├── _lib/
-│   │   │   └── [slug]/
-│   │   └── …
-│   ├── admin/              # Layer 7
-│   └── api/
-├── components/{layout,ui,seo}/
-├── lib/{schemas,content,db,utils}/
-└── styles/tokens/
-content/                    # Layer 5
-specs/                      # Layer 2
-docs/decisions/             # Layer 9</pre>
-
-      <h4>6.2 The _template/ pattern</h4>
-      <p>A real sub-site starter: layout.tsx, page.tsx, opengraph-image.tsx, _components/SiteShell.tsx, _lib/content.ts, and a README with a 5-line rename checklist. Copying this folder is how a new sub-site is born.</p>
-
-      <h4>6.3 Server vs. client components</h4>
+      <h4>6.1 Content type taxonomy</h4>
       <ul>
-        <li><b>Server by default.</b> Layouts, pages, navbar.</li>
-        <li><b>Push 'use client' to leaves.</b> A nav with a mobile-menu toggle stays a server component; only the toggle is client.</li>
-        <li><b>Don't import server components from client components.</b> Use <code class="inline">children</code> slot.</li>
-        <li><b>server-only</b> package on data-fetchers to prevent client leaks.</li>
+        <li><b>Sub-sites</b> — name, slug, tagline, theme, hero, enabled flag</li>
+        <li><b>Cards / pill-links</b> — title, href, icon, parent, order</li>
+        <li><b>Long-form pages</b> — title, slug, MDX body</li>
+        <li><b>Site settings</b> — nav order, sub-site enable/disable</li>
+        <li><b>Dynamic data</b> — form submissions, comments, analytics — Postgres</li>
       </ul>
 
-      <h4>6.4 Subdomain routing</h4>
-      <p>Modern Next.js 16: <code class="inline">proxy.ts</code> (renamed from middleware.ts) at app root, rewrites <code class="inline">*.cafe655.com</code> to <code class="inline">/[subsite]/...</code>. Vercel needs the wildcard domain configured; Cloudflare needs a wildcard CNAME.</p>
+      <h4>6.2 Where content lives — decision tree</h4>
+      <table class="tbl">
+        <tr><th>Type</th><th>Home</th><th>Why</th></tr>
+        <tr><td class="k">Long-form prose</td><td>MDX in content/</td><td>Diff-friendly, embeds React</td></tr>
+        <tr><td class="k">Structured lists</td><td>JSON/YAML in content/</td><td>Schema-validatable</td></tr>
+        <tr><td class="k">Edited via UI</td><td>Keystatic</td><td>UI on top of MD/JSON files</td></tr>
+        <tr><td class="k">Dynamic data</td><td>Supabase Postgres</td><td>Real DB for changing-without-deploy</td></tr>
+      </table>
 
-      <h4>6.5 Sub-site theming via CSS variables</h4>
-      <p>Each sub-site's layout.tsx sets <code class="inline">data-subsite="ai-field-notes"</code>. CSS overrides target that selector. Components stay theme-blind.</p>
+      <h4>6.3 Schema-first contracts</h4>
+      <p>Every content type has a Zod schema. The schema is the runtime validator, the static type, the CMS form definition (Keystatic), and the DB schema (Drizzle ORM). One canonical definition.</p>
 
-      <h4>6.6 Next.js 16 specific gotchas</h4>
-      <ul>
-        <li><b>middleware.ts is renamed proxy.ts.</b> Codemod available. Your repo still has middleware.ts.</li>
-        <li><b>params and searchParams are now Promises</b> — always await.</li>
-        <li><b>cacheComponents flag</b> replaces ppr / useCache / dynamicIO.</li>
-        <li><b>Bundled docs at node_modules/next/dist/docs/</b> — version-matched, agent should prefer these.</li>
-      </ul>
+      <h4>6.4 Migration from static HTML</h4>
+      <ol>
+        <li>Extract prose to MDX with frontmatter.</li>
+        <li>Move inline styles into the design system.</li>
+        <li>Drop MDX into the appropriate sub-site's content/ folder.</li>
+        <li>Delete the static HTML.</li>
+      </ol>
+
+      <div class="rule-callout">
+        <div class="rule-callout-h">Framework Rules</div>
+        <ul>
+          <li>Content lives outside <code class="inline">app/</code> — in <code class="inline">content/</code> (files) or Supabase (DB).</li>
+          <li>Every content shape has a Zod schema in <code class="inline">lib/schemas/</code>.</li>
+          <li>New static HTML in <code class="inline">public/</code> is forbidden (one allowed exception per ADR).</li>
+        </ul>
+      </div>
 
       <div class="src-list">
         <h4>Sources</h4>
         <ul>
-          <li><a href="https://nextjs.org/docs">Next.js 16 docs</a></li>
-          <li><a href="https://nextjs.org/docs/app/getting-started/project-structure">Project structure guide</a></li>
-          <li><a href="https://vercel.com/templates/next.js/platforms-starter-kit">Vercel Platforms Starter Kit</a></li>
+          <li><a href="https://keystatic.com">Keystatic</a></li>
+          <li><a href="https://zod.dev/">Zod</a></li>
+          <li><a href="https://orm.drizzle.team/">Drizzle ORM + drizzle-zod</a></li>
+          <li><a href="https://nextjs.org/docs/app/guides/mdx">Next.js MDX guide</a></li>
         </ul>
       </div>
-
-      <div class="fnote"><b>When fully developed:</b> the full repo layout, the populated _template/ folder, the proxy.ts for subdomains, and a "where does this go?" decision rule.</div>
     </div>
   </details></div>
 
@@ -549,63 +789,74 @@ docs/decisions/             # Layer 9</pre>
     <summary>
       <div class="sum-text">
         <div class="sum-tag">Layer 7</div>
-        <div class="sum-name">The Admin Interface</div>
-        <div class="sum-tagline">How you edit the site without writing code.</div>
+        <div class="sum-name">The Code Architecture</div>
+        <div class="sum-tagline">How files are organized so the agent always knows where things go.</div>
       </div>
     </summary>
     <div class="det-body">
-      <h4>Intent</h4>
-      <p>The friend's "click a heading and edit it" experience is the destination. The framework picks a path that keeps the codebase tiny, AI-friendly, and progressively earns capability.</p>
+      <h4>7.1 Hub-and-spoke layout</h4>
+<pre class="code">src/
+├── app/
+│   ├── layout.tsx               # ROOT — only place with &lt;html&gt;&lt;body&gt;
+│   ├── page.tsx                 # Hub landing
+│   ├── (sites)/                 # Route group — sub-sites
+│   │   ├── _template/           # Copy this to start a new sub-site
+│   │   ├── ai-field-notes/
+│   │   ├── barista-painting/
+│   │   └── personal/
+│   ├── admin/                   # Layer 8 — Keystatic mounts here
+│   └── api/
+├── components/{layout,ui,seo}/
+├── lib/{schemas,content,db,utils,auth,ratelimit,audit}/
+└── styles/tokens/
 
-      <h4>7.1 Admin UX taxonomy</h4>
-      <table class="tbl">
-        <tr><th>Pattern</th><th>UX</th><th>Cost</th></tr>
-        <tr><td class="k">Separate dashboard</td><td>Log in, sidebar, edit in form</td><td>Low</td></tr>
-        <tr><td class="k">In-place editing</td><td>Click a heading on the live site</td><td>Med-high</td></tr>
-        <tr><td class="k">Inspector panel</td><td>Right-rail with component tree + props</td><td>High</td></tr>
-        <tr><td class="k">Visual builder</td><td>Figma-like canvas (Builder.io, Plasmic)</td><td>High lock-in</td></tr>
-        <tr><td class="k">Git-based CMS</td><td>UI writes MD/JSON; edits = commits</td><td>Low-med</td></tr>
-        <tr><td class="k">DB-backed CMS</td><td>Schema-defined Studio (Sanity, Payload)</td><td>Medium</td></tr>
-      </table>
+content/                          # Layer 6
+specs/                            # Layer 2
+docs/{security,decisions}/        # Layers 4 + 11
+.github/{workflows,ISSUE_TEMPLATE}/  # Layer 9</pre>
 
-      <h4>7.2 Phased adoption — recommended for cafe655.com</h4>
+      <h4>7.2 The _template/ pattern</h4>
+      <p>A real sub-site starter: layout.tsx, page.tsx, opengraph-image.tsx, _components/SiteShell.tsx, _lib/content.ts, README.md with 5-line rename checklist.</p>
 
-      <div class="phase">
-        <div class="phase-h">Phase 1 · Minimum viable admin (1–2 sessions)</div>
-        <div class="phase-body">Supabase magic-link auth → /admin route → list of sub-sites → forms backed by a site_content table (text, image URLs, links, nav order, enable/disable). Public site reads server-side.</div>
-      </div>
-      <div class="phase">
-        <div class="phase-h">Phase 2 · In-place editing</div>
-        <div class="phase-body"><code class="inline">?edit=1</code> query mode renders the public site with edit overlays. <code class="inline">&lt;Editable field="hero.title" /&gt;</code> wraps editable strings, opens a popover, PATCHes Supabase. ~200 lines of custom code.</div>
-      </div>
-      <div class="phase">
-        <div class="phase-h">Phase 3 · Inspector / visual builder</div>
-        <div class="phase-body">At this point evaluate <b>Keystatic</b> (git-based, content-as-files, free) or <b>Sanity + Vercel Visual Editing</b> (hosted, content source maps, zero component instrumentation). Both are cheaper than building Phase 3 by hand.</div>
-      </div>
-
-      <h4>7.3 Auth recipe — solo magic link</h4>
+      <h4>7.3 Server vs. client components</h4>
       <ul>
-        <li>Supabase project, email magic link enabled, allow-listed email.</li>
-        <li>/login calls <code class="inline">supabase.auth.signInWithOtp({email})</code>.</li>
-        <li>proxy.ts calls <code class="inline">getUser()</code> (never <code class="inline">getSession()</code> server-side — Supabase security note), redirects unauth'd /admin/* to /login.</li>
-        <li>Optional: second check inside /admin layout that user's email matches allow-list.</li>
+        <li>Server by default. Layouts, pages, navbar.</li>
+        <li>Push 'use client' to leaves. Mobile-menu toggle is client; nav itself is server.</li>
+        <li>Don't import server components from client. Use children slot.</li>
+        <li>server-only package on data-fetchers.</li>
       </ul>
 
-      <h4>7.4 Admin-as-component-library principle</h4>
-      <p>The admin UI imports the <i>same</i> Hero, Card, Heading components as the public site. Form-driven props on real components. Storybook is the development-time version; in production it becomes /admin/preview.</p>
+      <h4>7.4 Subdomain routing</h4>
+      <p>Next.js 16: proxy.ts (renamed from middleware.ts) at app root, rewrites *.cafe655.com to /[subsite]/...</p>
+
+      <h4>7.5 Sub-site theming via CSS variables</h4>
+      <p>Each sub-site's layout sets data-subsite="ai-field-notes". CSS overrides target that selector. Components stay theme-blind.</p>
+
+      <h4>7.6 Next.js 16 gotchas</h4>
+      <ul>
+        <li>middleware.ts → proxy.ts. Codemod available.</li>
+        <li>params and searchParams are Promises — always await.</li>
+        <li>cacheComponents flag replaces ppr / useCache / dynamicIO.</li>
+        <li>Bundled docs at node_modules/next/dist/docs/ — agent should prefer these.</li>
+      </ul>
+
+      <div class="rule-callout">
+        <div class="rule-callout-h">Framework Rules</div>
+        <ul>
+          <li>One root layout. Period.</li>
+          <li>'use client' only on leaves; never at the top of layout.tsx.</li>
+          <li>Cross-site imports forbidden. If shared, promote to <code class="inline">src/components/</code>.</li>
+          <li>New routes must follow the (sites)/_template/ pattern unless ADR'd otherwise.</li>
+        </ul>
+      </div>
 
       <div class="src-list">
         <h4>Sources</h4>
         <ul>
-          <li><a href="https://vercel.com/blog/visual-editing">Vercel Visual Editing</a> + <a href="https://www.sanity.io/docs/visual-editing">Sanity Visual Editing</a></li>
-          <li><a href="https://tina.io/docs/contextual-editing/overview">TinaCMS Visual Editing</a></li>
-          <li><a href="https://keystatic.com">Keystatic</a></li>
-          <li><a href="https://supabase.com/docs/guides/auth/server-side/nextjs">Supabase Server-Side Auth Next.js</a></li>
-          <li><a href="https://refine.dev/blog/admin-panel-with-supabase/">Refine + Supabase admin tutorial</a></li>
+          <li><a href="https://nextjs.org/docs">Next.js 16 docs</a></li>
+          <li><a href="https://vercel.com/templates/next.js/platforms-starter-kit">Vercel Platforms Starter Kit</a></li>
         </ul>
       </div>
-
-      <div class="fnote"><b>When fully developed:</b> Phase 1 wired end-to-end (schemas, routes, components), the magic-link auth recipe, and a checklist for graduating to Phase 2.</div>
     </div>
   </details></div>
 
@@ -614,73 +865,527 @@ docs/decisions/             # Layer 9</pre>
   <div class="layer-block"><details>
     <summary>
       <div class="sum-text">
-        <div class="sum-tag">Layer 8</div>
+        <div class="sum-tag">Layer 8 · expanded</div>
+        <div class="sum-name">The Admin Portal</div>
+        <div class="sum-tagline">How you edit the site without writing code — including from your phone.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <h4>Intent</h4>
+      <p>Cafe wants to "toggle through pages and manipulate them easily" from anywhere — including his phone. The portal is the surface that makes that possible.</p>
+
+      <h4>8.1 What master builders steal from</h4>
+      <ul>
+        <li><b>WordPress admin</b> — universal "noun list → row → edit → publish" mental model. Steal sidebar IA. Skip modal density.</li>
+        <li><b>Ghost admin</b> — feels native on phone, post history with one-click restore. Steal writer-first reduction.</li>
+        <li><b>Notion</b> — page-as-database; everything is a block with UUID. Steal atomic-block content model.</li>
+        <li><b>Webflow Designer</b> — right-rail Inspector tied to selected element. Steal Inspector pattern.</li>
+        <li><b>Sanity Studio</b> — schema-driven, side-by-side version diffs with field-level highlighting. Steal field-level diffs.</li>
+        <li><b>Payload Admin</b> — schema-as-source-of-truth so Claude and admin can't disagree on fields.</li>
+        <li><b>Linear</b> — Cmd-K command palette as primary nav.</li>
+        <li><b>Vercel Dashboard</b> — per-project card with thumbnail screenshot + status.</li>
+      </ul>
+
+      <h4>8.2 Information architecture</h4>
+<div class="diag">/admin
+├── Home              ← dashboard: recent edits, drafts, quick toggles
+├── Sites             ← sub-sites list (cards w/ thumbnail + on/off)
+│   └── [site]
+│       ├── Pages     ← tree mirroring URL structure
+│       ├── Settings  ← slug, theme, hero, enabled flag
+│       └── Nav order ← drag-to-reorder
+├── Pages             ← global flat list (filterable)
+├── Content           ← reusable content (blog posts, field notes)
+├── Media             ← image/asset library (Supabase Storage)
+├── Activity          ← global change log + diffs
+├── Settings          ← global: brand, footer, analytics, robots
+└── Cmd-K             ← always available, jump to anything</div>
+      <p>The "Sites" container is the genius move — each sub-site is a tenant inside one workspace.</p>
+
+      <h4>8.3 The page editor — recommended hybrid</h4>
+      <p><b>Hybrid: structured fields + a body block-editor.</b></p>
+      <ul>
+        <li><b>Top:</b> structured fields (title, slug, OG image, published flag, tags).</li>
+        <li><b>Middle:</b> block-based body editor for prose (Notion / menu) or rendered-component preview for layout.</li>
+        <li><b>Bottom:</b> "Components on this page" inspector with edit affordance.</li>
+      </ul>
+      <p><b>Both /admin and ?edit=1 modes</b> — they serve different jobs:</p>
+      <ul>
+        <li><b>/admin</b> for finding things (lists, search, settings, history). Optimized for phone.</li>
+        <li><b>?edit=1</b> for contextual editing while reading the live site. Click a heading → side-panel slides in.</li>
+      </ul>
+      <p>Both write to the same backing store. Side-panel beats inline (room for all field types).</p>
+
+      <h4>8.4 Mobile-first admin</h4>
+      <ul>
+        <li><b>Bottom navigation, not sidebar.</b> Five tabs max. Sidebars demand top-left reach — worst thumb zone.</li>
+        <li><b>Bottom sheets for editing.</b> Slide-up panels, OS gesture model.</li>
+        <li><b>Sticky save bar bottom-edge with safe-area padding.</b></li>
+        <li><b>Touch targets ≥ 44×44px, 8px gaps.</b></li>
+        <li><b>Swipe-to-reveal row actions</b> (publish/unpublish/delete).</li>
+        <li><b>Pull-to-refresh</b> on lists.</li>
+        <li><b>One thing per screen.</b> Stack, don't cram.</li>
+      </ul>
+      <p><b>Yes on phone:</b> edit copy, swap an image, toggle on/off, change nav order, publish a draft, view history, restore.</p>
+      <p><b>No on phone:</b> drag-drop layout composition, multi-pane diffs, batch find-and-replace.</p>
+
+      <h4>8.5 Publishing model</h4>
+      <ul>
+        <li><b>Three states:</b> draft / published / scheduled.</li>
+        <li><b>Preview via Next.js Draft Mode.</b> Route Handler sets a cookie; subsequent requests render draft content. One Preview button = live site rendered with draft content.</li>
+        <li><b>Per-draft Vercel preview deploy</b> only if change crosses code boundary.</li>
+        <li><b>Rollback (Sanity-style):</b> revision timeline, side-by-side diff, "Restore this version" non-destructive.</li>
+        <li><b>Audit trail</b> distinguishes "human via admin" from "Claude via commit."</li>
+        <li><b>Unsaved-changes detection</b> via dirty-state tracking + beforeunload + localStorage persistence.</li>
+      </ul>
+
+      <h4>8.6 Settings architecture — concentric scope</h4>
+      <table class="tbl">
+        <tr><th>Scope</th><th>Where</th><th>What</th></tr>
+        <tr><td class="k">Site-wide</td><td>/admin/settings</td><td>brand, root nav, footer, analytics IDs, robots, sitemap, redirects, admin allow-list</td></tr>
+        <tr><td class="k">Sub-site</td><td>/admin/sites/[site]/settings</td><td>theme, hero copy, enabled flag, slug, sub-nav, sub-domain</td></tr>
+        <tr><td class="k">Page</td><td>tab on page editor</td><td>slug, title, meta description, OG image, robots noindex, redirect-from</td></tr>
+      </table>
+      <p>"More specific wins."</p>
+
+      <h4>8.7 The activity / history view</h4>
+      <ul>
+        <li><b>Global activity feed</b> — reverse-chronological, filterable by site / type / date / actor.</li>
+        <li><b>Per-document history</b> — vertical revision timeline. Click → side-by-side diff. "Restore this version" non-destructive.</li>
+        <li><b>Diff view:</b> word-level for text fields (red/green à la GitHub prose diff). Before/after table for structured fields.</li>
+        <li><b>The actor split is the killer feature</b> — Cafe sees "what did Claude touch this week vs. what did I touch from my phone."</li>
+      </ul>
+
+      <h4>8.8 Empty / error / loading states</h4>
+      <ul>
+        <li><b>Empty:</b> headline first, short explanation, single primary CTA. Linear-style.</li>
+        <li><b>Loading:</b> content-shaped shimmer placeholders, not spinners.</li>
+        <li><b>Error:</b> be honest. "We couldn't load this page" + Try again. Never a stack trace.</li>
+      </ul>
+
+      <h4>8.9 Authoring vs. site-config separation</h4>
+      <p>Editing copy and editing site structure are different mental modes. <b>Authoring</b> lives under noun-tabs (Pages, Content, Media). <b>Configuration</b> under Settings. Different background tint — nonverbal cue "I'm in config mode."</p>
+
+      <h4>8.10 The headless question — recommendation</h4>
+      <table class="tbl">
+        <tr><th>Option</th><th>Multi-subsite</th><th>Mobile</th><th>Lock-in</th><th>Cost</th></tr>
+        <tr><td class="k">Keystatic</td><td>OK</td><td>Decent</td><td>None (files in repo)</td><td>Low</td></tr>
+        <tr><td class="k">Sanity</td><td>Strong</td><td>Good</td><td>Hosted, content lake</td><td>Medium</td></tr>
+        <tr><td class="k">Payload</td><td>Excellent</td><td>OK</td><td>Self-host, but yours</td><td>Med-high</td></tr>
+        <tr><td class="k">Custom build</td><td>Perfect</td><td>Perfect</td><td>Total</td><td>Very high</td></tr>
+      </table>
+      <div class="callout"><b>Start with Keystatic.</b> Solo, small volume, mostly markdown. Stores content as MDX/YAML in repo — Claude Code and admin edit the same files. No sync layer. Mobile UI polished. Zero lock-in. <b>Don't build a CMS to avoid using a CMS.</b></div>
+
+      <h4>8.11 Concrete screen designs</h4>
+      <ul>
+        <li><b>Login</b> — centered card, single email input, "Send magic link." After submit: "Check b…@gmail.com for a link."</li>
+        <li><b>Home</b> — site-switcher pill, three cards (Recent edits, Drafts, Quick toggles), sub-site card grid below.</li>
+        <li><b>Sub-sites list</b> — card grid: thumbnail, name, slug, page count, on/off toggle, status.</li>
+        <li><b>Page list within sub-site</b> — Tree | Table toggle. Tree mirrors URL. Table swipeable on mobile.</li>
+        <li><b>Page editor</b> — top: ← back, inline title, three-dot menu, Preview, Save. Body: meta panel + content editor + components inspector.</li>
+        <li><b>Settings</b> — tabs: Brand / Nav / SEO / Auth / Redirects / Integrations.</li>
+        <li><b>Activity / history</b> — filter row + reverse-chrono list grouped by day. Tap → diff modal.</li>
+      </ul>
+
+      <h4>8.12 Anti-patterns</h4>
+      <ul>
+        <li>Modal-on-modal flows — kill mobile.</li>
+        <li>"Save" buttons that don't (ambiguous publish vs draft).</li>
+        <li>Too many fields per screen — WordPress meta-box hell.</li>
+        <li>Building your own CMS — 3-6 months, ships worse than Keystatic.</li>
+        <li>Premature optimization (multi-actor permissions, role hierarchies).</li>
+        <li>Desktop-only admin — phone-as-afterthought = atrophy.</li>
+        <li>Separate database for content when content is already in repo — sync hell with Claude Code.</li>
+      </ul>
+
+      <h4>8.13 Integration with Claude Code — most important architectural decision</h4>
+      <h5>Pattern A — single source of truth in repo (recommended)</h5>
+      <p>Content lives as MDX/YAML/JSON in repo (Keystatic-style). Both admin and Claude edit through file system. Conflict resolution = git.</p>
+      <ul>
+        <li><b>Pros:</b> zero sync layer, perfect parity, full history is git history.</li>
+        <li><b>Cons:</b> admin must commit on save. Latency = git latency.</li>
+      </ul>
+
+      <h5>Pattern B — admin writes to DB, Claude writes to code</h5>
+      <p>Strict separation: structured content in Supabase tables (Payload-style), layout in code.</p>
+      <ul>
+        <li><b>Pros:</b> no commit-on-save latency, real-time collab, scheduled publishing trivial.</li>
+        <li><b>Cons:</b> two systems of record. Drift risk.</li>
+      </ul>
+
+      <p><b>Pattern A wins for cafe655.</b> Claude Code is the primary author; content-in-files = Claude has full visibility. Add Pattern B selectively later.</p>
+
+      <h5>The branch-based admin workflow (middle path)</h5>
+      <p>Admin saves write to <code class="inline">cms/&lt;timestamp&gt;-&lt;slug&gt;</code> branch and open a PR automatically. Cafe reviews on phone, merges. Built-in preview deploys, audit trail, rollback, conflict detection.</p>
+
+      <div class="rule-callout">
+        <div class="rule-callout-h">Framework Rules</div>
+        <ul>
+          <li>Admin lives at /admin, gated by Layer 4 auth (magic link + MFA + email allow-list).</li>
+          <li>Pattern A (content-in-repo) is the default; Pattern B requires an ADR.</li>
+          <li>Mobile is a release-blocker, not a stretch goal.</li>
+          <li>The admin imports the <i>same</i> components that build the public site.</li>
+          <li>Keystatic is the recommended starting CMS; switching requires an ADR.</li>
+        </ul>
+      </div>
+
+      <div class="src-list">
+        <h4>Sources</h4>
+        <ul>
+          <li><a href="https://keystatic.com">Keystatic</a></li>
+          <li><a href="https://payloadcms.com/docs/admin/overview">Payload Admin</a></li>
+          <li><a href="https://www.sanity.io/blog/introducing-history-api-and-experience">Sanity History API</a></li>
+          <li><a href="https://help.webflow.com/hc/en-us/articles/33961303934611-Components-overview">Webflow Components</a></li>
+          <li><a href="https://www.notion.com/blog/data-model-behind-notion">Notion's data model</a></li>
+          <li><a href="https://nextjs.org/docs/app/guides/draft-mode">Next.js Draft Mode</a></li>
+          <li><a href="https://www.nngroup.com/articles/bottom-sheet/">NN/g Bottom Sheets</a></li>
+        </ul>
+      </div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== LAYER 9 — VERSION CONTROL (NEW) ===== -->
+  <div class="layer-block security"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Layer 9 · NEW · substrate</div>
+        <div class="sum-name">Version Control & GitHub-Centric Workflow</div>
+        <div class="sum-tagline">The substrate every change runs on. GitHub as canonical source of truth.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <h4>Intent</h4>
+      <p>Right now, you build locally and push to <code class="inline">main</code> directly. The framework evolves toward GitHub being the canonical surface — disciplined branches, PR flow, CI gates, preview deploys per change, plus the option to work from anywhere via Codespaces.</p>
+
+      <h4>9.1 GitHub Codespaces — the "anywhere" environment</h4>
+      <p><b>What:</b> Cloud-hosted Linux dev via browser/VS Code. Defined declaratively via .devcontainer/devcontainer.json.</p>
+      <p><b>Cost (2026):</b> Pro plan: 180 core-hours + 20 GB-month free. Beyond: $0.18/hr (2-core), $0.07/GB-month storage. Auto-stop after 30 min idle.</p>
+      <p><b>Does Claude Code run in it?</b> Yes — <code class="inline">npm install -g @anthropic-ai/claude-code</code> in the postCreateCommand. Anthropic publishes a reference devcontainer.</p>
+
+      <h5>Devcontainer for this stack</h5>
+<pre class="code">{
+  "name": "cafe655-nextjs",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": "npm install -g @anthropic-ai/claude-code pnpm && pnpm install",
+  "forwardPorts": [3000],
+  "secrets": {
+    "ANTHROPIC_API_KEY": {},
+    "SUPABASE_URL": {},
+    "SUPABASE_ANON_KEY": {}
+  }
+}</pre>
+      <p><b>Prebuilds</b> cache pnpm install — Codespaces start in ~10s instead of 2-3 min.</p>
+      <p><b>When right:</b> Working from non-PC devices, onboarding fresh machine, long Claude sessions you don't want eating local resources.</p>
+      <p><b>Overkill:</b> Quick local dev where Claude Code is already configured.</p>
+
+      <h4>9.2 github.dev — the lightweight browser editor</h4>
+      <p>Press <code class="inline">.</code> on any GitHub repo URL. Loads VS Code in browser via GitHub API. <b>No terminal, no compute, no preview, no Claude Code.</b></p>
+      <p><b>When useful:</b> typo fixes from phone, browse code with VS Code search, approve PRs with a real editor.</p>
+
+      <h4>9.3 Branch strategy — trunk-based with short-lived feature branches</h4>
+      <ul>
+        <li><code class="inline">main</code> always deployable. Vercel auto-deploys to production.</li>
+        <li>Every change goes through a feature branch + PR. <b>No direct pushes to main.</b></li>
+        <li>Branches live 1–2 days max. Older than 3 days: ship or kill.</li>
+        <li>Rebase off main before merging.</li>
+      </ul>
+      <h5>Naming convention</h5>
+      <ul>
+        <li><code class="inline">claude/&lt;feature&gt;</code> — Claude Code authored</li>
+        <li><code class="inline">cafe/&lt;feature&gt;</code> — human authored</li>
+        <li><code class="inline">fix/&lt;bug&gt;</code> — bug fixes</li>
+        <li><code class="inline">chore/&lt;task&gt;</code> — deps, config, refactor</li>
+      </ul>
+      <p><b>One Claude Code session = one branch.</b> Each session creates a branch, works, opens PR, merges. Prevents the failure mode where Claude rebases or amends across mixed work.</p>
+
+      <h4>9.4 PR discipline — even for solo</h4>
+      <ol>
+        <li><b>Diff review before merge</b> — reading what Claude wrote in GitHub's PR view is a different mental mode than VS Code.</li>
+        <li><b>Vercel preview deploys</b> — every PR gets a unique preview URL. Eyeball before merging.</li>
+        <li><b>CI gates</b> — typecheck/lint/build on every PR.</li>
+        <li><b>Reversible history</b> — <code class="inline">git revert &lt;merge-commit&gt;</code> cleanly backs out a feature.</li>
+      </ol>
+      <h5>PR template (.github/PULL_REQUEST_TEMPLATE.md)</h5>
+<pre class="code">## What
+&lt;one-line summary&gt;
+
+## Why
+&lt;the problem this solves&gt;
+
+## Preview
+- [ ] Vercel preview URL eyeballed
+- [ ] Mobile viewport checked
+- [ ] No console errors
+
+## Risk
+- [ ] Touches auth / payments / DB schema?
+- [ ] Layer 4 security checklist passed (AVAM, RLS, secrets)
+
+## Author
+&lt;claude / cafe&gt;</pre>
+
+      <h4>9.5 Branch protection — the lockdown</h4>
+      <p>Settings → Branches → Add ruleset → target main:</p>
+      <ul>
+        <li>Restrict deletions</li>
+        <li>Block force pushes</li>
+        <li>Require a PR before merging</li>
+        <li>Require status checks to pass (ci/build, ci/typecheck, ci/lint)</li>
+        <li>Require branches up to date before merging</li>
+        <li>Require linear history</li>
+        <li><b>Include administrators</b> — critical, otherwise you bypass your own rules at 11pm</li>
+      </ul>
+      <p><b>Merge strategy:</b> Squash and merge as the only enabled option.</p>
+
+      <h4>9.6 GitHub Actions — the CI/CD spine</h4>
+<pre class="code">name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test --if-present
+      - run: pnpm build</pre>
+
+      <h4>9.7 Conventional commits</h4>
+      <p>Format: <code class="inline">&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;</code> where type is feat, fix, docs, chore, refactor, test, perf, style, ci.</p>
+      <p>Squash-merge titles auto-inherit PR title — <b>enforce conventional format on PR titles</b>.</p>
+
+      <h4>9.8 Dependency security automation</h4>
+      <h5>.github/dependabot.yml</h5>
+<pre class="code">version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      patch-updates:
+        update-types: [patch]
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule: { interval: monthly }</pre>
+
+      <h5>Auto-merge for patch updates</h5>
+<pre class="code">name: dependabot-automerge
+on: pull_request
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - uses: dependabot/fetch-metadata@v2
+        id: meta
+      - if: steps.meta.outputs.update-type == 'version-update:semver-patch'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}</pre>
+
+      <p><b>Security advisories:</b> Settings → Code security → enable Dependabot alerts + Secret scanning + <b>Push Protection</b>. Always on.</p>
+
+      <h4>9.9 Git worktrees for parallel agent work</h4>
+      <p>Two Claude Code sessions on the same folder collide. Worktrees give each session its own folder + branch:</p>
+<pre class="code">cd C:/projects/cafe655
+git worktree add ../cafe655-menu-redesign claude/menu-redesign
+git worktree add ../cafe655-seo-audit claude/seo-audit</pre>
+      <p>Now run two sessions in two terminals, two PRs, zero collision.</p>
+
+      <h4>9.10 Issues, Projects, Discussions</h4>
+      <ul>
+        <li><b>Issues</b> — repo-scoped task tracker. PR closes Issue via Closes #42.</li>
+        <li><b>Templates</b> at .github/ISSUE_TEMPLATE/: bug.yml, feature.yml, config.yml with blank_issues_enabled: false.</li>
+        <li><b>Projects</b> — worth it when >15 open Issues.</li>
+        <li><b>Discussions</b> — skip for solo private repos.</li>
+      </ul>
+
+      <h4>9.11 Repo hygiene checklist</h4>
+      <h5>.gitattributes — critical for Windows</h5>
+<pre class="code">* text=auto eol=lf
+*.{cmd,bat,ps1} text eol=crlf
+*.{png,jpg,jpeg,gif,webp,ico,woff,woff2,ttf,otf,pdf} binary</pre>
+      <p>Without this, Claude Code (LF) + Windows tools (sometimes CRLF) creates spurious diffs on every file.</p>
+
+      <h5>.github/ folder</h5>
+<pre class="code">.github/
+  workflows/{ci.yml, dependabot-automerge.yml, scheduled.yml}
+  ISSUE_TEMPLATE/{bug.yml, feature.yml, config.yml}
+  PULL_REQUEST_TEMPLATE.md
+  dependabot.yml
+  CODEOWNERS    # * @cafe655</pre>
+
+      <h4>9.12 Developer-on-the-move</h4>
+      <table class="tbl">
+        <tr><th>Device</th><th>Possible</th><th>Best Tool</th></tr>
+        <tr><td class="k">Phone, 30 sec edit</td><td>typo, commit</td><td>github.dev or GitHub mobile</td></tr>
+        <tr><td class="k">Phone, review PR</td><td>read diff, approve, merge</td><td>GitHub mobile app</td></tr>
+        <tr><td class="k">Phone, trigger deploy</td><td>run a workflow</td><td>GitHub mobile → Actions</td></tr>
+        <tr><td class="k">iPad + keyboard</td><td>full dev session</td><td>Codespaces in Safari</td></tr>
+        <tr><td class="k">Friend's laptop</td><td>full dev session</td><td>Codespaces</td></tr>
+        <tr><td class="k">Phone, run Claude Code</td><td>not viable</td><td>(wait for desk)</td></tr>
+      </table>
+      <p><b>Reality:</b> phone for review/approval. iPad + Codespaces for actual editing away from PC.</p>
+
+      <h4>9.13 Backup & disaster scenarios</h4>
+      <p>GitHub backs up: code, history, Issues, PRs, Actions logs, repo settings.</p>
+      <p>GitHub does <b>NOT</b> back up: Supabase data, Vercel env vars, local-only config.</p>
+      <table class="tbl">
+        <tr><th>Scenario</th><th>Recovery</th></tr>
+        <tr><td class="k">PC dies</td><td>git clone, restore env, pnpm install, 20 min</td></tr>
+        <tr><td class="k">GitHub account compromised</td><td>2FA + hardware key; monthly git clone --mirror to external drive</td></tr>
+        <tr><td class="k">Supabase deleted</td><td>Restore from pg_dump or PITR. <b>Most under-protected scenario right now.</b></td></tr>
+        <tr><td class="k">Vercel deleted</td><td>Re-create from repo, restore env from password manager</td></tr>
+        <tr><td class="k">Repo deleted</td><td>GitHub keeps deleted repos 90 days</td></tr>
+      </table>
+
+      <div class="rule-callout">
+        <div class="rule-callout-h">Framework Rules — Layer 9</div>
+        <ol>
+          <li>Branch protection on main: require PR, require CI green, require linear history, <b>include administrators</b>.</li>
+          <li>No direct pushes to main, ever.</li>
+          <li>Squash and merge only.</li>
+          <li>One Claude Code session = one branch = one PR.</li>
+          <li>.gitattributes enforces LF line endings on Windows.</li>
+          <li>Push Protection on; Dependabot alerts on; secret scanning on.</li>
+          <li>Codespaces is the "anywhere" env; PC is "primary." Both run from same .devcontainer.</li>
+          <li>Phone is for review/approval, not editing. Don't fight the form factor.</li>
+          <li>Test restore once a year. Untested backups don't exist.</li>
+        </ol>
+      </div>
+
+      <h4>The workflow in one diagram</h4>
+<div class="diag">[Cafe / Claude Code]
+    → branch: claude/&lt;feature&gt; or cafe/&lt;feature&gt;
+    → commit (conventional format)
+    → push
+    → PR opened (template auto-loaded)
+        ├─ CI runs (typecheck, lint, build) ──┐
+        └─ Vercel preview deploy ─────────────┤
+                                              ▼
+                                       eyeball preview
+                                              ▼
+                                  squash + merge to main
+                                              ▼
+                          Vercel auto-deploys main → production
+                                              ▼
+                                   Issues auto-closed
+                                              ▼
+                            head branch auto-deleted</div>
+
+      <div class="src-list">
+        <h4>Sources</h4>
+        <ul>
+          <li><a href="https://docs.github.com/en/codespaces/overview">GitHub Codespaces</a></li>
+          <li><a href="https://docs.claude.com/en/docs/claude-code/devcontainer">Anthropic Claude Code devcontainer</a></li>
+          <li><a href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule">Branch protection rules</a></li>
+          <li><a href="https://git-scm.com/docs/git-worktree">Git worktree</a></li>
+          <li><a href="https://docs.github.com/en/get-started/getting-started-with-git/configuring-git-to-handle-line-endings">gitattributes for line endings</a></li>
+          <li><a href="https://vercel.com/docs/deployments/environments">Vercel preview deployments</a></li>
+        </ul>
+      </div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== LAYER 10 ===== -->
+  <div class="layer-block"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Layer 10</div>
         <div class="sum-name">The Operational Loop</div>
         <div class="sum-tagline">How code goes from your prompt to the live site, and how you verify it.</div>
       </div>
     </summary>
     <div class="det-body">
       <h4>Intent</h4>
-      <p>Without a tight feedback loop, AI-generated changes rot silently. The loop is the safety net that lets vibe-coding scale without breaking things.</p>
+      <p>Without a tight feedback loop, AI-generated changes rot silently. Builds on Layers 4 (Security), 8 (Admin), 9 (Version Control).</p>
 
-      <h4>The loop</h4>
-      <p>Edit → typecheck → lint → test → commit → push → preview → eyeball → merge. Every step automated except the eyeball.</p>
+      <h4>The full loop</h4>
+      <p>Edit → typecheck → lint → test → commit → push → preview → eyeball → merge → production. Every step automated except the eyeball.</p>
 
       <h4>Components</h4>
       <ul>
-        <li><b>Pre-commit hooks</b> (Husky + lint-staged): Prettier, ESLint, TypeScript strict, Zod schema parse on changed schemas. Blocks bad commits before push.</li>
-        <li><b>CI gates</b> on every PR: <code class="inline">pnpm typecheck && pnpm lint && pnpm test && pnpm build</code>. Single command must pass.</li>
-        <li><b>Vercel preview deploys</b> on every push: unique URL per branch. Eyeball on real infrastructure, not localhost.</li>
-        <li><b>Visual regression</b> via Playwright snapshots (or Chromatic): screenshots of every key page diffed against baseline. Agent can't merge if screenshots changed unexpectedly.</li>
-        <li><b>Rollback path:</b> <code class="inline">vercel rollback</code>, or revert commit. Documented so it's not surprising under pressure.</li>
-        <li><b>The ?edit=1 preview mode</b> (Layer 7) is the manual companion: click around in admin to preview changes before publishing.</li>
+        <li><b>Pre-commit hooks</b> (Husky + lint-staged): Prettier, ESLint, TS strict, Zod parse, gitleaks.</li>
+        <li><b>CI gates</b> on every PR (Layer 9).</li>
+        <li><b>Vercel preview deploys</b> per branch.</li>
+        <li><b>Visual regression</b> via Playwright snapshots. Agent can't merge if screenshots changed unexpectedly.</li>
+        <li><b>Rollback paths</b>: <code class="inline">vercel rollback</code> (30 sec), revert merge commit, or restore env from password manager.</li>
+        <li><b>?edit=1 preview mode</b> (Layer 8) — manual companion for content changes.</li>
       </ul>
 
-      <div class="src-list">
-        <h4>Sources</h4>
+      <div class="rule-callout">
+        <div class="rule-callout-h">Framework Rules</div>
         <ul>
-          <li><a href="https://getautonoma.com/blog/regression-testing-vercel-preview-deployments">Autonoma: regression testing Vercel previews</a></li>
-          <li><a href="https://mmazzarolo.com/blog/2022-09-09-visual-regression-testing-with-playwright-and-github-actions/">Visual regression with Playwright + GitHub Actions</a></li>
+          <li>Pre-commit hooks mandatory. No --no-verify unless explicitly granted by ADR.</li>
+          <li>No PR merges without green CI + Vercel preview eyeballed.</li>
+          <li>Every release adds at least one new Playwright snapshot if a visible change shipped.</li>
+          <li>Rollback procedure tested twice a year. Untested rollbacks are theoretical.</li>
         </ul>
       </div>
-
-      <div class="fnote"><b>When fully developed:</b> the package.json scripts, the .husky/ setup, the GitHub Actions workflow, and the Playwright config.</div>
     </div>
   </details></div>
 
 
-  <!-- ===== LAYER 9 ===== -->
+  <!-- ===== LAYER 11 ===== -->
   <div class="layer-block"><details>
     <summary>
       <div class="sum-text">
-        <div class="sum-tag">Layer 9</div>
+        <div class="sum-tag">Layer 11</div>
         <div class="sum-name">The Decision Record</div>
         <div class="sum-tagline">Memory of why you chose this, not just what.</div>
       </div>
     </summary>
     <div class="det-body">
       <h4>Intent</h4>
-      <p>ADRs (Architecture Decision Records) and the newer AgDR (Agent Decision Records) capture the <i>why</i> of architectural choices. Without them, the agent re-invents the design from scratch every conversation, and you lose the rationale that justified each decision.</p>
+      <p>ADRs and AgDR (Agent Decision Records) capture the <i>why</i>. Without them, the agent re-invents the design from scratch every conversation.</p>
 
       <h4>Components</h4>
       <ul>
         <li><b>docs/decisions/</b> folder. One Markdown file per decision: 0001-keystatic-over-sanity.md, 0002-supabase-rls-pattern.md.</li>
         <li><b>Y-statement format:</b> <i>"In the context of [situation], facing [concern], we chose [decision] to achieve [goal], accepting [tradeoff]."</i></li>
-        <li><b>Metadata header (AgDR style):</b> date, agent, model, trigger, status (accepted / superseded / deprecated).</li>
-        <li><b>AGENTS.md rule:</b> the agent reads the latest 5 ADRs before any architectural change, and writes a new ADR when introducing a new pattern.</li>
-        <li><b>Pair with session log:</b> the log captures <i>what we did</i>, ADRs capture <i>why we chose this</i>.</li>
+        <li><b>AgDR metadata header:</b> date, agent, model, trigger, status (accepted / superseded / deprecated).</li>
+        <li><b>AGENTS.md rule:</b> agent reads latest 5 ADRs before any architectural change; writes a new ADR when introducing a new pattern.</li>
+        <li><b>Pair with session log:</b> log captures <i>what we did</i>; ADRs capture <i>why we chose this</i>.</li>
       </ul>
 
-      <div class="src-list">
-        <h4>Sources</h4>
+      <div class="rule-callout">
+        <div class="rule-callout-h">Framework Rules</div>
         <ul>
-          <li><a href="https://adr.github.io/">adr.github.io</a></li>
-          <li><a href="https://github.com/me2resh/agent-decision-record">me2resh/agent-decision-record (AgDR)</a></li>
-          <li><a href="https://adolfi.dev/blog/ai-generated-adr/">Adolfi.dev: AI-generated ADRs</a></li>
+          <li>Every architectural choice (new dep, new pattern, new auth flow, new schema) produces an ADR.</li>
+          <li>ADRs are append-only. Old ones get marked "superseded by 00NN" but not deleted.</li>
+          <li>The agent reads the most recent 5 ADRs before suggesting a new pattern.</li>
         </ul>
       </div>
-
-      <div class="fnote"><b>When fully developed:</b> the ADR template, an "is this ADR-worthy?" decision rule, and the AGENTS.md snippet that wires it into the agent loop.</div>
     </div>
   </details></div>
 
@@ -691,34 +1396,50 @@ docs/decisions/             # Layer 9</pre>
   <div class="layer-block"><details>
     <summary>
       <div class="sum-text">
-        <div class="sum-tag">Catalog</div>
+        <div class="sum-tag">Catalog · expanded</div>
         <div class="sum-name">Anti-Patterns to Avoid</div>
-        <div class="sum-tagline">What erodes the system, organized by which layer's discipline prevents each.</div>
+        <div class="sum-tagline">35 ways the system erodes — organized by which layer's discipline catches each.</div>
       </div>
     </summary>
     <div class="det-body">
       <table class="tbl">
-        <tr><th>Anti-pattern</th><th>Defended by</th></tr>
-        <tr><td class="k">Inline style="…" in components</td><td>Design system + AGENTS.md forbidden list</td></tr>
-        <tr><td class="k">Arbitrary Tailwind values (p-[17px])</td><td>Design system + lint rule</td></tr>
-        <tr><td class="k">Raw hex / magic numbers</td><td>Token discipline (Layer 4)</td></tr>
-        <tr><td class="k">Two formatDate utils, two Order types</td><td>Schema-first + grep-before-create rule</td></tr>
-        <tr><td class="k">String literals for routes</td><td>Typed route map</td></tr>
-        <tr><td class="k">Comment explosion</td><td>"Self-document, comments only for non-obvious why"</td></tr>
-        <tr><td class="k">Dead code, orphaned files</td><td>knip / ts-prune in CI</td></tr>
-        <tr><td class="k">Silent any / as / @ts-expect-error</td><td>Strict TS + ESLint error-level</td></tr>
-        <tr><td class="k">Cross-site imports between sub-sites</td><td>"If shared, promote to global" rule</td></tr>
-        <tr><td class="k">Multiple root layouts</td><td>Single root layout principle</td></tr>
-        <tr><td class="k">Static HTML pages with copy-pasted nav</td><td>Migrate to MDX with shared layout</td></tr>
-        <tr><td class="k">Server actions on proxy-bypassed paths</td><td>Always re-check auth inside actions</td></tr>
-        <tr><td class="k">Edge runtime for proxy</td><td>Default to Node</td></tr>
-        <tr><td class="k">Missing schema validation at API boundaries</td><td>Zod parse on every handler</td></tr>
-        <tr><td class="k">Building admin for static content on Supabase</td><td>Use Keystatic for static; Supabase for dynamic</td></tr>
-        <tr><td class="k">Pre-structuring schemas before pain</td><td>Three collections to start; extend on demand</td></tr>
-        <tr><td class="k">Auto-generated AGENTS.md / CLAUDE.md</td><td>Hand-craft, keep under 300 lines</td></tr>
-        <tr><td class="k">Skipping the spec for "small" features</td><td>Spec discipline; lightweight version OK</td></tr>
-        <tr><td class="k">New patterns appearing per feature without ADR</td><td>"Read 5 ADRs before architectural change" rule</td></tr>
-        <tr><td class="k">Eyeballing only on localhost</td><td>Vercel previews + screenshot diffs</td></tr>
+        <tr><th>Anti-pattern</th><th>Catches it</th></tr>
+        <tr><td class="k">Inline style="…" in components</td><td>Layer 5 + 3</td></tr>
+        <tr><td class="k">Arbitrary Tailwind values</td><td>Layer 5 + lint</td></tr>
+        <tr><td class="k">Raw hex / magic numbers</td><td>Layer 5</td></tr>
+        <tr><td class="k">Two formatDate utils, two Order types</td><td>Layer 6 + grep-before-create</td></tr>
+        <tr><td class="k">String literals for routes</td><td>Layer 7</td></tr>
+        <tr><td class="k">Comment explosion</td><td>Layer 3</td></tr>
+        <tr><td class="k">Dead code, orphaned files</td><td>Layer 10 (knip / ts-prune)</td></tr>
+        <tr><td class="k">Silent any / as / @ts-expect-error</td><td>Layer 10 (Strict TS + ESLint)</td></tr>
+        <tr><td class="k">Cross-site imports between sub-sites</td><td>Layer 7</td></tr>
+        <tr><td class="k">Multiple root layouts</td><td>Layer 7</td></tr>
+        <tr><td class="k">Static HTML pages with copy-pasted nav</td><td>Layer 6 (migrate to MDX)</td></tr>
+        <tr><td class="k">Server actions on proxy-bypassed paths</td><td>Layer 4 (AVAM)</td></tr>
+        <tr><td class="k">getSession() server-side</td><td>Layer 4</td></tr>
+        <tr><td class="k">Tables created without RLS</td><td>Layer 4</td></tr>
+        <tr><td class="k">Service-role key reachable from client</td><td>Layer 4</td></tr>
+        <tr><td class="k">'unsafe-inline' / 'unsafe-eval' in production CSP</td><td>Layer 4</td></tr>
+        <tr><td class="k">Edge runtime for proxy.ts</td><td>Layer 7</td></tr>
+        <tr><td class="k">Missing schema validation at API boundaries</td><td>Layer 4 + 6</td></tr>
+        <tr><td class="k">npm install &lt;foo&gt; without verification</td><td>Layer 4 (slopsquatting)</td></tr>
+        <tr><td class="k">Pushing directly to main</td><td>Layer 9 (branch protection)</td></tr>
+        <tr><td class="k">Auto-merging Claude PRs without preview eyeball</td><td>Layer 9 + 10</td></tr>
+        <tr><td class="k">Single Claude session juggling multiple branches</td><td>Layer 9 (worktrees)</td></tr>
+        <tr><td class="k">Building admin for static content on Supabase</td><td>Layer 8 (Keystatic)</td></tr>
+        <tr><td class="k">Modal-on-modal admin flows</td><td>Layer 8</td></tr>
+        <tr><td class="k">"Save" buttons that don't</td><td>Layer 8</td></tr>
+        <tr><td class="k">Building your own CMS to avoid using a CMS</td><td>Layer 8</td></tr>
+        <tr><td class="k">Pre-structuring schemas before pain</td><td>Layer 6</td></tr>
+        <tr><td class="k">Auto-generated AGENTS.md / CLAUDE.md</td><td>Layer 3</td></tr>
+        <tr><td class="k">Skipping the spec for "small" features touching auth</td><td>Layer 2 + 4</td></tr>
+        <tr><td class="k">New patterns appearing per feature without ADR</td><td>Layer 11</td></tr>
+        <tr><td class="k">Eyeballing only on localhost</td><td>Layer 10</td></tr>
+        <tr><td class="k">--no-verify to bypass pre-commit hooks</td><td>Layer 10 (requires ADR)</td></tr>
+        <tr><td class="k">.env* accidentally committed</td><td>Layer 4 (Push Protection)</td></tr>
+        <tr><td class="k">GA4 without consent manager</td><td>Layer 4</td></tr>
+        <tr><td class="k">LLM treating user content as instructions</td><td>Layer 4</td></tr>
+        <tr><td class="k">Supabase running without backups for customer data</td><td>Layer 4 (PITR day-1)</td></tr>
       </table>
     </div>
   </details></div>
@@ -728,7 +1449,7 @@ docs/decisions/             # Layer 9</pre>
   <div class="layer-block"><details>
     <summary>
       <div class="sum-text">
-        <div class="sum-tag">Sequencing</div>
+        <div class="sum-tag">Sequencing · 5 phases</div>
         <div class="sum-name">Bootstrap Path</div>
         <div class="sum-tagline">The order to build (or migrate to) this framework.</div>
       </div>
@@ -736,24 +1457,92 @@ docs/decisions/             # Layer 9</pre>
     <div class="det-body">
       <div class="phase">
         <div class="phase-h">Phase 0 · Skeleton (Day 1)</div>
-        <div class="phase-body">AGENTS.md + CLAUDE.md (Layer 3) — even thin, get them in place. docs/decisions/0001-stack-choice.md (Layer 9). specs/ folder + first spec.md (Layer 2).</div>
+        <div class="phase-body">AGENTS.md + CLAUDE.md (Layer 3). docs/decisions/0001-stack-choice.md (Layer 11). specs/ folder + first spec.md (Layer 2). .gitignore, .gitattributes, .github/ skeleton (Layer 9). Branch protection on main (Layer 9).</div>
       </div>
       <div class="phase">
-        <div class="phase-h">Phase 1 · Foundations (Week 1)</div>
-        <div class="phase-body">design.tokens.json primitive layer (Layer 4). Semantic layer wired into Tailwind v4 @theme. Migrate first sub-site to MDX content (Layer 5). Populate _template/ folder (Layer 6) — real, copyable.</div>
+        <div class="phase-h">Phase 1 · Security baseline (Week 1)</div>
+        <div class="phase-body">docs/security/ index + checklist (Layer 4). Push Protection + secret scanning + Dependabot alerts on. .env.example populated; .env.local confirmed gitignored. CSP report-only mode shipped. Pre-commit hooks: gitleaks, lint, typecheck.</div>
       </div>
       <div class="phase">
-        <div class="phase-h">Phase 2 · Operational loop (Week 2)</div>
-        <div class="phase-body">Pre-commit hooks (Layer 8). Playwright snapshot tests on landing + each sub-site landing. CI workflow.</div>
+        <div class="phase-h">Phase 2 · Foundations (Week 2)</div>
+        <div class="phase-body">design.tokens.json primitive layer. Semantic layer wired into Tailwind v4 @theme. First Zod schema in lib/schemas/. Migrate first sub-site to MDX content. Populate _template/ folder — real, copyable.</div>
       </div>
       <div class="phase">
-        <div class="phase-h">Phase 3 · Admin (Week 3+)</div>
-        <div class="phase-body">Phase 1 admin from Layer 7: magic link + form-based /admin. First Zod schema for site_content in lib/schemas/.</div>
+        <div class="phase-h">Phase 3 · Operational loop (Week 3)</div>
+        <div class="phase-body">CI workflow (.github/workflows/ci.yml). Playwright snapshot tests. Vercel preview deploys verified per PR. CSP promoted from report-only to enforce.</div>
       </div>
       <div class="phase">
-        <div class="phase-h">Phase 4 · Compounding</div>
-        <div class="phase-body">Migrate remaining public/*.html pages to MDX. Add Phase 2 admin (in-place editing). Write ADRs as architectural choices arise. Revisit each layer quarterly.</div>
+        <div class="phase-h">Phase 4 · Admin (Week 4+)</div>
+        <div class="phase-body">Supabase magic link auth + /admin gate. MFA enrolled. audit_log table + first triggers. Keystatic config wired to repo. First content edit via Keystatic — full loop tested. Migrate remaining public/*.html to MDX.</div>
       </div>
+      <div class="phase">
+        <div class="phase-h">Phase 5 · Compounding</div>
+        <div class="phase-body">Add Phase 2 admin (in-place editing) when form-based feels slow. Write ADRs as architectural choices arise. Quarterly: review each layer; prune what isn't being used; test backup restore. Annually: rotate service role key; review all dependencies; security review. PITR enabled the day customer data lands.</div>
+      </div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== MASTER FRAMEWORK RULES ===== -->
+  <div class="layer-block security"><details open>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Consolidated · the agent reads this before every change</div>
+        <div class="sum-name">Master Framework Rules</div>
+        <div class="sum-tagline">The non-negotiables, all in one place.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <h4>Code & architecture</h4>
+      <ul>
+        <li>One root layout. 'use client' only on leaves. No cross-site imports. Tokens not values.</li>
+        <li>New routes follow (sites)/_template/ unless ADR'd otherwise.</li>
+        <li>Content lives outside app/; new static HTML in public/ is forbidden (one allowed exception per ADR).</li>
+        <li>Every content shape has a Zod schema in lib/schemas/.</li>
+      </ul>
+
+      <h4>Security (Layer 4 — non-negotiable)</h4>
+      <ol>
+        <li><b>AVAM</b> in every Server Action.</li>
+        <li><b>RLS</b> on every table from create table.</li>
+        <li><b>getUser() / getClaims()</b> server-side; never getSession().</li>
+        <li><b>Service role key</b> never in Client Components or NEXT_PUBLIC_*.</li>
+        <li><b>Strict, nonced CSP</b>; report-only 7 days then enforce.</li>
+        <li><b>MFA mandatory for admin</b>; admin = single hard-coded email.</li>
+        <li><b>Rate limit</b> auth, email, LLM, unauth-write endpoints.</li>
+        <li><b>Verify every new npm dep</b>; lockfile committed; npm ci --frozen-lockfile.</li>
+        <li><b>Audit log</b> every privileged action.</li>
+        <li><b>3-2-1 backups</b>; PITR day customer data lands.</li>
+        <li><b>Vercel Analytics + Plausible</b> default; no GA4 unless paired with consent manager.</li>
+        <li><b>LLM input is data, not instructions</b>; user content wrapped, output sanitized.</li>
+      </ol>
+
+      <h4>Workflow (Layer 9)</h4>
+      <ul>
+        <li>Branch protection on main: PR + CI green + linear history + <b>include administrators</b>.</li>
+        <li>No direct pushes to main, ever.</li>
+        <li>Squash and merge only.</li>
+        <li>One Claude session = one branch = one PR.</li>
+        <li>.gitattributes enforces LF on Windows.</li>
+        <li>Push Protection / Dependabot / secret scanning all on.</li>
+      </ul>
+
+      <h4>Admin (Layer 8)</h4>
+      <ul>
+        <li>/admin gated by Layer 4 auth.</li>
+        <li>Pattern A (content-in-repo) default; Pattern B requires ADR.</li>
+        <li>Mobile is a release-blocker.</li>
+        <li>Admin imports the <i>same</i> components as the public site.</li>
+        <li>Keystatic recommended; switching requires ADR.</li>
+      </ul>
+
+      <h4>Process (Layers 2, 3, 11)</h4>
+      <ul>
+        <li>Every feature touching auth/payments/customer-data/DB-schema requires full spec → plan → tasks.</li>
+        <li>AGENTS.md and CLAUDE.md reviewed for PII before every commit.</li>
+        <li>Every architectural choice produces an ADR.</li>
+        <li>Agent reads most recent 5 ADRs before suggesting a new pattern.</li>
+      </ul>
     </div>
   </details></div>
 
@@ -761,17 +1550,18 @@ docs/decisions/             # Layer 9</pre>
   <!-- ===== WHAT'S NEXT ===== -->
   <div class="tldr">
     <div class="tldr-h">What's Next</div>
-    <p>This is the outline. Reading order suggestion:</p>
-    <p>1. Read it once end-to-end. Notice which sections feel right, which feel wrong, which feel missing.</p>
-    <p>2. Push back. Sections you'd add, sections you'd cut, sections you'd reorder, principles you disagree with.</p>
-    <p>3. We pick a layer to fully develop first. <b>My recommendation: Layer 3 (Agent Operating Manual)</b> — highest leverage, lowest cost. Once your AGENTS.md is right, every subsequent layer's quality goes up.</p>
-    <p>After you sign off on the outline shape, each layer expands into its own working document, and the layers begin to wire into the live cafe655.com codebase one at a time.</p>
+    <p>This is v0.2 — outline + in-depth understanding. The framework is now substantially complete in scope: the eleven layers cover every architectural concern from "what we're building" to "why we chose this," with security and version-control as foundational.</p>
+    <p>Reading order suggestion:</p>
+    <p><b>1.</b> Read end-to-end (skim the Master Framework Rules first if pressed for time).</p>
+    <p><b>2.</b> Push back: which sections feel right, wrong, or missing? Which Framework Rules feel too loose or too tight?</p>
+    <p><b>3.</b> Pick a layer to fully develop first. <b>Recommendation: Layer 4 (Security) and Layer 3 (Agent Operating Manual) in parallel.</b> Once those two are right, every subsequent layer's quality is bounded by them.</p>
+    <p><b>4.</b> After those, Layer 9 (Version Control) is highest leverage — it's the substrate that makes every other layer's discipline enforceable.</p>
   </div>
 
 </main>
 
 <div class="footer">
-  Cafe655 · Architecture Framework v0.1 · Outline · <span id="ts"></span>
+  Cafe655 · Architecture Framework v0.2 · ~11,200 words · <span id="ts"></span>
   <script>document.getElementById('ts').textContent=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})</script>
 </div>
 

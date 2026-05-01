@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Website Architecture Framework — Cafe655</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#000;--bg:#0a0a0a;--card:#141414;--card2:#1a1a1a;--elevated:#222;
+  --border:#2a2a2a;--border2:#333;--text:#fff;--dim:#bbb;--muted:#888;--faint:#555;
+  --red:#FF0000;--red-dim:#cc0000;--red-dark:#330000;
+  --glow:rgba(255,0,0,0.12);--glow2:rgba(255,0,0,0.25);
+  --code-bg:#0d0d0d;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{background:var(--black);color:var(--text);font-family:'SF Mono','Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* SITE NAV */
+.site-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; padding: 10px 16px;
+  border-bottom: 1px solid #2a2a2a; flex-wrap: wrap;
+}
+.site-nav .site-brand {
+  font-size: 1.25em; font-weight: 700; color: #f5f5f7;
+  text-decoration: none; margin-right: 18px; letter-spacing: -0.02em;
+}
+.site-nav .site-brand span { color: #E31837; }
+.site-nav a.site-link {
+  color: #9e9eb8; text-decoration: none; font-size: 0.85em;
+  padding: 5px 12px; border-radius: 6px; transition: all 0.2s;
+}
+.site-nav a.site-link:hover { color: #f5f5f7; background: rgba(227, 24, 55, 0.12); }
+
+/* HERO */
+.hero{text-align:center;padding:3.5rem 1.25rem 1.5rem;max-width:900px;margin:0 auto}
+.hero .eyebrow{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.25em;margin-bottom:0.6rem}
+.hero h1{font-size:clamp(2rem,6.5vw,3.6rem);font-weight:900;letter-spacing:-0.03em;line-height:1.05;margin-bottom:0.6rem}
+.hero h1 .r{color:var(--red)}
+.hero .sub{font-size:0.92rem;color:var(--muted);max-width:680px;margin:1rem auto 0;line-height:1.75}
+.hero .meta{font-size:0.7rem;color:var(--faint);margin-top:1.4rem;letter-spacing:0.1em;text-transform:uppercase}
+
+/* WRAP */
+.wrap{max-width:900px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
+
+/* TLDR / CALLOUT */
+.tldr{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:1.3rem 1.5rem;margin:1.5rem 0 2rem}
+.tldr-h{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.18em;margin-bottom:0.7rem;font-weight:700}
+.tldr p{font-size:0.86rem;color:var(--dim);margin:0.5rem 0;line-height:1.8}
+.tldr p b{color:var(--red);font-weight:700}
+
+.callout{
+  background:linear-gradient(180deg,rgba(255,0,0,0.05),transparent);
+  border-left:3px solid var(--red);padding:0.85rem 1rem;border-radius:0 8px 8px 0;
+  margin:1rem 0;font-size:0.83rem;color:var(--dim);line-height:1.7
+}
+.callout b{color:var(--red);font-weight:700}
+
+/* LAYER STACK DIAGRAM */
+.stack{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:1.2rem 1.4rem;margin:1.5rem 0;
+}
+.stack-h{font-size:0.68rem;color:var(--red);text-transform:uppercase;letter-spacing:0.18em;margin-bottom:0.8rem;font-weight:700;text-align:center}
+.layer-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.55rem 0.85rem;background:var(--card2);border:1px solid var(--border);
+  border-radius:6px;margin:0.25rem 0;font-size:0.8rem;
+  transition:all 0.2s;
+}
+.layer-row:hover{border-color:var(--red-dim);background:var(--red-dark);transform:translateX(3px)}
+.layer-num{color:var(--red);font-weight:800;margin-right:0.7rem;width:1.5rem;display:inline-block;text-align:center}
+.layer-name{color:var(--text);font-weight:600;flex:1}
+.layer-tag{color:var(--muted);font-size:0.7rem;font-style:italic}
+
+/* SECTION HEADERS */
+.s-h{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.2em;margin:2.5rem 0 0.5rem;text-align:center}
+
+/* LAYER BLOCK */
+.layer-block{margin:1.2rem 0;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+details summary{
+  list-style:none;cursor:pointer;
+  padding:1.1rem 1.4rem;
+  background:var(--card);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;
+  transition:background 0.2s;
+}
+details summary::-webkit-details-marker{display:none}
+details summary:hover{background:var(--card2)}
+details summary::after{
+  content:"+";color:var(--red);font-size:1.4rem;font-weight:300;
+  transition:transform 0.25s ease;flex-shrink:0;line-height:1;margin-top:0.1rem;
+}
+details[open] summary::after{content:"–"}
+details[open] summary{background:var(--card2);border-bottom:1px solid var(--border)}
+
+.sum-text{flex:1;min-width:0}
+.sum-tag{font-size:0.62rem;color:var(--red);text-transform:uppercase;letter-spacing:0.18em;margin-bottom:0.25rem;font-weight:700}
+.sum-name{font-size:1rem;font-weight:700;color:var(--text);line-height:1.3;letter-spacing:-0.01em}
+.sum-tagline{font-size:0.78rem;color:var(--muted);margin-top:0.3rem;line-height:1.5;font-weight:400}
+
+.det-body{padding:1.3rem 1.5rem 1.5rem;background:var(--bg)}
+.det-body h4{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.15em;margin:1.4rem 0 0.6rem;font-weight:700}
+.det-body h4:first-child{margin-top:0}
+.det-body p{font-size:0.85rem;color:var(--dim);margin:0.6rem 0;line-height:1.8}
+.det-body p b{color:var(--text);font-weight:700}
+.det-body ul{list-style:none;margin:0.5rem 0 0.8rem}
+.det-body ul li{
+  font-size:0.84rem;color:var(--dim);padding-left:1.3rem;position:relative;
+  margin:0.35rem 0;line-height:1.7;
+}
+.det-body ul li::before{
+  content:"▸";color:var(--red);position:absolute;left:0.2rem;font-size:0.7rem;top:0.45rem;
+}
+.det-body ul li b{color:var(--text);font-weight:700}
+.det-body a{color:var(--red);text-decoration:none;border-bottom:1px dotted var(--red-dim);transition:opacity 0.2s;word-break:break-word}
+.det-body a:hover{opacity:0.7}
+
+code.inline{
+  background:var(--code-bg);border:1px solid var(--border);
+  padding:0.1rem 0.4rem;border-radius:4px;color:var(--red);
+  font-size:0.78rem;
+}
+pre.code{
+  background:var(--code-bg);border:1px solid var(--border);border-radius:8px;
+  padding:0.85rem 1rem;font-size:0.74rem;color:var(--dim);
+  overflow-x:auto;line-height:1.55;margin:0.6rem 0 1rem;
+  white-space:pre;
+}
+pre.code-wrap{white-space:pre-wrap;word-break:break-word}
+
+/* TABLE */
+table.tbl{width:100%;border-collapse:collapse;font-size:0.78rem;margin:0.6rem 0 1rem}
+table.tbl th{
+  text-align:left;padding:0.55rem 0.7rem;background:var(--card2);
+  color:var(--red);font-weight:700;text-transform:uppercase;font-size:0.66rem;
+  letter-spacing:0.1em;border-bottom:1px solid var(--border)
+}
+table.tbl td{
+  padding:0.55rem 0.7rem;border-bottom:1px solid var(--border);
+  color:var(--dim);vertical-align:top
+}
+table.tbl td.k{color:var(--text);font-weight:600;white-space:nowrap}
+table.tbl tr:last-child td{border-bottom:none}
+
+.src-list{margin-top:1.2rem;padding-top:1rem;border-top:1px dashed var(--border)}
+.src-list h4{margin-top:0}
+
+.fnote{
+  background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
+  border-left:2px dashed var(--border2);
+  padding:0.6rem 0.9rem;margin-top:1rem;
+  font-size:0.75rem;color:var(--muted);font-style:italic;line-height:1.7
+}
+.fnote b{color:var(--dim);font-style:normal;font-weight:700}
+
+/* PHASE LIST */
+.phase{
+  background:var(--card2);border:1px solid var(--border);border-radius:8px;
+  padding:0.85rem 1rem;margin:0.5rem 0;
+}
+.phase-h{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.12em;font-weight:700;margin-bottom:0.3rem}
+.phase-body{font-size:0.83rem;color:var(--dim);line-height:1.7}
+
+/* FOOTER */
+.footer{text-align:center;padding:2.5rem 1.25rem;color:var(--faint);font-size:0.7rem;border-top:1px solid var(--border);margin-top:3rem}
+
+@media (max-width:540px){
+  .hero{padding:2.5rem 1rem 1rem}
+  .wrap{padding:1rem 0.85rem 4rem}
+  details summary{padding:0.95rem 1.1rem}
+  .det-body{padding:1.1rem 1.1rem 1.3rem}
+  .sum-name{font-size:0.92rem}
+  .sum-tagline{font-size:0.74rem}
+  table.tbl{font-size:0.72rem}
+  table.tbl th,table.tbl td{padding:0.45rem 0.55rem}
+  pre.code{font-size:0.7rem;padding:0.7rem 0.85rem}
+}
+</style>
+</head>
+<body>
+
+<div class="site-nav">
+  <a href="https://www.cafe655.com" class="site-brand">Cafe<span>655</span></a>
+  <a href="https://www.cafe655.com/ai-field-notes" class="site-link">Ai Field Notes</a>
+  <a href="https://www.cafe655.com/barista-painting" class="site-link">Barista Painting Services</a>
+  <a href="https://www.cafe655.com/cafe655-on-twitch" class="site-link">Cafe655 on Twitch</a>
+  <a href="https://www.cafe655.com/personal" class="site-link">Cafe655 Personal</a>
+</div>
+
+<header class="hero">
+  <div class="eyebrow">Architectural Framework · v0.1 Outline</div>
+  <h1>How to <span class="r">build</span> a website you can actually run.</h1>
+  <p class="sub">A 9-layer framework for solo non-developers building real production websites with an AI coding agent. Each layer pre-answers questions so neither you nor Claude has to re-decide them per page.</p>
+  <div class="meta">May 1, 2026 · For David (Cafe) + Claude</div>
+</header>
+
+<main class="wrap">
+
+  <!-- ===== TL;DR ===== -->
+  <div class="tldr">
+    <div class="tldr-h">The Big Idea</div>
+    <p>The framework is organized as <b>layers</b>. Each layer pre-answers questions for the layer above it, so neither you nor the agent has to re-decide them per page or per project.</p>
+    <p>The <b>lower</b> layers are read more often (by you, by Claude, on every change). The <b>upper</b> layers are read when you're making decisions or recovering history.</p>
+    <p>When operational, the contract is: <b>Claude reads layers 1–6 before writing any code</b>, and <b>writes to layers 7–9 as a side effect of its work</b>.</p>
+  </div>
+
+  <!-- ===== STACK ===== -->
+  <div class="stack">
+    <div class="stack-h">The Layer Stack</div>
+    <div class="layer-row"><span><span class="layer-num">9</span><span class="layer-name">Decision Record</span></span><span class="layer-tag">why we chose X</span></div>
+    <div class="layer-row"><span><span class="layer-num">8</span><span class="layer-name">Operational Loop</span></span><span class="layer-tag">deploy / verify</span></div>
+    <div class="layer-row"><span><span class="layer-num">7</span><span class="layer-name">Admin Interface</span></span><span class="layer-tag">how you edit</span></div>
+    <div class="layer-row"><span><span class="layer-num">6</span><span class="layer-name">Code Architecture</span></span><span class="layer-tag">how files sit</span></div>
+    <div class="layer-row"><span><span class="layer-num">5</span><span class="layer-name">Content Model</span></span><span class="layer-tag">what content is</span></div>
+    <div class="layer-row"><span><span class="layer-num">4</span><span class="layer-name">Design System</span></span><span class="layer-tag">how it looks</span></div>
+    <div class="layer-row"><span><span class="layer-num">3</span><span class="layer-name">Agent Operating Manual</span></span><span class="layer-tag">how Claude reads it</span></div>
+    <div class="layer-row"><span><span class="layer-num">2</span><span class="layer-name">Specification</span></span><span class="layer-tag">what we're building</span></div>
+    <div class="layer-row"><span><span class="layer-num">1</span><span class="layer-name">Mental Model</span></span><span class="layer-tag">foundational principles</span></div>
+  </div>
+
+
+  <!-- ===== LAYER 1 ===== -->
+  <div class="s-h">The Layers</div>
+
+  <div class="layer-block"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Layer 1</div>
+        <div class="sum-name">The Foundational Mental Model</div>
+        <div class="sum-tagline">The principles that govern every other layer.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <h4>Intent</h4>
+      <p>Before any tool choice, the project needs a small set of operating principles that the rest of the framework can be checked against. These principles travel with you across projects.</p>
+
+      <h4>Core principles</h4>
+      <ul>
+        <li><b>Decisions, not options.</b> A good architecture <i>narrows</i> choice. One type ramp, one spacing scale, one component for "card." Every "or" is a future inconsistency.</li>
+        <li><b>Tokens, not values.</b> Components reference named tokens (<code class="inline">--bg-page</code>, <code class="inline">space-4</code>), never raw values. (W3C DTCG spec, Primer's foundational rule.)</li>
+        <li><b>Schema-first contracts.</b> Every shape — content, props, API responses, DB rows — has one canonical schema. Zod is the de-facto standard. The schema is the contract, the validator, <i>and</i> the type.</li>
+        <li><b>Constraint as feature.</b> Limited palettes, limited components, limited prose styles → consistency for free. Agents pick randomly when given options; humans get tired when given options.</li>
+        <li><b>Separation of concerns by layer.</b> Content ≠ presentation. Presentation ≠ layout. Layout ≠ structure.</li>
+        <li><b>Explicit over implicit.</b> Especially for AI agents: a written-down rule is followed, an inferred rule drifts.</li>
+        <li><b>Reversible defaults.</b> Pick patterns that can be replaced incrementally, not patterns that demand rewrites.</li>
+        <li><b>Vibe-coding requires guardrails.</b> "Talk to Claude and push" only stays sustainable if the framework catches drift automatically.</li>
+      </ul>
+
+      <div class="fnote"><b>When fully developed:</b> a 1-page principles statement that other layers cite.</div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== LAYER 2 ===== -->
+  <div class="layer-block"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Layer 2</div>
+        <div class="sum-name">The Specification Layer</div>
+        <div class="sum-tagline">What we're building, before we build it.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <h4>Intent</h4>
+      <p>A spec is the artifact that gets written <i>before</i> code. It captures the "what" and the "why" so the agent doesn't have to invent answers from gaps in the prompt. Two dominant frameworks have emerged in 2025–2026: <b>GitHub Spec Kit</b> (Constitution → Specify → Clarify → Plan → Tasks → Implement) and Amazon's <b>Kiro</b> (Requirements → Design → Tasks).</p>
+
+      <h4>Components</h4>
+      <ul>
+        <li><b>specs/ directory</b> at repo root, one folder per feature.</li>
+        <li><b>spec.md</b> — what is being built, success criteria, out of scope. Acceptance criteria in EARS notation: <i>"When [trigger], the [system] shall [behavior]."</i></li>
+        <li><b>plan.md</b> — how we'll build it. Architectural choices, file changes, sequencing.</li>
+        <li><b>tasks.md</b> — ordered, parallelizable work items.</li>
+        <li><b>Lifecycle:</b> spec → human review → plan → human review → implementation. Not optional, even for small features.</li>
+        <li><b>Solo-dev lightweight version:</b> for trivial changes, a single spec.md is enough. For anything touching multiple layers, do the full flow.</li>
+      </ul>
+
+      <div class="callout"><b>Why this matters for AI-augmented dev:</b> Without a spec, the agent fills gaps with guesses; with a spec, the agent fills gaps with the spec. This is the single highest-leverage discipline change for solo vibe-coders.</div>
+
+      <div class="src-list">
+        <h4>Sources</h4>
+        <ul>
+          <li><a href="https://github.com/github/spec-kit">GitHub Spec Kit</a></li>
+          <li><a href="https://kiro.dev/">Kiro IDE</a></li>
+          <li><a href="https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html">Martin Fowler: Spec-Driven Development</a></li>
+          <li><a href="https://github.com/PaulDuvall/ai-development-patterns">PaulDuvall/ai-development-patterns</a></li>
+        </ul>
+      </div>
+
+      <div class="fnote"><b>When fully developed:</b> spec.md / plan.md / tasks.md templates and a one-page "when to write a spec" decision rule.</div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== LAYER 3 ===== -->
+  <div class="layer-block"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Layer 3 · highest leverage</div>
+        <div class="sum-name">The Agent Operating Manual</div>
+        <div class="sum-tagline">How Claude reads the project on every turn.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <h4>Intent</h4>
+      <p><b>AGENTS.md</b> is the cross-tool spec (Linux Foundation, supported by Claude Code, OpenAI Codex, Cursor, Aider, Copilot, etc.) for briefing AI agents on a codebase. <b>CLAUDE.md</b> is the Claude-specific extension; many projects symlink them. Vercel does. The agent reads the <b>nearest</b> file in the directory tree, so subprojects can override the root.</p>
+
+      <h4>Components of a good AGENTS.md</h4>
+      <ul>
+        <li>Project overview (what & why, 2–3 lines)</li>
+        <li>Stack & versions (Next.js 16, Tailwind v4, Supabase, Vercel)</li>
+        <li>Codebase map (where things live)</li>
+        <li>Build/dev/test commands (exact strings to run)</li>
+        <li>Code style — <i>only what tools can't enforce</i></li>
+        <li>Testing instructions</li>
+        <li>Security / secrets boundaries</li>
+        <li>Commit / PR conventions</li>
+        <li>Known gotchas / anti-patterns</li>
+        <li>Pointers to deeper docs (progressive disclosure)</li>
+      </ul>
+
+      <h4>Hard rules from the field</h4>
+      <ul>
+        <li><b>Brevity is load-bearing.</b> Frontier LLMs reliably follow ~150–200 instructions; Claude Code's system prompt already uses ~50. Target <b>under 300 lines</b>, ideally under 60. Every line costs context budget on every turn.</li>
+        <li><b>Don't auto-generate.</b> Hand-craft. Auto-gen produces noise.</li>
+        <li><b>Progressive disclosure.</b> Root file thin, deeper docs (docs/auth.md, docs/db-conventions.md) loaded on demand.</li>
+        <li><b>Forbidden patterns belong here.</b> Explicit Don't list (no inline <code class="inline">style=</code>, no Tailwind arbitrary values, no <code class="inline">any</code>).</li>
+      </ul>
+
+      <div class="src-list">
+        <h4>Sources</h4>
+        <ul>
+          <li><a href="https://agents.md/">agents.md (Linux Foundation spec)</a></li>
+          <li><a href="https://github.com/vercel/next.js/blob/canary/AGENTS.md">vercel/next.js AGENTS.md (gold standard)</a></li>
+          <li><a href="https://www.humanlayer.dev/blog/writing-a-good-claude-md">HumanLayer: Writing a good CLAUDE.md</a></li>
+        </ul>
+      </div>
+
+      <div class="fnote"><b>When fully developed:</b> a template AGENTS.md plus a checklist for what <i>not</i> to put in it.</div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== LAYER 4 ===== -->
+  <div class="layer-block"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Layer 4</div>
+        <div class="sum-name">The Design System</div>
+        <div class="sum-tagline">Tokens, components, patterns — pre-decides every visual question.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <h4>Intent</h4>
+      <p>Without a design system, every page reinvents type, color, spacing, motion. With one, the agent (and you) reach for the same tokens every time, and the site looks coherent without anyone having to think about it.</p>
+
+      <h4>4.1 Tokens</h4>
+      <ul>
+        <li><b>Two-layer token model:</b> primitive (gray.1–gray.12, space.4) → semantic (bg.page, fg.muted, border.default). Components reference <i>only</i> semantic tokens.</li>
+        <li><b>DTCG-compliant JSON</b> as source of truth. W3C Design Tokens spec reached first stable version Oct 2025.</li>
+        <li><b>Build pipeline:</b> Style Dictionary emits CSS variables, Tailwind theme blocks, Figma styles from the same JSON.</li>
+        <li><b>Sub-site theming:</b> each sub-site overrides only the semantic mapping (its own bg.emphasis, font.sans), never the components.</li>
+      </ul>
+
+      <h4>4.2 Foundations chapters</h4>
+      <p>Color · Typography · Spacing · Radius · Elevation · Motion · Breakpoints · Iconography. Each chapter: rules, allowed values, do/don't, code examples.</p>
+
+      <h4>4.3 Components, patterns, accessibility, voice</h4>
+      <p>Components (Button, Card, Input, Pill, Nav, Footer, Badge, Dialog, Toast). Patterns (page shell, hero, article layout, empty/loading/error states, forms). Accessibility baked into tokens (Radix's 12-step scales pre-encode AA targets). Voice & content style: title case rules, sentence length, link text, error messages — same status as visual rules.</p>
+
+      <h4>4.4 Tailwind v4 integration</h4>
+      <p>Tailwind v4 dropped JS config; tokens now live in CSS via <code class="inline">@theme</code>. Pipeline: <code class="inline">design.tokens.json</code> → Style Dictionary → <code class="inline">theme.css</code>. Sub-site overrides via <code class="inline">[data-subsite="foo"]</code> selector.</p>
+
+      <h4>4.5 AI-agent ergonomics</h4>
+      <ul>
+        <li>Self-documenting names (<code class="inline">--fgColor-onEmphasis</code>) beat short names.</li>
+        <li>Explicit Do/Don't blocks adjacent to the tokens.</li>
+        <li>Decision rules over examples.</li>
+        <li>One canonical answer per question. No "pick one" lists.</li>
+        <li>Forbidden list: no inline <code class="inline">style=</code>, no arbitrary Tailwind values, no new colors without adding a token first.</li>
+      </ul>
+
+      <div class="src-list">
+        <h4>Canonical references to study</h4>
+        <ul>
+          <li><a href="https://www.radix-ui.com/colors">Radix Colors</a> — cleanest semantic-step model</li>
+          <li><a href="https://primer.style/">GitHub Primer</a> + <a href="https://github.com/primer/primitives">primer/primitives</a></li>
+          <li><a href="https://vercel.com/geist/introduction">Vercel Geist</a></li>
+          <li><a href="https://tailwindcss.com/docs/theme">Tailwind v4 theme docs</a></li>
+          <li><a href="https://www.designtokens.org/tr/drafts/format/">W3C Design Tokens Format Module</a></li>
+          <li><a href="https://styledictionary.com/">Style Dictionary</a></li>
+          <li><a href="https://designmd.app/en/what-is-design-md">Google's DESIGN.md</a> — Markdown-first, JSON-embedded</li>
+        </ul>
+      </div>
+
+      <div class="fnote"><b>When fully developed:</b> full ToC, a starter design.tokens.json (primitive + semantic), the Tailwind v4 wiring, and per-component spec sheets.</div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== LAYER 5 ===== -->
+  <div class="layer-block"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Layer 5</div>
+        <div class="sum-name">The Content Model</div>
+        <div class="sum-tagline">What content is, where it lives, who edits it.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <h4>Intent</h4>
+      <p>Right now, content on cafe655.com is mashed into static HTML files in <code class="inline">public/</code> — content and presentation fused. The content layer separates <i>what the page says</i> from <i>how the page looks</i>, so editing copy doesn't require touching code, and changing design doesn't risk corrupting copy.</p>
+
+      <h4>5.1 Content type taxonomy</h4>
+      <ul>
+        <li><b>Sub-sites</b> — name, slug, tagline, theme, hero image, enabled flag</li>
+        <li><b>Cards / pill-links</b> — title, href, icon, parent sub-site, order</li>
+        <li><b>Long-form pages</b> — title, slug, MDX body</li>
+        <li><b>Site settings</b> — nav order, sub-site enable/disable</li>
+        <li><b>Dynamic data</b> — form submissions, comments, analytics — Postgres territory</li>
+      </ul>
+
+      <h4>5.2 Where content lives — the decision tree</h4>
+      <table class="tbl">
+        <tr><th>Content type</th><th>Home</th><th>Why</th></tr>
+        <tr><td class="k">Long-form prose</td><td>MDX in content/</td><td>Human-readable, diff-friendly, embeds React</td></tr>
+        <tr><td class="k">Structured lists</td><td>JSON/YAML in content/</td><td>Schema-validatable, fast to render</td></tr>
+        <tr><td class="k">Edited via UI</td><td>CMS collection (Keystatic)</td><td>UI on top of the same MD/JSON files</tr>
+        <tr><td class="k">Dynamic data</td><td>Supabase (Postgres)</td><td>Real DB for changing-without-deploy data</td></tr>
+      </table>
+
+      <h4>5.3 Schema-first contracts</h4>
+      <p>Every content type has a Zod schema. The schema is:</p>
+      <ul>
+        <li>The runtime validator (parse on read, fail fast)</li>
+        <li>The static type (<code class="inline">z.infer&lt;typeof CardSchema&gt;</code>)</li>
+        <li>The CMS collection definition (Keystatic generates forms from it)</li>
+        <li>The DB schema (Drizzle ORM derives Zod schemas from Supabase tables)</li>
+      </ul>
+      <p>One canonical definition. Edit it once, every consumer updates.</p>
+
+      <h4>5.4 Migration path from static HTML</h4>
+      <p>The <code class="inline">public/*.html</code> pages are the current liability. Migration approach:</p>
+      <ul>
+        <li>For each HTML page, extract the prose to MDX with frontmatter.</li>
+        <li>Move the inline styles into the design system.</li>
+        <li>Drop the MDX into the appropriate sub-site's content/ folder.</li>
+        <li>Delete the static HTML.</li>
+      </ul>
+      <p>This is where Claude earns its pay — paste an HTML file, get back MDX + missing-token list.</p>
+
+      <div class="src-list">
+        <h4>Sources</h4>
+        <ul>
+          <li><a href="https://keystatic.com">Keystatic</a></li>
+          <li><a href="https://zod.dev/">Zod docs</a></li>
+          <li><a href="https://orm.drizzle.team/">Drizzle ORM + drizzle-zod</a></li>
+          <li><a href="https://nextjs.org/docs/app/guides/mdx">Next.js MDX guide</a></li>
+        </ul>
+      </div>
+
+      <div class="fnote"><b>When fully developed:</b> the full schema set in TypeScript, the content/ folder layout, and the static-HTML migration recipe.</div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== LAYER 6 ===== -->
+  <div class="layer-block"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Layer 6</div>
+        <div class="sum-name">The Code Architecture</div>
+        <div class="sum-tagline">How files are organized so the agent always knows where things go.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <h4>Intent</h4>
+      <p>A predictable folder structure means new features always land in the same kind of place, the agent's "where do I put this?" answer is deterministic, and a stranger reading the repo can navigate it.</p>
+
+      <h4>6.1 Hub-and-spoke layout</h4>
+<pre class="code">src/
+├── app/
+│   ├── layout.tsx          # ROOT — only place with &lt;html&gt;&lt;body&gt;
+│   ├── page.tsx            # Hub landing
+│   ├── (sites)/            # Route group — sub-sites here
+│   │   ├── _template/      # Copy this to start a new sub-site
+│   │   ├── ai-field-notes/
+│   │   │   ├── layout.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── _components/
+│   │   │   ├── _lib/
+│   │   │   └── [slug]/
+│   │   └── …
+│   ├── admin/              # Layer 7
+│   └── api/
+├── components/{layout,ui,seo}/
+├── lib/{schemas,content,db,utils}/
+└── styles/tokens/
+content/                    # Layer 5
+specs/                      # Layer 2
+docs/decisions/             # Layer 9</pre>
+
+      <h4>6.2 The _template/ pattern</h4>
+      <p>A real sub-site starter: layout.tsx, page.tsx, opengraph-image.tsx, _components/SiteShell.tsx, _lib/content.ts, and a README with a 5-line rename checklist. Copying this folder is how a new sub-site is born.</p>
+
+      <h4>6.3 Server vs. client components</h4>
+      <ul>
+        <li><b>Server by default.</b> Layouts, pages, navbar.</li>
+        <li><b>Push 'use client' to leaves.</b> A nav with a mobile-menu toggle stays a server component; only the toggle is client.</li>
+        <li><b>Don't import server components from client components.</b> Use <code class="inline">children</code> slot.</li>
+        <li><b>server-only</b> package on data-fetchers to prevent client leaks.</li>
+      </ul>
+
+      <h4>6.4 Subdomain routing</h4>
+      <p>Modern Next.js 16: <code class="inline">proxy.ts</code> (renamed from middleware.ts) at app root, rewrites <code class="inline">*.cafe655.com</code> to <code class="inline">/[subsite]/...</code>. Vercel needs the wildcard domain configured; Cloudflare needs a wildcard CNAME.</p>
+
+      <h4>6.5 Sub-site theming via CSS variables</h4>
+      <p>Each sub-site's layout.tsx sets <code class="inline">data-subsite="ai-field-notes"</code>. CSS overrides target that selector. Components stay theme-blind.</p>
+
+      <h4>6.6 Next.js 16 specific gotchas</h4>
+      <ul>
+        <li><b>middleware.ts is renamed proxy.ts.</b> Codemod available. Your repo still has middleware.ts.</li>
+        <li><b>params and searchParams are now Promises</b> — always await.</li>
+        <li><b>cacheComponents flag</b> replaces ppr / useCache / dynamicIO.</li>
+        <li><b>Bundled docs at node_modules/next/dist/docs/</b> — version-matched, agent should prefer these.</li>
+      </ul>
+
+      <div class="src-list">
+        <h4>Sources</h4>
+        <ul>
+          <li><a href="https://nextjs.org/docs">Next.js 16 docs</a></li>
+          <li><a href="https://nextjs.org/docs/app/getting-started/project-structure">Project structure guide</a></li>
+          <li><a href="https://vercel.com/templates/next.js/platforms-starter-kit">Vercel Platforms Starter Kit</a></li>
+        </ul>
+      </div>
+
+      <div class="fnote"><b>When fully developed:</b> the full repo layout, the populated _template/ folder, the proxy.ts for subdomains, and a "where does this go?" decision rule.</div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== LAYER 7 ===== -->
+  <div class="layer-block"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Layer 7</div>
+        <div class="sum-name">The Admin Interface</div>
+        <div class="sum-tagline">How you edit the site without writing code.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <h4>Intent</h4>
+      <p>The friend's "click a heading and edit it" experience is the destination. The framework picks a path that keeps the codebase tiny, AI-friendly, and progressively earns capability.</p>
+
+      <h4>7.1 Admin UX taxonomy</h4>
+      <table class="tbl">
+        <tr><th>Pattern</th><th>UX</th><th>Cost</th></tr>
+        <tr><td class="k">Separate dashboard</td><td>Log in, sidebar, edit in form</td><td>Low</td></tr>
+        <tr><td class="k">In-place editing</td><td>Click a heading on the live site</td><td>Med-high</td></tr>
+        <tr><td class="k">Inspector panel</td><td>Right-rail with component tree + props</td><td>High</td></tr>
+        <tr><td class="k">Visual builder</td><td>Figma-like canvas (Builder.io, Plasmic)</td><td>High lock-in</td></tr>
+        <tr><td class="k">Git-based CMS</td><td>UI writes MD/JSON; edits = commits</td><td>Low-med</td></tr>
+        <tr><td class="k">DB-backed CMS</td><td>Schema-defined Studio (Sanity, Payload)</td><td>Medium</td></tr>
+      </table>
+
+      <h4>7.2 Phased adoption — recommended for cafe655.com</h4>
+
+      <div class="phase">
+        <div class="phase-h">Phase 1 · Minimum viable admin (1–2 sessions)</div>
+        <div class="phase-body">Supabase magic-link auth → /admin route → list of sub-sites → forms backed by a site_content table (text, image URLs, links, nav order, enable/disable). Public site reads server-side.</div>
+      </div>
+      <div class="phase">
+        <div class="phase-h">Phase 2 · In-place editing</div>
+        <div class="phase-body"><code class="inline">?edit=1</code> query mode renders the public site with edit overlays. <code class="inline">&lt;Editable field="hero.title" /&gt;</code> wraps editable strings, opens a popover, PATCHes Supabase. ~200 lines of custom code.</div>
+      </div>
+      <div class="phase">
+        <div class="phase-h">Phase 3 · Inspector / visual builder</div>
+        <div class="phase-body">At this point evaluate <b>Keystatic</b> (git-based, content-as-files, free) or <b>Sanity + Vercel Visual Editing</b> (hosted, content source maps, zero component instrumentation). Both are cheaper than building Phase 3 by hand.</div>
+      </div>
+
+      <h4>7.3 Auth recipe — solo magic link</h4>
+      <ul>
+        <li>Supabase project, email magic link enabled, allow-listed email.</li>
+        <li>/login calls <code class="inline">supabase.auth.signInWithOtp({email})</code>.</li>
+        <li>proxy.ts calls <code class="inline">getUser()</code> (never <code class="inline">getSession()</code> server-side — Supabase security note), redirects unauth'd /admin/* to /login.</li>
+        <li>Optional: second check inside /admin layout that user's email matches allow-list.</li>
+      </ul>
+
+      <h4>7.4 Admin-as-component-library principle</h4>
+      <p>The admin UI imports the <i>same</i> Hero, Card, Heading components as the public site. Form-driven props on real components. Storybook is the development-time version; in production it becomes /admin/preview.</p>
+
+      <div class="src-list">
+        <h4>Sources</h4>
+        <ul>
+          <li><a href="https://vercel.com/blog/visual-editing">Vercel Visual Editing</a> + <a href="https://www.sanity.io/docs/visual-editing">Sanity Visual Editing</a></li>
+          <li><a href="https://tina.io/docs/contextual-editing/overview">TinaCMS Visual Editing</a></li>
+          <li><a href="https://keystatic.com">Keystatic</a></li>
+          <li><a href="https://supabase.com/docs/guides/auth/server-side/nextjs">Supabase Server-Side Auth Next.js</a></li>
+          <li><a href="https://refine.dev/blog/admin-panel-with-supabase/">Refine + Supabase admin tutorial</a></li>
+        </ul>
+      </div>
+
+      <div class="fnote"><b>When fully developed:</b> Phase 1 wired end-to-end (schemas, routes, components), the magic-link auth recipe, and a checklist for graduating to Phase 2.</div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== LAYER 8 ===== -->
+  <div class="layer-block"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Layer 8</div>
+        <div class="sum-name">The Operational Loop</div>
+        <div class="sum-tagline">How code goes from your prompt to the live site, and how you verify it.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <h4>Intent</h4>
+      <p>Without a tight feedback loop, AI-generated changes rot silently. The loop is the safety net that lets vibe-coding scale without breaking things.</p>
+
+      <h4>The loop</h4>
+      <p>Edit → typecheck → lint → test → commit → push → preview → eyeball → merge. Every step automated except the eyeball.</p>
+
+      <h4>Components</h4>
+      <ul>
+        <li><b>Pre-commit hooks</b> (Husky + lint-staged): Prettier, ESLint, TypeScript strict, Zod schema parse on changed schemas. Blocks bad commits before push.</li>
+        <li><b>CI gates</b> on every PR: <code class="inline">pnpm typecheck && pnpm lint && pnpm test && pnpm build</code>. Single command must pass.</li>
+        <li><b>Vercel preview deploys</b> on every push: unique URL per branch. Eyeball on real infrastructure, not localhost.</li>
+        <li><b>Visual regression</b> via Playwright snapshots (or Chromatic): screenshots of every key page diffed against baseline. Agent can't merge if screenshots changed unexpectedly.</li>
+        <li><b>Rollback path:</b> <code class="inline">vercel rollback</code>, or revert commit. Documented so it's not surprising under pressure.</li>
+        <li><b>The ?edit=1 preview mode</b> (Layer 7) is the manual companion: click around in admin to preview changes before publishing.</li>
+      </ul>
+
+      <div class="src-list">
+        <h4>Sources</h4>
+        <ul>
+          <li><a href="https://getautonoma.com/blog/regression-testing-vercel-preview-deployments">Autonoma: regression testing Vercel previews</a></li>
+          <li><a href="https://mmazzarolo.com/blog/2022-09-09-visual-regression-testing-with-playwright-and-github-actions/">Visual regression with Playwright + GitHub Actions</a></li>
+        </ul>
+      </div>
+
+      <div class="fnote"><b>When fully developed:</b> the package.json scripts, the .husky/ setup, the GitHub Actions workflow, and the Playwright config.</div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== LAYER 9 ===== -->
+  <div class="layer-block"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Layer 9</div>
+        <div class="sum-name">The Decision Record</div>
+        <div class="sum-tagline">Memory of why you chose this, not just what.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <h4>Intent</h4>
+      <p>ADRs (Architecture Decision Records) and the newer AgDR (Agent Decision Records) capture the <i>why</i> of architectural choices. Without them, the agent re-invents the design from scratch every conversation, and you lose the rationale that justified each decision.</p>
+
+      <h4>Components</h4>
+      <ul>
+        <li><b>docs/decisions/</b> folder. One Markdown file per decision: 0001-keystatic-over-sanity.md, 0002-supabase-rls-pattern.md.</li>
+        <li><b>Y-statement format:</b> <i>"In the context of [situation], facing [concern], we chose [decision] to achieve [goal], accepting [tradeoff]."</i></li>
+        <li><b>Metadata header (AgDR style):</b> date, agent, model, trigger, status (accepted / superseded / deprecated).</li>
+        <li><b>AGENTS.md rule:</b> the agent reads the latest 5 ADRs before any architectural change, and writes a new ADR when introducing a new pattern.</li>
+        <li><b>Pair with session log:</b> the log captures <i>what we did</i>, ADRs capture <i>why we chose this</i>.</li>
+      </ul>
+
+      <div class="src-list">
+        <h4>Sources</h4>
+        <ul>
+          <li><a href="https://adr.github.io/">adr.github.io</a></li>
+          <li><a href="https://github.com/me2resh/agent-decision-record">me2resh/agent-decision-record (AgDR)</a></li>
+          <li><a href="https://adolfi.dev/blog/ai-generated-adr/">Adolfi.dev: AI-generated ADRs</a></li>
+        </ul>
+      </div>
+
+      <div class="fnote"><b>When fully developed:</b> the ADR template, an "is this ADR-worthy?" decision rule, and the AGENTS.md snippet that wires it into the agent loop.</div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== ANTI-PATTERNS ===== -->
+  <div class="s-h">Cross-Cutting</div>
+
+  <div class="layer-block"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Catalog</div>
+        <div class="sum-name">Anti-Patterns to Avoid</div>
+        <div class="sum-tagline">What erodes the system, organized by which layer's discipline prevents each.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <table class="tbl">
+        <tr><th>Anti-pattern</th><th>Defended by</th></tr>
+        <tr><td class="k">Inline style="…" in components</td><td>Design system + AGENTS.md forbidden list</td></tr>
+        <tr><td class="k">Arbitrary Tailwind values (p-[17px])</td><td>Design system + lint rule</td></tr>
+        <tr><td class="k">Raw hex / magic numbers</td><td>Token discipline (Layer 4)</td></tr>
+        <tr><td class="k">Two formatDate utils, two Order types</td><td>Schema-first + grep-before-create rule</td></tr>
+        <tr><td class="k">String literals for routes</td><td>Typed route map</td></tr>
+        <tr><td class="k">Comment explosion</td><td>"Self-document, comments only for non-obvious why"</td></tr>
+        <tr><td class="k">Dead code, orphaned files</td><td>knip / ts-prune in CI</td></tr>
+        <tr><td class="k">Silent any / as / @ts-expect-error</td><td>Strict TS + ESLint error-level</td></tr>
+        <tr><td class="k">Cross-site imports between sub-sites</td><td>"If shared, promote to global" rule</td></tr>
+        <tr><td class="k">Multiple root layouts</td><td>Single root layout principle</td></tr>
+        <tr><td class="k">Static HTML pages with copy-pasted nav</td><td>Migrate to MDX with shared layout</td></tr>
+        <tr><td class="k">Server actions on proxy-bypassed paths</td><td>Always re-check auth inside actions</td></tr>
+        <tr><td class="k">Edge runtime for proxy</td><td>Default to Node</td></tr>
+        <tr><td class="k">Missing schema validation at API boundaries</td><td>Zod parse on every handler</td></tr>
+        <tr><td class="k">Building admin for static content on Supabase</td><td>Use Keystatic for static; Supabase for dynamic</td></tr>
+        <tr><td class="k">Pre-structuring schemas before pain</td><td>Three collections to start; extend on demand</td></tr>
+        <tr><td class="k">Auto-generated AGENTS.md / CLAUDE.md</td><td>Hand-craft, keep under 300 lines</td></tr>
+        <tr><td class="k">Skipping the spec for "small" features</td><td>Spec discipline; lightweight version OK</td></tr>
+        <tr><td class="k">New patterns appearing per feature without ADR</td><td>"Read 5 ADRs before architectural change" rule</td></tr>
+        <tr><td class="k">Eyeballing only on localhost</td><td>Vercel previews + screenshot diffs</td></tr>
+      </table>
+    </div>
+  </details></div>
+
+
+  <!-- ===== BOOTSTRAP ===== -->
+  <div class="layer-block"><details>
+    <summary>
+      <div class="sum-text">
+        <div class="sum-tag">Sequencing</div>
+        <div class="sum-name">Bootstrap Path</div>
+        <div class="sum-tagline">The order to build (or migrate to) this framework.</div>
+      </div>
+    </summary>
+    <div class="det-body">
+      <div class="phase">
+        <div class="phase-h">Phase 0 · Skeleton (Day 1)</div>
+        <div class="phase-body">AGENTS.md + CLAUDE.md (Layer 3) — even thin, get them in place. docs/decisions/0001-stack-choice.md (Layer 9). specs/ folder + first spec.md (Layer 2).</div>
+      </div>
+      <div class="phase">
+        <div class="phase-h">Phase 1 · Foundations (Week 1)</div>
+        <div class="phase-body">design.tokens.json primitive layer (Layer 4). Semantic layer wired into Tailwind v4 @theme. Migrate first sub-site to MDX content (Layer 5). Populate _template/ folder (Layer 6) — real, copyable.</div>
+      </div>
+      <div class="phase">
+        <div class="phase-h">Phase 2 · Operational loop (Week 2)</div>
+        <div class="phase-body">Pre-commit hooks (Layer 8). Playwright snapshot tests on landing + each sub-site landing. CI workflow.</div>
+      </div>
+      <div class="phase">
+        <div class="phase-h">Phase 3 · Admin (Week 3+)</div>
+        <div class="phase-body">Phase 1 admin from Layer 7: magic link + form-based /admin. First Zod schema for site_content in lib/schemas/.</div>
+      </div>
+      <div class="phase">
+        <div class="phase-h">Phase 4 · Compounding</div>
+        <div class="phase-body">Migrate remaining public/*.html pages to MDX. Add Phase 2 admin (in-place editing). Write ADRs as architectural choices arise. Revisit each layer quarterly.</div>
+      </div>
+    </div>
+  </details></div>
+
+
+  <!-- ===== WHAT'S NEXT ===== -->
+  <div class="tldr">
+    <div class="tldr-h">What's Next</div>
+    <p>This is the outline. Reading order suggestion:</p>
+    <p>1. Read it once end-to-end. Notice which sections feel right, which feel wrong, which feel missing.</p>
+    <p>2. Push back. Sections you'd add, sections you'd cut, sections you'd reorder, principles you disagree with.</p>
+    <p>3. We pick a layer to fully develop first. <b>My recommendation: Layer 3 (Agent Operating Manual)</b> — highest leverage, lowest cost. Once your AGENTS.md is right, every subsequent layer's quality goes up.</p>
+    <p>After you sign off on the outline shape, each layer expands into its own working document, and the layers begin to wire into the live cafe655.com codebase one at a time.</p>
+  </div>
+
+</main>
+
+<div class="footer">
+  Cafe655 · Architecture Framework v0.1 · Outline · <span id="ts"></span>
+  <script>document.getElementById('ts').textContent=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})</script>
+</div>
+
+</body>
+</html>

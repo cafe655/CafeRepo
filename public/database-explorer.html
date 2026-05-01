@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Database Internals — Cafe655</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#000;--bg:#0a0a0a;--card:#141414;--card2:#1a1a1a;--elevated:#222;
+  --border:#2a2a2a;--border2:#333;--text:#fff;--dim:#bbb;--muted:#888;--faint:#555;
+  --red:#FF0000;--red-dim:#cc0000;--red-dark:#330000;
+  --glow:rgba(255,0,0,0.12);--glow2:rgba(255,0,0,0.25);
+  --code-bg:#0d0d0d;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{background:var(--black);color:var(--text);font-family:'SF Mono','Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* SITE NAV */
+.site-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; padding: 10px 16px;
+  border-bottom: 1px solid #2a2a2a; flex-wrap: wrap;
+}
+.site-nav .site-brand {
+  font-size: 1.25em; font-weight: 700; color: #f5f5f7;
+  text-decoration: none; margin-right: 18px; letter-spacing: -0.02em;
+}
+.site-nav .site-brand span { color: #E31837; }
+.site-nav a.site-link {
+  color: #9e9eb8; text-decoration: none; font-size: 0.85em;
+  padding: 5px 12px; border-radius: 6px; transition: all 0.2s;
+}
+.site-nav a.site-link:hover { color: #f5f5f7; background: rgba(227, 24, 55, 0.12); }
+.site-nav a.site-link.current { color: #E31837; background: rgba(227, 24, 55, 0.1); }
+
+/* HERO */
+.hero{text-align:center;padding:3rem 1.25rem 1.5rem;max-width:900px;margin:0 auto}
+.hero .eyebrow{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.25em;margin-bottom:0.6rem}
+.hero h1{font-size:clamp(2rem,6vw,3.5rem);font-weight:900;letter-spacing:-0.03em;line-height:1.05;margin-bottom:0.6rem}
+.hero h1 .r{color:var(--red)}
+.hero .sub{font-size:0.9rem;color:var(--muted);max-width:640px;margin:0.8rem auto 0;line-height:1.7}
+
+/* PAGE BODY */
+.wrap{max-width:880px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
+
+/* DB SECTION */
+.db-block{margin:2rem 0 3rem;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.db-head{padding:1.4rem 1.5rem 1rem;border-bottom:1px solid var(--border)}
+.db-tag{font-size:0.65rem;color:var(--red);text-transform:uppercase;letter-spacing:0.18em;margin-bottom:0.4rem}
+.db-title{font-size:1.4rem;font-weight:800;margin-bottom:0.4rem;letter-spacing:-0.01em}
+.db-path{font-size:0.78rem;color:var(--muted);word-break:break-all}
+.db-summary{padding:1rem 1.5rem;font-size:0.85rem;color:var(--dim);background:var(--card2);border-bottom:1px solid var(--border);line-height:1.7}
+.db-summary b{color:var(--red);font-weight:700}
+
+/* COLLAPSIBLE */
+details{border-bottom:1px solid var(--border)}
+details:last-child{border-bottom:none}
+details summary{
+  list-style:none;cursor:pointer;
+  padding:1rem 1.5rem;font-size:0.9rem;font-weight:600;
+  color:var(--text);background:var(--card);
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background 0.2s;
+}
+details summary::-webkit-details-marker{display:none}
+details summary:hover{background:var(--card2)}
+details summary::after{
+  content:"+";color:var(--red);font-size:1.3rem;font-weight:300;
+  transition:transform 0.25s ease;
+}
+details[open] summary::after{content:"–"}
+details[open] summary{background:var(--card2);border-bottom:1px solid var(--border)}
+.det-body{padding:1.25rem 1.5rem 1.5rem;background:var(--bg)}
+
+/* TYPOGRAPHY INSIDE DETAILS */
+.det-body p{font-size:0.83rem;color:var(--dim);margin:0.6rem 0;line-height:1.7}
+.det-body p b{color:var(--red);font-weight:700}
+.det-body h4{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.15em;margin:1.2rem 0 0.5rem;font-weight:700}
+.det-body h4:first-child{margin-top:0}
+
+/* TABLE */
+table.schema{width:100%;border-collapse:collapse;font-size:0.78rem;margin:0.6rem 0 1rem}
+table.schema th{
+  text-align:left;padding:0.5rem 0.6rem;background:var(--card2);
+  color:var(--red);font-weight:700;text-transform:uppercase;font-size:0.66rem;
+  letter-spacing:0.1em;border-bottom:1px solid var(--border)
+}
+table.schema td{
+  padding:0.5rem 0.6rem;border-bottom:1px solid var(--border);
+  color:var(--dim);vertical-align:top
+}
+table.schema td.col{color:var(--text);font-weight:600}
+table.schema td.type{color:var(--red);font-size:0.72rem}
+table.schema td.note{color:var(--muted);font-size:0.74rem}
+table.schema tr:last-child td{border-bottom:none}
+
+/* CODE BLOCK */
+pre.code{
+  background:var(--code-bg);border:1px solid var(--border);border-radius:8px;
+  padding:0.85rem 1rem;font-size:0.74rem;color:var(--dim);
+  overflow-x:auto;line-height:1.55;margin:0.6rem 0 1rem;
+  white-space:pre-wrap;word-break:break-word;
+}
+pre.code .k{color:var(--red);font-weight:700}
+pre.code .s{color:#9CDCFE}
+pre.code .c{color:var(--faint);font-style:italic}
+
+code.inline{
+  background:var(--code-bg);border:1px solid var(--border);
+  padding:0.1rem 0.4rem;border-radius:4px;color:var(--red);
+  font-size:0.78rem;
+}
+
+/* COUNT GRID */
+.count-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.5rem;margin:0.5rem 0 1rem}
+.count-card{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:0.7rem 0.85rem}
+.count-card .num{font-size:1.2rem;font-weight:800;color:var(--red);line-height:1}
+.count-card .lbl{font-size:0.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:0.3rem}
+
+/* CALLOUT */
+.callout{
+  background:linear-gradient(180deg,rgba(255,0,0,0.05),transparent);
+  border-left:3px solid var(--red);padding:0.85rem 1rem;border-radius:0 8px 8px 0;
+  margin:1rem 0;font-size:0.82rem;color:var(--dim);line-height:1.7
+}
+.callout b{color:var(--red);font-weight:700}
+
+/* TREE */
+.tree{font-size:0.78rem;color:var(--dim);line-height:1.85;margin:0.5rem 0 1rem;padding:0.85rem 1rem;background:var(--code-bg);border:1px solid var(--border);border-radius:8px}
+.tree .root{color:var(--text);font-weight:700}
+.tree .branch{color:var(--red);margin-right:0.4rem}
+
+/* TLDR */
+.tldr{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.4rem;margin:1.5rem 0}
+.tldr-h{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.18em;margin-bottom:0.6rem;font-weight:700}
+.tldr p{font-size:0.86rem;color:var(--dim);margin:0.4rem 0;line-height:1.75}
+
+/* SECTION HEADER */
+.s-h{font-size:0.7rem;color:var(--red);text-transform:uppercase;letter-spacing:0.2em;margin:2.5rem 0 0.5rem;text-align:center}
+
+/* FOOTER */
+.footer{text-align:center;padding:2.5rem 1.25rem;color:var(--faint);font-size:0.7rem;border-top:1px solid var(--border);margin-top:3rem}
+
+/* MOBILE */
+@media (max-width:540px){
+  .hero{padding:2rem 1rem 1rem}
+  .wrap{padding:1rem 0.85rem 4rem}
+  .db-head{padding:1.1rem 1.1rem 0.85rem}
+  .db-summary{padding:0.85rem 1.1rem}
+  details summary{padding:0.85rem 1.1rem;font-size:0.85rem}
+  .det-body{padding:1rem 1.1rem 1.25rem}
+  table.schema{font-size:0.72rem}
+  table.schema th,table.schema td{padding:0.4rem 0.45rem}
+  pre.code{font-size:0.7rem;padding:0.7rem 0.85rem}
+}
+</style>
+</head>
+<body>
+
+<div class="site-nav">
+  <a href="https://www.cafe655.com" class="site-brand">Cafe<span>655</span></a>
+  <a href="https://www.cafe655.com/ai-field-notes" class="site-link">Ai Field Notes</a>
+  <a href="https://www.cafe655.com/barista-painting" class="site-link">Barista Painting Services</a>
+  <a href="https://www.cafe655.com/cafe655-on-twitch" class="site-link">Cafe655 on Twitch</a>
+  <a href="https://www.cafe655.com/personal" class="site-link">Cafe655 Personal</a>
+</div>
+
+<header class="hero">
+  <div class="eyebrow">Database Internals</div>
+  <h1>How my <span class="r">data</span> is stored.</h1>
+  <p class="sub">A live peek inside the two SQLite databases I use most: my personal RAG (Karpathy-style knowledge base) and the Workflowy MCP cache. Tap any row to expand.</p>
+</header>
+
+<main class="wrap">
+
+  <div class="tldr">
+    <div class="tldr-h">TL;DR</div>
+    <p>Both databases are <b>SQLite</b> — single files on disk. Nothing is stored as separate Markdown or HTML files. All the content lives as <b>TEXT</b> values inside columns of rows inside tables.</p>
+    <p><b>RAG</b> stores <b>plain Markdown-style text</b> in a <code class="inline">content</code> column, plus a <code class="inline">metadata</code> column holding JSON-as-text.</p>
+    <p><b>Workflowy</b> stores <b>HTML</b> in <code class="inline">name</code> and <code class="inline">note</code> columns (because Workflowy supports inline bold, links, tags), plus a <code class="inline">parent_id</code> pointer that builds the tree.</p>
+    <p>Both ship with a parallel <b>FTS5 index</b> — a hidden mirror table that makes search instant.</p>
+  </div>
+
+  <!-- ===== KARPATHY RAG ===== -->
+  <div class="s-h">Database 1</div>
+
+  <section class="db-block">
+    <div class="db-head">
+      <div class="db-tag">Karpathy-style RAG</div>
+      <div class="db-title">Personal Knowledge Base</div>
+      <div class="db-path">~/.rag-db/rag.db</div>
+    </div>
+
+    <div class="db-summary">
+      <b>219,900 documents</b> across 15 doc types. Built on the principle of <b>no vector DB</b> — pure SQLite + FTS5 full-text search + relationships. Inspired by Andrej Karpathy's "LLM Wiki" approach.
+    </div>
+
+    <details open>
+      <summary>What's inside · counts at a glance</summary>
+      <div class="det-body">
+        <h4>Documents by type</h4>
+        <div class="count-grid">
+          <div class="count-card"><div class="num">219,062</div><div class="lbl">Workflowy nodes</div></div>
+          <div class="count-card"><div class="num">375</div><div class="lbl">Notes</div></div>
+          <div class="count-card"><div class="num">76</div><div class="lbl">Pain points</div></div>
+          <div class="count-card"><div class="num">58</div><div class="lbl">Tool entries</div></div>
+          <div class="count-card"><div class="num">50</div><div class="lbl">Session entries</div></div>
+          <div class="count-card"><div class="num">45</div><div class="lbl">Skill records</div></div>
+          <div class="count-card"><div class="num">43</div><div class="lbl">Entity pages</div></div>
+          <div class="count-card"><div class="num">43</div><div class="lbl">Goals</div></div>
+          <div class="count-card"><div class="num">42</div><div class="lbl">Build records</div></div>
+          <div class="count-card"><div class="num">39</div><div class="lbl">Concept pages</div></div>
+          <div class="count-card"><div class="num">38</div><div class="lbl">Techniques</div></div>
+          <div class="count-card"><div class="num">16</div><div class="lbl">Area overviews</div></div>
+        </div>
+
+        <h4>Other tables</h4>
+        <div class="count-grid">
+          <div class="count-card"><div class="num">145</div><div class="lbl">Tags</div></div>
+          <div class="count-card"><div class="num">440,600</div><div class="lbl">Doc-tag links</div></div>
+          <div class="count-card"><div class="num">2,923</div><div class="lbl">Relationships</div></div>
+          <div class="count-card"><div class="num">10</div><div class="lbl">Sources</div></div>
+          <div class="count-card"><div class="num">183</div><div class="lbl">Operations log</div></div>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>The <code class="inline">documents</code> table · the heart of the RAG</summary>
+      <div class="det-body">
+        <h4>Schema</h4>
+        <table class="schema">
+          <tr><th>Column</th><th>Type</th><th>What it holds</th></tr>
+          <tr><td class="col">id</td><td class="type">INTEGER</td><td class="note">Primary key</td></tr>
+          <tr><td class="col">source_id</td><td class="type">INTEGER</td><td class="note">Where it came from (session log, coaching, etc.)</td></tr>
+          <tr><td class="col">title</td><td class="type">TEXT</td><td class="note">Short label</td></tr>
+          <tr><td class="col">content</td><td class="type">TEXT</td><td class="note">The actual content — Markdown-style plain text</td></tr>
+          <tr><td class="col">doc_type</td><td class="type">TEXT</td><td class="note">e.g. session_entry, skill_record, concept_page</td></tr>
+          <tr><td class="col">metadata</td><td class="type">TEXT</td><td class="note">JSON encoded as a string</td></tr>
+          <tr><td class="col">created_at</td><td class="type">TEXT</td><td class="note">ISO timestamp</td></tr>
+          <tr><td class="col">updated_at</td><td class="type">TEXT</td><td class="note">ISO timestamp</td></tr>
+          <tr><td class="col">status</td><td class="type">TEXT</td><td class="note">active / archived / superseded</td></tr>
+        </table>
+
+        <h4>One real row</h4>
+<pre class="code"><span class="c">-- doc_type = 'session_entry'</span>
+<span class="k">id</span>:        2
+<span class="k">title</span>:     Karpathy RAG
+<span class="k">content</span>:   Goal: Research Karpathy's LLM Wiki system, then design and
+            build a unified personal RAG SQLite database that can ingest
+            from Workflowy, NotebookLM, coaching DB, session logs, and
+            chat transcripts.
+            Accomplishments:
+              - Deep research on Karpathy's raw/wiki/outputs pipeline...
+<span class="k">metadata</span>:  {"date": "April 10, 2026", "interface": "CLI",
+             "color": "Purple", "location": "C:\\..."}</pre>
+
+        <div class="callout">
+          <b>Format note:</b> The <code class="inline">content</code> column is just text. It looks like Markdown — newlines, indented bullets — but SQLite doesn't know or care. It's the same kind of text you'd type into a notes app. The Markdown rendering happens at <i>read time</i>, by whatever tool is showing it to you.
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Tags · how docs get categorized</summary>
+      <div class="det-body">
+        <p>Two tables work together: <code class="inline">tags</code> (the master list of 145 tag names) and <code class="inline">document_tags</code> (which docs have which tags — 440,600 rows because most docs have several tags).</p>
+
+        <h4>Sample tag names</h4>
+<pre class="code">ai
+ai-fluency
+ai-integration
+ai-tools
+amish-economics
+area-overview
+autobiography
+becky
+...</pre>
+
+        <div class="callout"><b>Why this matters:</b> Tags are how <code class="inline">/rag-query</code> can filter — "show me everything about <code class="inline">ai-fluency</code>" — without scanning all 219K docs.</div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Relationships · the knowledge graph</summary>
+      <div class="det-body">
+        <p>The <code class="inline">relationships</code> table is what makes this a graph, not a list. 2,923 typed edges between documents.</p>
+
+        <h4>Schema</h4>
+        <table class="schema">
+          <tr><th>Column</th><th>Type</th><th>What it holds</th></tr>
+          <tr><td class="col">source_doc_id</td><td class="type">INTEGER</td><td class="note">The "from" doc</td></tr>
+          <tr><td class="col">target_doc_id</td><td class="type">INTEGER</td><td class="note">The "to" doc</td></tr>
+          <tr><td class="col">relationship_type</td><td class="type">TEXT</td><td class="note">e.g. enables, blocks, supersedes, references</td></tr>
+          <tr><td class="col">description</td><td class="type">TEXT</td><td class="note">Why this edge exists</td></tr>
+          <tr><td class="col">confidence</td><td class="type">REAL</td><td class="note">0.0 – 1.0</td></tr>
+          <tr><td class="col">created_by</td><td class="type">TEXT</td><td class="note">system / human</td></tr>
+        </table>
+
+        <h4>Real edges from your DB</h4>
+<pre class="code">82  →  196   <span class="k">enables</span>    (confidence 0.9)
+   "No-code automation skill is the core capability needed
+    for the Build First Working Automation goal"
+
+82  →  195   <span class="k">enables</span>    (confidence 0.9)
+   "No-code automation skill is a primary blocker listed in
+    the deployment gap goal"
+
+83  →  197   <span class="k">enables</span>    (confidence 0.9)
+   "API literacy is explicitly listed as a blocker for
+    learning MCPs, Claude Skills, and integrations"</pre>
+
+        <div class="callout"><b>Why this matters:</b> When you ask "what should I learn next?", the gap-analysis query walks this graph — finding skills (docs) that <code class="inline">enable</code> goals, with low current proficiency.</div>
+      </div>
+    </details>
+
+    <details>
+      <summary>FTS5 · how search is instant</summary>
+      <div class="det-body">
+        <p>SQLite ships with a built-in full-text search engine called <b>FTS5</b>. The RAG creates a "shadow" virtual table called <code class="inline">documents_fts</code> that mirrors the content + title columns of <code class="inline">documents</code>, but is indexed for word-level search.</p>
+
+        <p>Three triggers (<code class="inline">documents_ai</code>, <code class="inline">documents_au</code>, <code class="inline">documents_ad</code>) keep the shadow table in sync — every insert / update / delete on <code class="inline">documents</code> automatically updates the index.</p>
+
+        <div class="callout"><b>End result:</b> <code class="inline">/rag-query "no-code automation"</code> returns matching docs in ~1ms, not minutes. No vector embeddings required.</div>
+      </div>
+    </details>
+
+    <details>
+      <summary>The full table list</summary>
+      <div class="det-body">
+        <table class="schema">
+          <tr><th>Table</th><th>Role</th></tr>
+          <tr><td class="col">documents</td><td class="note">The main store — every doc lives here</td></tr>
+          <tr><td class="col">tags</td><td class="note">Master list of tag names</td></tr>
+          <tr><td class="col">document_tags</td><td class="note">Many-to-many — which docs have which tags</td></tr>
+          <tr><td class="col">relationships</td><td class="note">Typed edges between documents (the graph)</td></tr>
+          <tr><td class="col">sources</td><td class="note">Where docs came from (session-log, coaching, etc.)</td></tr>
+          <tr><td class="col">synthesis</td><td class="note">Persisted insights from progressive summarization</td></tr>
+          <tr><td class="col">operations_log</td><td class="note">Audit trail of every ingest / update / compile</td></tr>
+          <tr><td class="col">compilation_state</td><td class="note">Tracks which compiled pages are stale</td></tr>
+          <tr><td class="col">compilation_sources</td><td class="note">Which raw docs feed into each compiled page</td></tr>
+          <tr><td class="col">config</td><td class="note">Database-level settings</td></tr>
+          <tr><td class="col">documents_fts*</td><td class="note">FTS5 search index (4 supporting tables)</td></tr>
+        </table>
+      </div>
+    </details>
+  </section>
+
+
+  <!-- ===== WORKFLOWY MCP ===== -->
+  <div class="s-h">Database 2</div>
+
+  <section class="db-block">
+    <div class="db-head">
+      <div class="db-tag">Workflowy MCP Cache</div>
+      <div class="db-title">My Whole Outline, Mirrored</div>
+      <div class="db-path">~/.workflowy-mcp/workflowy-cache.db</div>
+    </div>
+
+    <div class="db-summary">
+      <b>228,195 nodes</b> — every bullet of my Workflowy outline, cached locally so the MCP can search and read instantly without hitting Workflowy's API on every query.
+    </div>
+
+    <details open>
+      <summary>What's inside · just three tables</summary>
+      <div class="det-body">
+        <div class="count-grid">
+          <div class="count-card"><div class="num">228,195</div><div class="lbl">Nodes</div></div>
+          <div class="count-card"><div class="num">16</div><div class="lbl">Bookmarks</div></div>
+          <div class="count-card"><div class="num">3</div><div class="lbl">Sync metadata</div></div>
+        </div>
+        <p>Plus a parallel FTS5 index (<code class="inline">nodes_fts</code>) for fast text search.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>The <code class="inline">nodes</code> table · every bullet you've ever written</summary>
+      <div class="det-body">
+        <h4>Schema</h4>
+        <table class="schema">
+          <tr><th>Column</th><th>Type</th><th>What it holds</th></tr>
+          <tr><td class="col">id</td><td class="type">TEXT</td><td class="note">UUID — Workflowy's permanent ID for the bullet</td></tr>
+          <tr><td class="col">parent_id</td><td class="type">TEXT</td><td class="note">UUID of parent bullet (NULL = top level)</td></tr>
+          <tr><td class="col">name</td><td class="type">TEXT</td><td class="note">Bullet title — HTML</td></tr>
+          <tr><td class="col">note</td><td class="type">TEXT</td><td class="note">Optional sub-note — HTML</td></tr>
+          <tr><td class="col">priority</td><td class="type">INTEGER</td><td class="note">Order among siblings</td></tr>
+          <tr><td class="col">layout_mode</td><td class="type">TEXT</td><td class="note">bullets / dashboard / etc.</td></tr>
+          <tr><td class="col">created_at</td><td class="type">INTEGER</td><td class="note">Unix timestamp</td></tr>
+          <tr><td class="col">modified_at</td><td class="type">INTEGER</td><td class="note">Unix timestamp</td></tr>
+          <tr><td class="col">completed_at</td><td class="type">INTEGER</td><td class="note">Unix ts (NULL if not completed)</td></tr>
+          <tr><td class="col">cached_at</td><td class="type">INTEGER</td><td class="note">When this row was last synced</td></tr>
+          <tr><td class="col">event_date</td><td class="type">TEXT</td><td class="note">Calendar date (for date-bullets)</td></tr>
+        </table>
+
+        <h4>One real node — the HTML format</h4>
+<pre class="code"><span class="k">id</span>:    7fd53443-874c-9971-22de-beedb43b33eb
+<span class="k">name</span>:  &lt;b&gt;HOLIDAY VISION AND ACTION DEVELOPMENT
+        FLYWHEEL #green&lt;/b&gt;
+<span class="k">note</span>:  REMINDER!!! I need to handle this in such a
+        way that I can uncomplete all and have a
+        newly updated and tweaked Project Template
+        Creation Template for the next time...</pre>
+
+        <div class="callout">
+          <b>Format note:</b> Workflowy stores its bullets as <b>HTML</b>, not Markdown. <code class="inline">&lt;b&gt;</code> tags become bold, <code class="inline">&lt;a&gt;</code> tags become links. Tags like <code class="inline">#green</code> are just plain text — Workflowy parses them at render time and applies its own styling.
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>How the tree gets built · <code class="inline">parent_id</code> pointers</summary>
+      <div class="det-body">
+        <p>There's no nested JSON. The hierarchy lives in the <code class="inline">parent_id</code> column. Each row points at the row above it. Reconstructing the tree means querying recursively (or just looping in code).</p>
+
+        <h4>One real subtree from your outline</h4>
+        <div class="tree">
+<span class="root">📁 Core Principles &amp; Foundational Insights</span>
+&nbsp;&nbsp;<span class="branch">└─</span>Systematization: The E-Myth emphasizes creating standardized...
+&nbsp;&nbsp;<span class="branch">└─</span>Reproducibility: The goal is to build a business that...
+&nbsp;&nbsp;<span class="branch">└─</span>Structure &amp; Deployment: The focus is on structuring...
+&nbsp;&nbsp;<span class="branch">└─</span>Minimizing Agency: The E-Myth often seeks to minimize...
+&nbsp;&nbsp;<span class="branch">└─</span>Standardization vs. Adaptability: While The E-Myth favors...
+&nbsp;&nbsp;<span class="branch">└─</span>Shaping Agency: ForgeFlow seeks to dynamically shape...
+        </div>
+
+<pre class="code"><span class="c">-- The query that builds that tree:</span>
+<span class="k">SELECT</span> id, name <span class="k">FROM</span> nodes
+<span class="k">WHERE</span> parent_id = '0003ae82-3654-9984-177f-ee39ac5f84d4'
+<span class="k">ORDER BY</span> priority;</pre>
+      </div>
+    </details>
+
+    <details>
+      <summary>Bookmarks · Workflowy's column shortcuts</summary>
+      <div class="det-body">
+        <p>Workflowy lets you "bookmark" any node so it shows up in the left sidebar. The MCP caches these so it knows what to do when you say "what's in my Calendar" or "add to Capture."</p>
+
+        <h4>Schema</h4>
+        <table class="schema">
+          <tr><th>Column</th><th>Type</th><th>What it holds</th></tr>
+          <tr><td class="col">key</td><td class="type">TEXT</td><td class="note">Short name — calendar, tasks, capture</td></tr>
+          <tr><td class="col">node_id</td><td class="type">TEXT</td><td class="note">UUID of the bookmarked node</td></tr>
+          <tr><td class="col">label</td><td class="type">TEXT</td><td class="note">Human-friendly name shown in sidebar</td></tr>
+        </table>
+
+        <h4>Real entries from your DB</h4>
+<pre class="code">calendar  →  b5e22330-...  "Calendar"
+tasks     →  b5f58f45-...  "Tasks"
+capture   →  696b87a1-...  "Capture"
+...</pre>
+      </div>
+    </details>
+
+    <details>
+      <summary>Why the FTS5 index matters here too</summary>
+      <div class="det-body">
+        <p>Searching 228K nodes for the word "flywheel" by scanning every row would take seconds. <code class="inline">nodes_fts</code> indexes every word in <code class="inline">name</code> + <code class="inline">note</code>, so <code class="inline">wf_find_node "flywheel"</code> returns in milliseconds.</p>
+
+        <p>This is the same pattern as the RAG: a virtual FTS5 table mirrors the content of the real table, kept in sync by triggers, queried with a special <code class="inline">MATCH</code> operator instead of <code class="inline">LIKE</code>.</p>
+      </div>
+    </details>
+  </section>
+
+
+  <!-- ===== TAKEAWAYS ===== -->
+  <div class="s-h">Takeaways</div>
+  <div class="tldr">
+    <p><b>SQLite is just one file.</b> Both databases are a single <code class="inline">.db</code> file on your hard drive. Easy to back up, easy to inspect with any SQLite tool, easy to query with Python in 3 lines.</p>
+    <p><b>Text columns hold all the meaningful content.</b> No "documents" in the file-system sense. The data is rows in tables.</p>
+    <p><b>Markdown vs HTML is a stylistic choice, not a database choice.</b> The RAG ingests sources that are mostly plain prose, so Markdown-style text round-trips cleanly. Workflowy ships HTML because that's what its UI emits — bold/italic/links survive the round-trip.</p>
+    <p><b>Search speed comes from FTS5.</b> Without it, querying 219K + 228K rows on every search would be too slow. With it, every query is essentially instant.</p>
+    <p><b>Relationships make it a graph, not a list.</b> The RAG's <code class="inline">relationships</code> table and Workflowy's <code class="inline">parent_id</code> are doing the same kind of job — encoding structure beyond what the doc text alone can hold.</p>
+  </div>
+
+</main>
+
+<div class="footer">
+  Cafe655 · Database Internals · Generated <span id="ts"></span>
+  <script>document.getElementById('ts').textContent=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})</script>
+</div>
+
+</body>
+</html>

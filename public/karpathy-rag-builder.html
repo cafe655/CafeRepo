@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Karpathy RAG &mdash; Personal Knowledge Base for Claude</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0a; color: #e0e0e0; line-height: 1.6; min-height: 100vh;
+    }
+    .site-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 10px 16px;
+      border-bottom: 1px solid #2a2a2a; flex-wrap: wrap;
+    }
+    .site-nav .site-brand {
+      font-size: 1.25em; font-weight: 700; color: #f5f5f7;
+      text-decoration: none; margin-right: 18px; letter-spacing: -0.02em;
+    }
+    .site-nav .site-brand span { color: #E31837; }
+    .site-nav a.site-link {
+      color: #9e9eb8; text-decoration: none; font-size: 0.85em;
+      padding: 5px 12px; border-radius: 6px; transition: all 0.2s;
+    }
+    .site-nav a.site-link:hover {
+      color: #f5f5f7; background: rgba(227, 24, 55, 0.12);
+    }
+    .site-nav a.site-link.current {
+      color: #E31837; background: rgba(227, 24, 55, 0.1);
+    }
+    .hero {
+      background: linear-gradient(135deg, #1a0a0a 0%, #2a0a14 50%, #3a0010 100%);
+      border-bottom: 2px solid #E31837;
+      padding: 4rem 2rem 3rem; text-align: center;
+    }
+    .hero h1 { font-size: 2.8rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+    .hero h1 span { color: #E31837; }
+    .hero .subtitle { font-size: 1.2rem; color: #a0a0b0; max-width: 680px; margin: 0 auto 2rem; }
+    .badge {
+      display: inline-block; background: rgba(227, 24, 55, 0.15);
+      border: 1px solid #E31837; color: #E31837;
+      padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; }
+    .section { margin-bottom: 3rem; }
+    .section h2 {
+      font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 1rem;
+      padding-bottom: 0.5rem; border-bottom: 1px solid #2a2a2a;
+    }
+    .section p { color: #b0b0b0; margin-bottom: 1rem; }
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin: 1.5rem 0; }
+    .feature-card {
+      background: #141414; border: 1px solid #2a2a2a; border-radius: 10px;
+      padding: 1.2rem; transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: #E31837; }
+    .feature-card h3 { font-size: 1rem; color: #fff; margin-bottom: 0.4rem; }
+    .feature-card p { font-size: 0.9rem; color: #888; margin: 0; }
+    .how-it-works {
+      background: #141414; border: 1px solid #2a2a2a; border-radius: 10px;
+      padding: 2rem; margin: 1.5rem 0;
+    }
+    .step { display: flex; gap: 1rem; margin-bottom: 1.2rem; }
+    .step:last-child { margin-bottom: 0; }
+    .step-num {
+      flex-shrink: 0; width: 32px; height: 32px;
+      background: #E31837; color: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.9rem;
+    }
+    .step-text { padding-top: 4px; }
+    .step-text strong { color: #fff; }
+    .requirements { list-style: none; padding: 0; }
+    .requirements li {
+      padding: 0.5rem 0; padding-left: 1.5rem; position: relative; color: #b0b0b0;
+    }
+    .requirements li::before {
+      content: ''; position: absolute; left: 0; top: 0.85rem;
+      width: 8px; height: 8px; background: #E31837; border-radius: 50%;
+    }
+    .file-block {
+      background: #141414; border: 1px solid #2a2a2a; border-radius: 10px;
+      margin: 1.5rem 0; overflow: hidden;
+    }
+    .file-block-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.8rem 1.2rem; background: #1a1a1a; border-bottom: 1px solid #2a2a2a;
+      gap: 1rem;
+    }
+    .file-block-header .filename {
+      color: #E31837; font-family: 'SF Mono', Consolas, Menlo, monospace;
+      font-size: 0.9rem; font-weight: 600;
+    }
+    .file-block-header .filename .save-hint {
+      color: #888; font-weight: 400; margin-left: 0.5rem;
+    }
+    .copy-btn {
+      background: transparent; border: 1px solid #3a3a3a; color: #e0e0e0;
+      padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.8rem;
+      font-weight: 600; cursor: pointer; transition: all 0.15s;
+      font-family: inherit; flex-shrink: 0;
+    }
+    .copy-btn:hover { border-color: #E31837; color: #E31837; }
+    .copy-btn.copied { border-color: #4ade80; color: #4ade80; }
+    .file-block pre {
+      margin: 0; padding: 1.2rem; max-height: 480px; overflow: auto;
+      font-family: 'SF Mono', Consolas, Menlo, monospace;
+      font-size: 0.82rem; line-height: 1.55; color: #c8c8c8;
+      white-space: pre; tab-size: 2;
+    }
+    .file-block pre::-webkit-scrollbar { width: 10px; height: 10px; }
+    .file-block pre::-webkit-scrollbar-track { background: #0a0a0a; }
+    .file-block pre::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 5px; }
+    .file-block pre::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+    .get-skill-section {
+      padding: 3rem 2rem;
+      background: linear-gradient(180deg, #0a0a0a 0%, #141414 100%);
+      border-top: 1px solid #2a2a2a;
+    }
+    .get-skill-section .inner { max-width: 900px; margin: 0 auto; }
+    .get-skill-section h2 {
+      font-size: 1.8rem; color: #fff; margin-bottom: 0.5rem; text-align: center;
+    }
+    .get-skill-section .lede {
+      color: #888; margin-bottom: 2rem; text-align: center;
+    }
+    .footer {
+      text-align: center; padding: 2rem; color: #444; font-size: 0.85rem;
+      border-top: 1px solid #1a1a1a;
+    }
+    .footer a { color: #E31837; text-decoration: none; }
+    code.inline {
+      background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 4px;
+      padding: 0.1rem 0.4rem; font-size: 0.85em; color: #e0e0e0;
+      font-family: 'SF Mono', Consolas, Menlo, monospace;
+    }
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2rem; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .container { padding: 2rem 1.2rem; }
+      .file-block pre { font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="site-nav">
+    <a href="https://www.cafe655.com" class="site-brand">Cafe<span>655</span></a>
+    <a href="https://www.cafe655.com/ai-field-notes" class="site-link current">Ai Field Notes</a>
+    <a href="https://www.cafe655.com/barista-painting" class="site-link">Barista Painting Services</a>
+    <a href="https://www.cafe655.com/cafe655-on-twitch" class="site-link">Cafe655 on Twitch</a>
+    <a href="https://www.cafe655.com/personal" class="site-link">Cafe655 Personal</a>
+  </div>
+
+  <div class="hero">
+    <div class="badge">Claude Code Skill Pack</div>
+    <h1>Karpathy <span>RAG</span></h1>
+    <p class="subtitle">A personal knowledge base for Claude. SQLite + FTS5 + a handful of skills that turn Claude into a librarian for your own content &mdash; with citations, a relationship graph, and progressive summarization that compounds across every interface.</p>
+  </div>
+
+  <div class="container">
+
+    <div class="section">
+      <h2>What Is This?</h2>
+      <p>A retrieval-augmented generation system that lives entirely on your machine. Index your session logs, notes, outlines, conversations, documents &mdash; whatever you want Claude to know about <strong>you</strong> &mdash; and Claude answers questions grounded in your content with <code class="inline">[Doc #ID]</code> citations. No cloud. No vector database. No embeddings server.</p>
+      <p>Named after Andrej Karpathy because the architecture is deliberately simple: text in a database, full-text search, a skill layer that orchestrates queries. The intelligence isn&rsquo;t in fancy retrieval &mdash; it&rsquo;s in how raw documents get compiled into entity pages, concept pages, and progressive insights that feed future queries.</p>
+    </div>
+
+    <div class="section">
+      <h2>What It Can Do</h2>
+      <div class="feature-grid">
+        <div class="feature-card"><h3>FTS5 Full-Text Search</h3><p>Sub-second queries across every document with porter-stemmed ranking</p></div>
+        <div class="feature-card"><h3>Source-Grounded Answers</h3><p>Every claim cites a document ID &mdash; never answers from training data alone</p></div>
+        <div class="feature-card"><h3>Progressive Summarization</h3><p>Capture syntheses back as <code class="inline">insight</code> docs that compound over time</p></div>
+        <div class="feature-card"><h3>Relationship Graph</h3><p>Documents link to other documents &mdash; <code class="inline">derives_from</code>, <code class="inline">references</code>, traversable</p></div>
+        <div class="feature-card"><h3>Cross-Interface Capture</h3><p>MCP server lets Chat Desktop, Cowork, and Claude Code write to one shared DB</p></div>
+        <div class="feature-card"><h3>Wiki Compilation</h3><p>Compile raw documents into entity, concept, area, and source pages</p></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>How It Works</h2>
+      <div class="how-it-works">
+        <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Two folders, one purpose.</strong> Code lives at <code class="inline">~/.rag-db/</code>; skills live at <code class="inline">~/.claude/skills/</code>. The split exists because Claude Code requires skills under <code class="inline">~/.claude/skills/</code> to be discoverable.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Three layers in the schema.</strong> <code class="inline">sources</code> (where it came from) → <code class="inline">documents</code> (the content, with FTS5) → <code class="inline">synthesis</code> (cached overviews). Plus <code class="inline">tags</code>, <code class="inline">relationships</code>, and an append-only <code class="inline">operations_log</code>.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Skills wrap the database.</strong> Eleven slash commands handle init, ingest, query, status, capture, lint, sync, compile, refresh, relate, and update. Most call <code class="inline">rag_helpers.py</code> via Bash; a few use inline Python for richer queries.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text"><strong>MCP for cross-interface.</strong> The <code class="inline">capture_mcp_server.py</code> exposes <code class="inline">capture_insight</code> to any Claude interface that loads <code class="inline">claude_desktop_config.json</code>. An insight saved in Chat is queryable from Claude Code seconds later.</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Requirements</h2>
+      <ul class="requirements">
+        <li><strong>Claude Code</strong> &mdash; Anthropic&rsquo;s CLI tool</li>
+        <li><strong>Python 3.10+</strong> with <code class="inline">sqlite3</code> compiled with FTS5 (default on Windows/macOS)</li>
+        <li><strong>~/.rag-db/</strong> &mdash; an empty folder for the database, scripts, and MCP server</li>
+        <li><strong>Optional:</strong> the <code class="inline">mcp</code> Python package (<code class="inline">pip install mcp</code>) if you want cross-interface capture</li>
+        <li><strong>Optional:</strong> a Claude interface that loads <code class="inline">claude_desktop_config.json</code> (Chat Desktop, Cowork) to get the MCP benefits</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Quick Start</h2>
+      <div class="how-it-works">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Create the folder: <code class="inline">mkdir ~/.rag-db</code> (or the Windows equivalent under your home directory)</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Copy <code class="inline">PROMPT.md</code> below and save it as <code class="inline">~/.claude/skills/rag-init/SKILL.md</code></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Start Claude Code and say: <strong>&ldquo;Init the RAG&rdquo;</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Claude writes <code class="inline">schema.sql</code>, <code class="inline">rag_helpers.py</code>, <code class="inline">capture.py</code>, <code class="inline">capture_mcp_server.py</code>, and four sibling skill files, then initializes the database</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Verify with <strong>&ldquo;RAG status&rdquo;</strong>, then ingest your first source: <strong>&ldquo;Add a note: my first RAG entry / this is content&rdquo;</strong></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-text">Query: <strong>&ldquo;What do I know about [topic]?&rdquo;</strong> &mdash; Claude answers with citations</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="get-skill-section">
+    <div class="inner">
+      <h2>Get the System</h2>
+      <p class="lede">Two files. The README explains the system. The Prompt bootstraps every other file when you invoke it in Claude Code.</p>
+
+      <div class="file-block">
+        <div class="file-block-header">
+          <span class="filename">README.md</span>
+          <button class="copy-btn" data-target="readme">Copy</button>
+        </div>
+        <pre id="readme"># Karpathy RAG &mdash; Personal Knowledge Base for Claude
+
+## What Is This?
+
+A personal RAG (retrieval-augmented generation) system that lives on your machine, indexes your text content, and lets Claude answer questions grounded in **your** material with citations. No cloud. No vector database. No embeddings server. Just SQLite + FTS5 + a handful of Claude Code skills that turn Claude into a librarian for your own knowledge.
+
+Named after Andrej Karpathy because the architecture is deliberately simple. The intelligence isn&#x27;t in fancy retrieval &mdash; it&#x27;s in how you compile raw documents into entity pages, concept pages, and progressive insights that feed future queries.
+
+## What It Can Do
+
+- **FTS5 full-text search** with porter-stemmed ranking across every document
+- **Source-grounded answers** &mdash; every fact cites a document ID, never falls back to training data
+- **Progressive summarization** &mdash; capture syntheses back as `insight` docs so they compound over time
+- **Relationship graph** &mdash; documents link to other documents (`derives_from`, `references`, etc.) and queries traverse the graph
+- **Wiki compilation** &mdash; raw documents compile into entity pages, concept pages, area overviews, source summaries
+- **Cross-interface capture** via MCP &mdash; Chat Desktop, Cowork, and Claude Code all write to the same database
+- **Append-only operations log** &mdash; every read and write is auditable
+- **Eleven slash commands** for init, status, query, capture, ingest, lint, sync, compile, refresh, relate, update
+
+## File Structure
+
+The system lives in two folders. The split isn&#x27;t a mistake &mdash; Claude Code requires skills under `~/.claude/skills/` to be discoverable.
+
+```
+~/.rag-db/
+  schema.sql                # SQLite schema with FTS5 + triggers
+  rag_helpers.py            # CLI: init, status, search, related, log
+  capture.py                # Save insights (used by skill + MCP)
+  capture_mcp_server.py     # MCP server exposing capture across interfaces
+  rag.db                    # SQLite database (created on init)
+
+~/.claude/skills/
+  rag-init/SKILL.md         # Bootstrap skill (the PROMPT below)
+  rag-status/SKILL.md       # Quick dashboard
+  rag-query/SKILL.md        # Search and synthesize with citations
+  rag-capture/SKILL.md      # Save an insight (progressive summarization)
+  rag-ingest/SKILL.md       # Add a source (manual notes; extend per source type)
+```
+
+The five skills above are the **core** that ships with the bootstrap. The full author&#x27;s system has six more (`rag-lint`, `rag-sync`, `rag-compile`, `rag-refresh`, `rag-relate`, `rag-update`) which you can add as your library grows.
+
+## Requirements
+
+- **Claude Code** &mdash; Anthropic&#x27;s CLI tool
+- **Python 3.10+** with `sqlite3` compiled with FTS5 (default on Windows and macOS; on Linux, install `python3-sqlite` or build with the FTS5 flag)
+- An empty `~/.rag-db/` folder (the bootstrap creates it if missing)
+- **Optional:** `pip install mcp` if you want the cross-interface MCP server
+- **Optional:** a Claude interface that loads `claude_desktop_config.json` (Chat Desktop, Cowork) to get the cross-interface capture benefit
+
+## Quick Start
+
+1. Save `PROMPT.md` as `~/.claude/skills/rag-init/SKILL.md`
+2. Open the file and replace any `[PLACEHOLDER]` paths with your system paths (Python binary, home directory)
+3. Start Claude Code and say: **&quot;Init the RAG&quot;**
+4. Claude writes the four core code files to `~/.rag-db/` and four sibling skill files to `~/.claude/skills/`, then runs `python ~/.rag-db/rag_helpers.py init` to create the database
+5. Say: **&quot;RAG status&quot;** &mdash; you should see all tables present and FTS5 = OK
+6. Add your first content: **&quot;Add a note: my first RAG entry / and here is the content body&quot;**
+7. Query: **&quot;What do I know about [topic]?&quot;** &mdash; Claude searches the RAG and answers with `[Doc #N]` citations
+
+## Optional: Cross-Interface MCP
+
+To make `capture_insight` callable from Chat Desktop and Cowork, add this to your `claude_desktop_config.json`:
+
+```json
+{
+  &quot;mcpServers&quot;: {
+    &quot;rag-capture&quot;: {
+      &quot;command&quot;: &quot;python&quot;,
+      &quot;args&quot;: [&quot;C:/Users/YOUR_USERNAME/.rag-db/capture_mcp_server.py&quot;]
+    }
+  }
+}
+```
+
+Restart the interfaces. The `rag-capture` MCP appears with two tools: `capture_insight` and `list_recent_insights`. Anything captured in any interface is searchable from Claude Code via `/rag-query`.
+
+## Optional: CLAUDE.md Integration
+
+To make the RAG the first place Claude looks for personal knowledge, add this to `~/.claude/CLAUDE.md`:
+
+```markdown
+## Personal RAG Database
+
+Database: ~/.rag-db/rag.db
+Query CLI: python ~/.rag-db/rag_helpers.py search &quot;query terms&quot;
+
+When answering questions about my history, builds, skills, goals, or past
+sessions, query the RAG first before answering from training data. Cite as
+[Source: &lt;name&gt;, Doc #&lt;id&gt;].
+
+When generating a substantive synthesis, offer to capture it via /rag-capture.
+```
+
+## Customization
+
+The schema is generic. The skills are templates. Things to personalize:
+
+- **Document types** &mdash; `doc_type` is a free-text field. Use whatever names match your content: `session_entry`, `meeting_note`, `paper`, `letter`, `recipe`, anything.
+- **Source pipelines** &mdash; the bundled `rag-ingest` handles manual notes. Extend it for your own sources (a CLI log file, a Notion export, a folder of markdown files) by adding a pipeline branch.
+- **Compilation strategy** &mdash; the schema supports `entity_page`, `concept_page`, `area_overview`, `source_summary`. Use what fits; ignore what doesn&#x27;t. Compilation skills aren&#x27;t in the core bootstrap; you can build them once you have content.
+- **MCP path** &mdash; if your username or install location differs, update the absolute path in `capture.py` (`DB_PATH`) and `claude_desktop_config.json`.
+- **Tags** &mdash; the schema has a `tags` table and `document_tags` join. Apply tags during ingest; query with `--tag`.
+
+## How a Query Works
+
+1. You say: &quot;What do I know about X?&quot;
+2. The `rag-query` skill runs `python ~/.rag-db/rag_helpers.py search &quot;X&quot;` &mdash; FTS5 returns top matches ranked by relevance, with snippets
+3. The skill checks for compiled wiki pages first (`entity_page`, `concept_page`) &mdash; pre-synthesized answers if they exist
+4. If not, it reads the full content of top raw documents
+5. It optionally follows one hop of relationships for context
+6. It composes a conversational answer with `[Doc #N]` citations
+7. The query is logged to `operations_log` for audit
+
+## How a Capture Works
+
+1. You (or Claude during a query) generates a synthesis
+2. You say: &quot;Capture this&quot; &mdash; or Claude offers and you accept
+3. The `rag-capture` skill calls `python ~/.rag-db/capture.py save --title ... --content ... --tags ...`
+4. `capture.py` inserts a row into `documents` with `doc_type=&#x27;insight&#x27;`, wires `derives_from` relationships to source docs, applies tags, logs the operation
+5. FTS5 triggers index it instantly &mdash; the insight is searchable in the next query
+6. From any other interface (Chat, Cowork) the same insight is reachable via the `rag-capture` MCP
+
+## License
+
+Open. Build it, modify it, ship your own version. If you make something cool, send it back.
+</pre>
+      </div>
+
+      <div class="file-block">
+        <div class="file-block-header">
+          <span class="filename">PROMPT.md <span class="save-hint">&mdash; Save as ~/.claude/skills/rag-init/SKILL.md</span></span>
+          <button class="copy-btn" data-target="prompt">Copy</button>
+        </div>
+        <pre id="prompt">---
+name: rag-init
+description: &gt;
+  Bootstrap the personal Karpathy RAG database. Writes schema.sql, rag_helpers.py,
+  capture.py, capture_mcp_server.py, and four sibling skill files, then creates the
+  SQLite database with FTS5. Trigger when the user says &quot;init the RAG&quot;,
+  &quot;bootstrap RAG&quot;, &quot;set up the knowledge base&quot;, &quot;create the RAG database&quot;,
+  or any variation of asking to install or initialize the RAG system.
+allowed-tools: Bash Read Write
+argument-hint: (no arguments needed)
+---
+
+# Karpathy RAG &mdash; Bootstrap
+
+You are bootstrapping a personal RAG (retrieval-augmented generation) system. When invoked, you write all required files to disk, then initialize the SQLite database. After bootstrap, the user has five working slash commands: `/rag-init`, `/rag-status`, `/rag-query`, `/rag-capture`, `/rag-ingest`.
+
+## System Locations
+
+- **Database folder:** `~/.rag-db/` (create if missing)
+- **Database file:** `~/.rag-db/rag.db` (created by init)
+- **Skills folder:** `~/.claude/skills/`
+- **Python:** use whichever Python is on PATH; if a specific path is needed, ask the user once and use it consistently
+
+&gt; If `~/.rag-db/rag.db` already exists, do **not** overwrite. Run status instead and tell the user the database is already initialized. Ask before any destructive action.
+
+## Bootstrap Sequence
+
+Execute these steps in order. After each Write, confirm the file is on disk before proceeding.
+
+### Step 1 &mdash; Pre-flight check
+
+Run:
+```
+python -c &quot;import sqlite3; print(sqlite3.sqlite_version)&quot;
+```
+
+Verify SQLite version is &gt;= 3.9 (FTS5 requires this). If lower, stop and report &mdash; the user needs a newer Python.
+
+Check whether `~/.rag-db/rag.db` already exists. If it does, run `python ~/.rag-db/rag_helpers.py status` (assuming helpers exist) and tell the user the system is already bootstrapped. Stop here unless they explicitly ask for a fresh re-init.
+
+### Step 2 &mdash; Create folders
+
+Create `~/.rag-db/` if missing. Create `~/.claude/skills/rag-init/`, `~/.claude/skills/rag-status/`, `~/.claude/skills/rag-query/`, `~/.claude/skills/rag-capture/`, `~/.claude/skills/rag-ingest/` if missing.
+
+### Step 3 &mdash; Write schema.sql
+
+Write the following content **exactly** to `~/.rag-db/schema.sql`:
+
+~~~sql
+-- Personal RAG Database Schema
+-- SQLite + FTS5
+
+CREATE TABLE IF NOT EXISTS config (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+INSERT OR IGNORE INTO config (key, value) VALUES
+    ('schema_version', '1'),
+    ('description', 'Personal Karpathy RAG'),
+    ('created_at', datetime('now'));
+
+CREATE TABLE IF NOT EXISTS sources (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    source_type TEXT NOT NULL,
+    uri TEXT,
+    description TEXT,
+    metadata TEXT,
+    ingested_at TEXT NOT NULL DEFAULT (datetime('now')),
+    last_synced_at TEXT,
+    status TEXT NOT NULL DEFAULT 'active',
+    checksum TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_sources_type ON sources(source_type);
+CREATE INDEX IF NOT EXISTS idx_sources_status ON sources(status);
+
+CREATE TABLE IF NOT EXISTS documents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_id INTEGER NOT NULL REFERENCES sources(id),
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    doc_type TEXT NOT NULL DEFAULT 'note',
+    metadata TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    status TEXT NOT NULL DEFAULT 'active'
+);
+CREATE INDEX IF NOT EXISTS idx_documents_source ON documents(source_id);
+CREATE INDEX IF NOT EXISTS idx_documents_type ON documents(doc_type);
+CREATE INDEX IF NOT EXISTS idx_documents_status ON documents(status);
+
+CREATE TABLE IF NOT EXISTS tags (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    category TEXT,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS document_tags (
+    document_id INTEGER NOT NULL REFERENCES documents(id),
+    tag_id INTEGER NOT NULL REFERENCES tags(id),
+    PRIMARY KEY (document_id, tag_id)
+);
+CREATE INDEX IF NOT EXISTS idx_document_tags_tag ON document_tags(tag_id);
+
+CREATE TABLE IF NOT EXISTS relationships (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_doc_id INTEGER NOT NULL REFERENCES documents(id),
+    target_doc_id INTEGER NOT NULL REFERENCES documents(id),
+    relationship_type TEXT NOT NULL,
+    description TEXT,
+    confidence REAL DEFAULT 1.0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    created_by TEXT NOT NULL DEFAULT 'system'
+);
+CREATE INDEX IF NOT EXISTS idx_rel_source ON relationships(source_doc_id);
+CREATE INDEX IF NOT EXISTS idx_rel_target ON relationships(target_doc_id);
+CREATE INDEX IF NOT EXISTS idx_rel_type ON relationships(relationship_type);
+
+CREATE TABLE IF NOT EXISTS synthesis (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    synthesis_type TEXT NOT NULL,
+    scope TEXT,
+    document_ids TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    status TEXT NOT NULL DEFAULT 'current'
+);
+CREATE INDEX IF NOT EXISTS idx_synthesis_type ON synthesis(synthesis_type);
+CREATE INDEX IF NOT EXISTS idx_synthesis_status ON synthesis(status);
+
+CREATE TABLE IF NOT EXISTS operations_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT NOT NULL DEFAULT (datetime('now')),
+    operation TEXT NOT NULL,
+    target_table TEXT,
+    target_id INTEGER,
+    detail TEXT,
+    actor TEXT NOT NULL DEFAULT 'claude'
+);
+CREATE INDEX IF NOT EXISTS idx_ops_log_timestamp ON operations_log(timestamp);
+CREATE INDEX IF NOT EXISTS idx_ops_log_operation ON operations_log(operation);
+
+CREATE VIRTUAL TABLE IF NOT EXISTS documents_fts USING fts5(
+    title,
+    content,
+    content='documents',
+    content_rowid='id',
+    tokenize='porter unicode61'
+);
+
+CREATE TRIGGER IF NOT EXISTS documents_ai AFTER INSERT ON documents BEGIN
+    INSERT INTO documents_fts(rowid, title, content)
+    VALUES (new.id, new.title, new.content);
+END;
+
+CREATE TRIGGER IF NOT EXISTS documents_ad AFTER DELETE ON documents BEGIN
+    INSERT INTO documents_fts(documents_fts, rowid, title, content)
+    VALUES ('delete', old.id, old.title, old.content);
+END;
+
+CREATE TRIGGER IF NOT EXISTS documents_au AFTER UPDATE ON documents BEGIN
+    INSERT INTO documents_fts(documents_fts, rowid, title, content)
+    VALUES ('delete', old.id, old.title, old.content);
+    INSERT INTO documents_fts(rowid, title, content)
+    VALUES (new.id, new.title, new.content);
+END;
+~~~
+
+### Step 4 &mdash; Write rag_helpers.py
+
+Write the following content **exactly** to `~/.rag-db/rag_helpers.py`:
+
+~~~python
+&quot;&quot;&quot;
+Personal RAG Database &mdash; Query Interface
+
+Usage:
+  python ~/.rag-db/rag_helpers.py init
+  python ~/.rag-db/rag_helpers.py status
+  python ~/.rag-db/rag_helpers.py search &quot;query terms&quot;
+  python ~/.rag-db/rag_helpers.py search &quot;query&quot; --type insight --tag projects
+  python ~/.rag-db/rag_helpers.py related &lt;doc_id&gt;
+  python ~/.rag-db/rag_helpers.py log
+&quot;&quot;&quot;
+import sqlite3
+import hashlib
+import json
+import sys
+import os
+
+if sys.stdout.encoding != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
+DB_PATH = os.path.expanduser(&quot;~/.rag-db/rag.db&quot;)
+SCHEMA_PATH = os.path.expanduser(&quot;~/.rag-db/schema.sql&quot;)
+
+
+def connect():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute(&quot;PRAGMA journal_mode=WAL&quot;)
+    conn.execute(&quot;PRAGMA foreign_keys=ON&quot;)
+    return conn
+
+
+def log_op(conn, operation, target_table=None, target_id=None, detail=None, actor=&quot;claude&quot;):
+    conn.execute(
+        &quot;INSERT INTO operations_log (operation, target_table, target_id, detail, actor) VALUES (?, ?, ?, ?, ?)&quot;,
+        (operation, target_table, target_id,
+         json.dumps(detail) if isinstance(detail, dict) else detail, actor)
+    )
+
+
+def checksum(text):
+    return hashlib.sha256(text.encode(&quot;utf-8&quot;)).hexdigest()
+
+
+def init_db():
+    if not os.path.exists(SCHEMA_PATH):
+        print(f&quot;ERROR: schema.sql not found at {SCHEMA_PATH}&quot;)
+        sys.exit(1)
+    conn = sqlite3.connect(DB_PATH)
+    with open(SCHEMA_PATH, &quot;r&quot;) as f:
+        conn.executescript(f.read())
+    conn.close()
+    conn = connect()
+    cur = conn.cursor()
+    cur.execute(&quot;SELECT name FROM sqlite_master WHERE type='table' ORDER BY name&quot;)
+    tables = [row[&quot;name&quot;] for row in cur.fetchall()]
+    fts_ok = &quot;documents_fts&quot; in tables
+    if fts_ok:
+        try:
+            cur.execute(&quot;INSERT INTO sources (name, source_type) VALUES ('_fts_test', 'manual')&quot;)
+            test_source_id = cur.lastrowid
+            cur.execute(
+                &quot;INSERT INTO documents (source_id, title, content, doc_type) VALUES (?, 'fts_test', 'fts_test_content', 'test')&quot;,
+                (test_source_id,))
+            cur.execute(&quot;SELECT * FROM documents_fts WHERE documents_fts MATCH 'fts_test'&quot;)
+            result = cur.fetchone()
+            fts_ok = result is not None
+            cur.execute(&quot;DELETE FROM documents WHERE title = 'fts_test'&quot;)
+            cur.execute(&quot;DELETE FROM sources WHERE name = '_fts_test'&quot;)
+            conn.commit()
+        except Exception as e:
+            fts_ok = False
+            print(f&quot;FTS5 test failed: {e}&quot;)
+    log_op(conn, &quot;init&quot;, detail={&quot;tables&quot;: tables, &quot;fts_ok&quot;: fts_ok}, actor=&quot;system&quot;)
+    conn.commit()
+    conn.close()
+    print(&quot;RAG DATABASE INITIALIZED&quot;)
+    print(&quot;=&quot; * 50)
+    print(f&quot;Path: {DB_PATH}&quot;)
+    print(f&quot;Tables: {', '.join(tables)}&quot;)
+    print(f&quot;FTS5: {'OK' if fts_ok else 'FAILED'}&quot;)
+    print(&quot;=&quot; * 50)
+
+
+def status():
+    if not os.path.exists(DB_PATH):
+        print(&quot;RAG database does not exist yet. Run: python ~/.rag-db/rag_helpers.py init&quot;)
+        return
+    conn = connect()
+    cur = conn.cursor()
+    cur.execute(&quot;SELECT COUNT(*) FROM sources WHERE status = 'active'&quot;)
+    source_count = cur.fetchone()[0]
+    cur.execute(&quot;SELECT COUNT(*) FROM documents WHERE status = 'active'&quot;)
+    doc_count = cur.fetchone()[0]
+    cur.execute(&quot;SELECT COUNT(*) FROM tags&quot;)
+    tag_count = cur.fetchone()[0]
+    cur.execute(&quot;SELECT COUNT(*) FROM relationships&quot;)
+    rel_count = cur.fetchone()[0]
+    cur.execute(&quot;SELECT COUNT(*) FROM synthesis WHERE status = 'current'&quot;)
+    syn_count = cur.fetchone()[0]
+    cur.execute(&quot;SELECT COUNT(*) FROM operations_log&quot;)
+    ops_count = cur.fetchone()[0]
+    cur.execute(&quot;&quot;&quot;
+        SELECT doc_type, COUNT(*) as cnt FROM documents WHERE status = 'active'
+        GROUP BY doc_type ORDER BY cnt DESC
+    &quot;&quot;&quot;)
+    by_type = cur.fetchall()
+    cur.execute(&quot;&quot;&quot;
+        SELECT source_type, COUNT(*) as cnt, MAX(last_synced_at) as last_sync
+        FROM sources WHERE status = 'active'
+        GROUP BY source_type ORDER BY cnt DESC
+    &quot;&quot;&quot;)
+    by_source = cur.fetchall()
+    cur.execute(&quot;&quot;&quot;
+        SELECT timestamp, operation, target_table, detail
+        FROM operations_log ORDER BY id DESC LIMIT 5
+    &quot;&quot;&quot;)
+    recent_ops = cur.fetchall()
+    db_size = os.path.getsize(DB_PATH)
+    if db_size &lt; 1024:
+        size_str = f&quot;{db_size} B&quot;
+    elif db_size &lt; 1024 * 1024:
+        size_str = f&quot;{db_size / 1024:.1f} KB&quot;
+    else:
+        size_str = f&quot;{db_size / (1024*1024):.1f} MB&quot;
+    conn.close()
+    print(&quot;RAG DATABASE STATUS&quot;)
+    print(&quot;=&quot; * 50)
+    print(f&quot;Path: {DB_PATH} ({size_str})&quot;)
+    print(f&quot;Sources: {source_count} | Documents: {doc_count} | Tags: {tag_count}&quot;)
+    print(f&quot;Relationships: {rel_count} | Synthesis: {syn_count} | Ops: {ops_count}&quot;)
+    if by_type:
+        print(&quot;\nDOCUMENTS BY TYPE:&quot;)
+        for row in by_type:
+            print(f&quot;  {row['doc_type']:25s} {row['cnt']:&gt;5}&quot;)
+    if by_source:
+        print(&quot;\nSOURCES BY TYPE:&quot;)
+        for row in by_source:
+            sync = row['last_sync'] or 'never'
+            print(f&quot;  {row['source_type']:25s} {row['cnt']:&gt;5}  (last sync: {sync})&quot;)
+    if recent_ops:
+        print(&quot;\nRECENT OPERATIONS:&quot;)
+        for row in recent_ops:
+            detail = row['detail'][:60] if row['detail'] else ''
+            print(f&quot;  {row['timestamp']}  {row['operation']:12s} {row['target_table'] or '':15s} {detail}&quot;)
+    print(&quot;=&quot; * 50)
+
+
+def search(query, doc_type=None, tag=None, limit=20):
+    conn = connect()
+    cur = conn.cursor()
+    params = [query]
+    sql = &quot;&quot;&quot;
+        SELECT d.id, d.title, d.doc_type, d.source_id, d.metadata,
+               snippet(documents_fts, 1, '&gt;&gt;&gt;', '&lt;&lt;&lt;', '...', 40) as snippet,
+               s.name as source_name, s.source_type
+        FROM documents_fts f
+        JOIN documents d ON d.id = f.rowid
+        JOIN sources s ON s.id = d.source_id
+        WHERE documents_fts MATCH ?
+          AND d.status = 'active'
+    &quot;&quot;&quot;
+    if doc_type:
+        sql += &quot; AND d.doc_type = ?&quot;
+        params.append(doc_type)
+    if tag:
+        sql += &quot; AND d.id IN (SELECT dt.document_id FROM document_tags dt JOIN tags t ON t.id = dt.tag_id WHERE t.name = ?)&quot;
+        params.append(tag)
+    sql += f&quot; ORDER BY rank LIMIT {limit}&quot;
+    cur.execute(sql, params)
+    results = cur.fetchall()
+    log_op(conn, &quot;query&quot;, detail={&quot;query&quot;: query, &quot;doc_type&quot;: doc_type, &quot;tag&quot;: tag, &quot;results&quot;: len(results)})
+    conn.commit()
+    conn.close()
+    print(f'SEARCH: &quot;{query}&quot;')
+    if doc_type:
+        print(f&quot;Filter: doc_type={doc_type}&quot;)
+    if tag:
+        print(f&quot;Filter: tag={tag}&quot;)
+    print(&quot;=&quot; * 50)
+    if results:
+        for r in results:
+            print(f&quot;\n  [{r['id']}] {r['title']}&quot;)
+            print(f&quot;       Type: {r['doc_type']} | Source: {r['source_name']} ({r['source_type']})&quot;)
+            print(f&quot;       {r['snippet']}&quot;)
+    else:
+        print(&quot;  No results found.&quot;)
+    print(f&quot;\n{len(results)} result(s)&quot;)
+    print(&quot;=&quot; * 50)
+
+
+def related(doc_id):
+    conn = connect()
+    cur = conn.cursor()
+    cur.execute(&quot;SELECT id, title, doc_type FROM documents WHERE id = ?&quot;, (doc_id,))
+    doc = cur.fetchone()
+    if not doc:
+        print(f&quot;Document #{doc_id} not found.&quot;)
+        conn.close()
+        return
+    cur.execute(&quot;&quot;&quot;
+        SELECT r.relationship_type, r.confidence, r.description,
+               d.id, d.title, d.doc_type
+        FROM relationships r JOIN documents d ON d.id = r.target_doc_id
+        WHERE r.source_doc_id = ? AND d.status = 'active'
+        ORDER BY r.confidence DESC
+    &quot;&quot;&quot;, (doc_id,))
+    outgoing = cur.fetchall()
+    cur.execute(&quot;&quot;&quot;
+        SELECT r.relationship_type, r.confidence, r.description,
+               d.id, d.title, d.doc_type
+        FROM relationships r JOIN documents d ON d.id = r.source_doc_id
+        WHERE r.target_doc_id = ? AND d.status = 'active'
+        ORDER BY r.confidence DESC
+    &quot;&quot;&quot;, (doc_id,))
+    incoming = cur.fetchall()
+    cur.execute(&quot;&quot;&quot;
+        SELECT t.name, t.category FROM tags t
+        JOIN document_tags dt ON dt.tag_id = t.id
+        WHERE dt.document_id = ?
+    &quot;&quot;&quot;, (doc_id,))
+    tags = cur.fetchall()
+    conn.close()
+    print(f&quot;RELATED: [{doc['id']}] {doc['title']} ({doc['doc_type']})&quot;)
+    print(&quot;=&quot; * 50)
+    if tags:
+        print(f&quot;\nTags: {', '.join(t['name'] for t in tags)}&quot;)
+    if outgoing:
+        print(&quot;\nLINKS TO:&quot;)
+        for r in outgoing:
+            conf = f&quot; ({r['confidence']:.0%})&quot; if r['confidence'] &lt; 1.0 else &quot;&quot;
+            print(f&quot;  --[{r['relationship_type']}]--&gt; [{r['id']}] {r['title']}{conf}&quot;)
+    if incoming:
+        print(&quot;\nLINKED FROM:&quot;)
+        for r in incoming:
+            conf = f&quot; ({r['confidence']:.0%})&quot; if r['confidence'] &lt; 1.0 else &quot;&quot;
+            print(f&quot;  &lt;--[{r['relationship_type']}]-- [{r['id']}] {r['title']}{conf}&quot;)
+    if not outgoing and not incoming:
+        print(&quot;\n  No relationships found.&quot;)
+    print(&quot;=&quot; * 50)
+
+
+def show_log(limit=20):
+    conn = connect()
+    cur = conn.cursor()
+    cur.execute(&quot;&quot;&quot;
+        SELECT timestamp, operation, target_table, target_id, detail, actor
+        FROM operations_log ORDER BY id DESC LIMIT ?
+    &quot;&quot;&quot;, (limit,))
+    rows = cur.fetchall()
+    conn.close()
+    print(f&quot;OPERATIONS LOG (last {limit})&quot;)
+    print(&quot;=&quot; * 50)
+    for r in rows:
+        target = f&quot;{r['target_table']}#{r['target_id']}&quot; if r['target_table'] else &quot;&quot;
+        detail = r['detail'][:80] if r['detail'] else &quot;&quot;
+        print(f&quot;  {r['timestamp']}  {r['operation']:12s} {target:20s} {detail}&quot;)
+    if not rows:
+        print(&quot;  No operations logged.&quot;)
+    print(&quot;=&quot; * 50)
+
+
+if __name__ == &quot;__main__&quot;:
+    if len(sys.argv) &lt; 2:
+        print(&quot;Usage:&quot;)
+        print(&quot;  python rag_helpers.py init&quot;)
+        print(&quot;  python rag_helpers.py status&quot;)
+        print('  python rag_helpers.py search &quot;query&quot; [--type TYPE] [--tag TAG]')
+        print(&quot;  python rag_helpers.py related &lt;doc_id&gt;&quot;)
+        print(&quot;  python rag_helpers.py log [limit]&quot;)
+        sys.exit(1)
+    cmd = sys.argv[1]
+    if cmd == &quot;init&quot;:
+        init_db()
+    elif cmd == &quot;status&quot;:
+        status()
+    elif cmd == &quot;search&quot;:
+        if len(sys.argv) &lt; 3:
+            print('Usage: python rag_helpers.py search &quot;query&quot; [--type TYPE] [--tag TAG]')
+            sys.exit(1)
+        query = sys.argv[2]
+        doc_type = None
+        tag = None
+        args = sys.argv[3:]
+        i = 0
+        while i &lt; len(args):
+            if args[i] == &quot;--type&quot; and i + 1 &lt; len(args):
+                doc_type = args[i + 1]; i += 2
+            elif args[i] == &quot;--tag&quot; and i + 1 &lt; len(args):
+                tag = args[i + 1]; i += 2
+            else:
+                i += 1
+        search(query, doc_type=doc_type, tag=tag)
+    elif cmd == &quot;related&quot;:
+        if len(sys.argv) &lt; 3:
+            print(&quot;Usage: python rag_helpers.py related &lt;doc_id&gt;&quot;)
+            sys.exit(1)
+        related(int(sys.argv[2]))
+    elif cmd == &quot;log&quot;:
+        limit = int(sys.argv[2]) if len(sys.argv) &gt; 2 else 20
+        show_log(limit)
+    else:
+        print(f&quot;Unknown command: {cmd}&quot;)
+        sys.exit(1)
+~~~
+
+### Step 5 &mdash; Write capture.py
+
+Write the following content **exactly** to `~/.rag-db/capture.py`. Update `DB_PATH` if your home directory or username differs.
+
+~~~python
+&quot;&quot;&quot;
+capture.py &mdash; Progressive summarization for the Karpathy RAG.
+
+Persists syntheses/insights generated by any Claude interface back into rag.db
+as doc_type='insight', wired into the relationship graph.
+
+Used by:
+  - /rag-capture skill (Claude Code, via Bash)
+  - capture_mcp_server.py (Chat Desktop, Cowork, Claude Code MCP)
+  - Direct Python calls for scripting
+&quot;&quot;&quot;
+import sqlite3
+import json
+import sys
+import os
+from datetime import datetime
+from typing import Optional
+
+DB_PATH = os.path.expanduser(&quot;~/.rag-db/rag.db&quot;)
+INSIGHT_SOURCE_NAME = &quot;Captured Insights&quot;
+
+
+def _connect():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute(&quot;PRAGMA foreign_keys=ON&quot;)
+    return conn
+
+
+def _ensure_insight_source(cur) -&gt; int:
+    cur.execute(&quot;SELECT id FROM sources WHERE name = ? LIMIT 1&quot;, (INSIGHT_SOURCE_NAME,))
+    row = cur.fetchone()
+    if row:
+        return row[&quot;id&quot;]
+    now = datetime.now().isoformat()
+    cur.execute(
+        &quot;&quot;&quot;INSERT INTO sources (name, source_type, uri, description,
+                                ingested_at, last_synced_at, status)
+           VALUES (?, 'insight', 'internal://captured', ?, ?, ?, 'active')&quot;&quot;&quot;,
+        (INSIGHT_SOURCE_NAME, &quot;Syntheses captured from Claude sessions&quot;, now, now),
+    )
+    return cur.lastrowid
+
+
+def save_insight(title, content, source_doc_ids=None, tags=None,
+                 origin=&quot;claude&quot;, context_note=None):
+    if not title or not title.strip():
+        raise ValueError(&quot;title is required&quot;)
+    if not content or not content.strip():
+        raise ValueError(&quot;content is required&quot;)
+    source_doc_ids = source_doc_ids or []
+    tags = list(tags or [])
+    if &quot;insight&quot; not in tags:
+        tags.append(&quot;insight&quot;)
+    conn = _connect()
+    cur = conn.cursor()
+    now = datetime.now().isoformat()
+    source_id = _ensure_insight_source(cur)
+    metadata = {&quot;origin&quot;: origin, &quot;captured_at&quot;: now, &quot;source_doc_ids&quot;: source_doc_ids}
+    if context_note:
+        metadata[&quot;context&quot;] = context_note
+    cur.execute(
+        &quot;&quot;&quot;INSERT INTO documents (source_id, title, content, doc_type, metadata,
+                                  created_at, updated_at, status)
+           VALUES (?, ?, ?, 'insight', ?, ?, ?, 'active')&quot;&quot;&quot;,
+        (source_id, title.strip(), content.strip(),
+         json.dumps(metadata), now, now),
+    )
+    doc_id = cur.lastrowid
+    rel_count = 0
+    for src_id in source_doc_ids:
+        cur.execute(&quot;SELECT 1 FROM documents WHERE id = ? AND status = 'active'&quot;, (src_id,))
+        if not cur.fetchone():
+            continue
+        cur.execute(
+            &quot;&quot;&quot;INSERT INTO relationships (source_doc_id, target_doc_id, relationship_type,
+                  description, confidence, created_at, created_by)
+               VALUES (?, ?, 'derives_from', ?, 0.9, ?, ?)&quot;&quot;&quot;,
+            (doc_id, src_id, &quot;Insight synthesized from this source&quot;, now, origin),
+        )
+        rel_count += 1
+    tag_count = 0
+    for tag_name in tags:
+        tag_name = tag_name.strip().lower()
+        if not tag_name:
+            continue
+        cur.execute(&quot;INSERT OR IGNORE INTO tags (name) VALUES (?)&quot;, (tag_name,))
+        cur.execute(&quot;SELECT id FROM tags WHERE name = ?&quot;, (tag_name,))
+        tag_id = cur.fetchone()[&quot;id&quot;]
+        cur.execute(&quot;INSERT OR IGNORE INTO document_tags (document_id, tag_id) VALUES (?, ?)&quot;,
+                    (doc_id, tag_id))
+        tag_count += 1
+    cur.execute(
+        &quot;&quot;&quot;INSERT INTO operations_log (timestamp, operation, target_table, target_id, detail, actor)
+           VALUES (?, 'capture_insight', 'documents', ?, ?, ?)&quot;&quot;&quot;,
+        (now, doc_id,
+         json.dumps({&quot;title&quot;: title.strip(), &quot;source_doc_ids&quot;: source_doc_ids,
+                     &quot;relationships_created&quot;: rel_count, &quot;tags_applied&quot;: tag_count}),
+         origin),
+    )
+    conn.commit()
+    conn.close()
+    return {&quot;doc_id&quot;: doc_id, &quot;source_id&quot;: source_id, &quot;title&quot;: title.strip(),
+            &quot;relationships_created&quot;: rel_count, &quot;tags_applied&quot;: tag_count,
+            &quot;timestamp&quot;: now}
+
+
+def list_insights(limit=20):
+    conn = _connect()
+    cur = conn.cursor()
+    cur.execute(
+        &quot;&quot;&quot;SELECT id, title, created_at, metadata FROM documents
+           WHERE doc_type = 'insight' AND status = 'active'
+           ORDER BY created_at DESC LIMIT ?&quot;&quot;&quot;,
+        (limit,),
+    )
+    rows = [dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+
+if __name__ == &quot;__main__&quot;:
+    if sys.stdout.encoding != 'utf-8':
+        sys.stdout.reconfigure(encoding=&quot;utf-8&quot;, errors=&quot;replace&quot;)
+    import argparse
+    ap = argparse.ArgumentParser(description=&quot;Capture insight into RAG&quot;)
+    sub = ap.add_subparsers(dest=&quot;cmd&quot;, required=True)
+    p_save = sub.add_parser(&quot;save&quot;, help=&quot;Save an insight&quot;)
+    p_save.add_argument(&quot;--title&quot;, required=True)
+    p_save.add_argument(&quot;--content&quot;, required=True,
+                        help=&quot;Content text, or @path/to/file to read from file&quot;)
+    p_save.add_argument(&quot;--sources&quot;, default=&quot;&quot;, help=&quot;Comma-separated doc IDs&quot;)
+    p_save.add_argument(&quot;--tags&quot;, default=&quot;&quot;, help=&quot;Comma-separated tag names&quot;)
+    p_save.add_argument(&quot;--origin&quot;, default=&quot;cli&quot;)
+    p_save.add_argument(&quot;--context&quot;, default=None)
+    p_list = sub.add_parser(&quot;list&quot;, help=&quot;List recent insights&quot;)
+    p_list.add_argument(&quot;--limit&quot;, type=int, default=20)
+    args = ap.parse_args()
+    if args.cmd == &quot;save&quot;:
+        content = args.content
+        if content.startswith(&quot;@&quot;):
+            with open(content[1:], &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+                content = f.read()
+        src_ids = [int(x) for x in args.sources.split(&quot;,&quot;) if x.strip()]
+        tag_list = [t.strip() for t in args.tags.split(&quot;,&quot;) if t.strip()]
+        result = save_insight(title=args.title, content=content,
+                              source_doc_ids=src_ids, tags=tag_list,
+                              origin=args.origin, context_note=args.context)
+        print(json.dumps(result, indent=2))
+    elif args.cmd == &quot;list&quot;:
+        for r in list_insights(args.limit):
+            print(f&quot;[{r['id']}] {r['created_at']}  {r['title']}&quot;)
+~~~
+
+### Step 6 &mdash; Write capture_mcp_server.py
+
+Write the following content **exactly** to `~/.rag-db/capture_mcp_server.py`. Requires `pip install mcp` if the user wants cross-interface capture.
+
+~~~python
+&quot;&quot;&quot;
+capture_mcp_server.py &mdash; MCP server exposing the RAG capture tool.
+
+Makes progressive summarization available to any Claude interface that loads
+claude_desktop_config.json (Chat Desktop, Cowork, Claude Code).
+
+Shares the same backing code (capture.py) used by the /rag-capture skill, so
+all interfaces write to the same rag.db with identical semantics.
+
+Register in claude_desktop_config.json as &quot;rag-capture&quot;.
+&quot;&quot;&quot;
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from mcp.server.fastmcp import FastMCP
+import capture
+
+mcp = FastMCP(&quot;rag-capture&quot;)
+
+
+@mcp.tool()
+def capture_insight(title: str, content: str,
+                    source_doc_ids: list[int] | None = None,
+                    tags: list[str] | None = None,
+                    origin: str = &quot;claude_mcp&quot;,
+                    context_note: str | None = None) -&gt; dict:
+    &quot;&quot;&quot;Persist a synthesis/insight into the Karpathy RAG database.
+
+    Use whenever you generate a substantive synthesis during a conversation &mdash;
+    connecting multiple sources, distilling a concept, or compiling an answer
+    that should compound into future queries. Becomes a permanent doc_type=
+    'insight' row in rag.db, wired into the relationship graph, FTS5-searchable.
+
+    Args:
+        title: Short title, &lt;=80 chars.
+        content: Full synthesis text. Long-form is fine.
+        source_doc_ids: Optional list of RAG document IDs this derives from.
+        tags: Optional list of tag names. 'insight' is auto-added.
+        origin: 'claude_chat', 'claude_cowork', 'claude_code', or 'claude_mcp'.
+        context_note: Optional note about where/how this was generated.
+
+    Returns:
+        dict with doc_id, source_id, title, relationships_created,
+        tags_applied, timestamp.
+    &quot;&quot;&quot;
+    return capture.save_insight(
+        title=title, content=content,
+        source_doc_ids=source_doc_ids or [],
+        tags=tags or [], origin=origin,
+        context_note=context_note,
+    )
+
+
+@mcp.tool()
+def list_recent_insights(limit: int = 20) -&gt; list[dict]:
+    &quot;&quot;&quot;List the most recently captured insights in the RAG.&quot;&quot;&quot;
+    return capture.list_insights(limit=limit)
+
+
+if __name__ == &quot;__main__&quot;:
+    mcp.run()
+~~~
+
+### Step 7 &mdash; Write rag-status/SKILL.md
+
+Write the following to `~/.claude/skills/rag-status/SKILL.md`:
+
+~~~markdown
+---
+name: rag-status
+description: Quick dashboard for the personal Karpathy RAG database. Shows counts, document types, recent activity, source coverage. Trigger when the user says &quot;RAG status&quot;, &quot;how big is the knowledge base&quot;, &quot;RAG dashboard&quot;, &quot;what's in my RAG&quot;.
+allowed-tools: Bash Read
+---
+
+# RAG Status
+
+Show a quick dashboard of the personal RAG database.
+
+## Steps
+
+1. Run:
+   ```
+   python ~/.rag-db/rag_helpers.py status
+   ```
+
+2. Present the output conversationally. Highlight anything notable:
+   - If the database is empty (0 documents), suggest running `/rag-ingest` to add content
+   - If sources have not been synced in &gt; 30 days, flag them as stale
+   - If there are many documents but no synthesis entries, mention that compilation is available
+
+## Presentation Rules
+
+- Keep it concise &mdash; this is a quick check-in, not a deep dive
+- If the user wants more detail, suggest `/rag-query` or `python ~/.rag-db/rag_helpers.py search &quot;...&quot;` for searching, or `python ~/.rag-db/rag_helpers.py related &lt;id&gt;` for following the graph
+- If the database does not exist yet (helper prints that), tell the user to run `/rag-init` first
+~~~
+
+### Step 8 &mdash; Write rag-query/SKILL.md
+
+Write the following to `~/.claude/skills/rag-query/SKILL.md`:
+
+~~~markdown
+---
+name: rag-query
+description: Search and synthesize from the personal Karpathy RAG database. Uses FTS5 full-text search, tag/type filtering, and relationship traversal. Never answers from training data &mdash; all responses grounded in database content with citations. Trigger when the user says &quot;search the RAG&quot;, &quot;what do I know about&quot;, &quot;RAG query&quot;, &quot;find in my knowledge base&quot;, &quot;look up in RAG&quot;.
+allowed-tools: Bash Read
+argument-hint: &lt;question-or-keywords&gt; e.g. &quot;project decisions&quot;, &quot;#meetings&quot;
+---
+
+# RAG Query
+
+Search and synthesize from the personal Karpathy RAG database.
+
+## Core Rules
+
+1. **Never answer from memory.** Every claim must come from the database. If the database has no relevant content, say so &mdash; do not fill gaps with training data.
+2. **Cite everything.** Every fact gets `[Source: &lt;source_name&gt;, Doc #&lt;id&gt;]`.
+3. **Lead with compiled pages if they exist.** `entity_page` and `concept_page` documents are pre-synthesized answers &mdash; check first.
+4. **Follow relationships.** After finding initial results, check one hop of relationships for additional context.
+5. **Offer to capture.** If the synthesis is substantive, offer to save it via `/rag-capture`.
+
+## Steps
+
+1. **Parse the query.** Determine search terms, optional doc_type filter (if the query mentions &quot;sessions&quot;, &quot;insights&quot;, &quot;notes&quot;, etc.), optional tag filter (if the query starts with `#`).
+
+2. **Check for compiled pages first** with inline Python:
+   ```python
+   python -c &quot;
+   import sqlite3
+   conn = sqlite3.connect('~/.rag-db/rag.db'.replace('~', __import__('os').path.expanduser('~')))
+   conn.row_factory = sqlite3.Row
+   cur = conn.cursor()
+   cur.execute('''SELECT id, title, doc_type, content FROM documents
+       WHERE doc_type IN ('entity_page', 'concept_page', 'area_overview', 'source_summary')
+       AND status = 'active'
+       AND id IN (SELECT rowid FROM documents_fts WHERE documents_fts MATCH ?)
+       LIMIT 5''', ('QUERY_TERMS',))
+   for r in cur.fetchall():
+       print(f&quot;[{r['id']}] {r['title']} ({r['doc_type']})&quot;)
+       print(r['content'][:300])
+       print('---')
+   conn.close()
+   &quot;
+   ```
+   If compiled pages exist, lead with them.
+
+3. **Run FTS search:**
+   ```
+   python ~/.rag-db/rag_helpers.py search &quot;query terms&quot;
+   python ~/.rag-db/rag_helpers.py search &quot;query&quot; --type insight
+   python ~/.rag-db/rag_helpers.py search &quot;query&quot; --tag projects
+   ```
+
+4. **Read top results in full** if snippets aren't enough &mdash; query `documents` by ID with inline Python.
+
+5. **Follow relationships** for the top match:
+   ```
+   python ~/.rag-db/rag_helpers.py related &lt;doc_id&gt;
+   ```
+
+6. **Synthesize and present.** Lead with the direct answer. Follow with citations. If results are sparse, say what's missing.
+
+## FTS5 Query Syntax
+
+- Simple terms: `productivity systems`
+- Phrase: `&quot;exact phrase&quot;`
+- Boolean: `meeting AND decision NOT done`
+- Prefix: `work*`
+- Column filter: `title:meeting`
+
+## Presentation
+
+- Lead with the direct answer
+- Follow with supporting evidence and `[Doc #N]` citations
+- If rich, offer to capture: &quot;Want me to save this synthesis to the RAG?&quot; (calls `/rag-capture`)
+~~~
+
+### Step 9 &mdash; Write rag-capture/SKILL.md
+
+Write the following to `~/.claude/skills/rag-capture/SKILL.md`:
+
+~~~markdown
+---
+name: rag-capture
+description: Persist a synthesis/insight into the personal Karpathy RAG database as doc_type='insight', wired into the relationship graph. Progressive summarization &mdash; every valuable synthesis gets saved so it compounds. Trigger when the user says &quot;capture this&quot;, &quot;save this insight&quot;, &quot;remember this&quot;, &quot;rag-capture&quot;, or when Claude generates a substantive synthesis that should be persisted.
+allowed-tools: Bash Read Write
+argument-hint: [optional title hint]
+---
+
+# RAG Capture &mdash; Progressive Summarization
+
+Every substantive synthesis Claude produces while working with the RAG should be captured back into it. Raw documents → compiled wiki pages → syntheses → persisted insights that feed future queries.
+
+## When to Use
+
+**Use when:**
+- The user says &quot;capture this&quot;, &quot;save this insight&quot;, &quot;remember this&quot;
+- A `/rag-query` produced a meaningful synthesis that connected disparate docs
+- A conversation produced a conceptual distillation worth keeping
+- The user pastes in a synthesis from another Claude session that needs persisting
+
+**Skip when:**
+- The content is trivial, short, or just restates one existing doc
+- The synthesis is really a new entity/concept page (use a compile skill instead, if you have one)
+
+## Protocol
+
+### Step 1: Gather inputs
+
+Ask (or infer from context):
+- **Title**: &lt;=80 chars, punchy. Propose one and confirm if not given.
+- **Content**: the full synthesis text. Long-form is fine.
+- **Source docs**: IDs of any RAG documents this was built from. From a `/rag-query`, use those result IDs.
+- **Tags**: 3-6 tag names, lowercase. `insight` is auto-added.
+
+### Step 2: Show preview
+
+```
+CAPTURE PREVIEW
+===============
+Title:     [title]
+Tags:      [tags]
+Sources:   [doc IDs or &quot;none&quot;]
+Content:   [first 200 chars...]
+
+Content length: [N chars]
+```
+
+Ask: &quot;Capture this?&quot; Wait for confirmation.
+
+### Step 3: Write via capture.py
+
+For short content, pass inline:
+```bash
+python ~/.rag-db/capture.py save \
+  --title &quot;TITLE&quot; \
+  --content &quot;CONTENT&quot; \
+  --sources &quot;123,456&quot; \
+  --tags &quot;tag1,tag2&quot; \
+  --origin &quot;claude_code&quot;
+```
+
+For long content (&gt; 500 chars or contains quotes/newlines), write to a temp file first:
+```bash
+# Write content to a temp file using your editor or Write tool, e.g. /tmp/insight.md
+
+python ~/.rag-db/capture.py save \
+  --title &quot;TITLE&quot; \
+  --content &quot;@/tmp/insight.md&quot; \
+  --sources &quot;123,456&quot; \
+  --tags &quot;tag1,tag2&quot; \
+  --origin &quot;claude_code&quot;
+```
+
+### Step 4: Report
+
+```
+CAPTURED
+========
+Doc ID:          #[id]
+Relationships:   [N] created
+Tags applied:    [N]
+
+Now searchable via /rag-query and reachable in the relationship graph.
+```
+
+## Cross-Interface
+
+The same capability is exposed as MCP (`capture_insight` on the `rag-capture` server) so Chat Desktop and Cowork can persist insights to the same database. An insight saved in any interface is visible from every other one.
+
+## Rules
+
+1. **Confirm before writing.** This goes to the permanent knowledge base.
+2. **Prefer rich linking.** If you know the source docs, pass them.
+3. **Keep titles honest.** Match the content's actual scope, don't oversell.
+4. **Origin matters.** Use `claude_code`, `claude_chat`, or `claude_cowork` to track provenance.
+~~~
+
+### Step 10 &mdash; Write rag-ingest/SKILL.md
+
+Write the following to `~/.claude/skills/rag-ingest/SKILL.md`. This is a slim ingest skill covering manual notes only; the user can extend it with custom pipelines for their own sources.
+
+~~~markdown
+---
+name: rag-ingest
+description: Add content to the personal Karpathy RAG database. The bundled version handles manual notes (title + content + tags). Extend it with custom pipelines for your own sources (session logs, exports, file folders, etc). Trigger when the user says &quot;add a note&quot;, &quot;ingest&quot;, &quot;add to RAG&quot;, &quot;import into RAG&quot;.
+allowed-tools: Bash Read Write
+argument-hint: &lt;source-type-or-content&gt; e.g. &quot;manual&quot;, or &quot;add a note: title / content&quot;
+---
+
+# RAG Ingest
+
+Add content to the personal RAG database at `~/.rag-db/rag.db`.
+
+## Core Rules
+
+1. **Human-in-the-loop.** Always show what will be ingested (title, type, tags) and confirm before writing.
+2. **Source provenance.** Every document traces back to a source row. For manual notes, use a single shared &quot;Manual Notes&quot; source.
+3. **Log everything.** Every ingest gets a row in `operations_log`.
+4. **Tag generously.** Apply at minimum the source-type tag and any topic tags from the content.
+
+## Manual Note Pipeline
+
+When the user says &quot;add a note&quot; or provides title + content directly:
+
+1. Parse the title and content from the request. If only one is given, ask for the other.
+2. Ask for tags if not given. Suggest 2-3 from the content.
+3. Show the preview:
+   ```
+   INGEST PREVIEW
+   ==============
+   Title:    [title]
+   Type:     note
+   Tags:     [tags]
+   Content:  [first 200 chars...]
+   ```
+4. Ask: &quot;Ingest this?&quot; Wait for confirmation.
+
+5. Write via inline Python:
+   ```python
+   python -c &quot;
+   import sqlite3, json, os
+   db = os.path.expanduser('~/.rag-db/rag.db')
+   conn = sqlite3.connect(db)
+   conn.execute('PRAGMA foreign_keys=ON')
+   cur = conn.cursor()
+   # Get or create the Manual Notes source
+   cur.execute(&quot;SELECT id FROM sources WHERE name = 'Manual Notes' LIMIT 1&quot;)
+   row = cur.fetchone()
+   if row:
+       source_id = row[0]
+   else:
+       cur.execute(&quot;INSERT INTO sources (name, source_type, uri, description) VALUES (?, ?, ?, ?)&quot;,
+                   ('Manual Notes', 'manual', 'internal://manual', 'Notes added directly via /rag-ingest'))
+       source_id = cur.lastrowid
+   # Insert document
+   cur.execute('INSERT INTO documents (source_id, title, content, doc_type) VALUES (?, ?, ?, ?)',
+               (source_id, 'TITLE_HERE', 'CONTENT_HERE', 'note'))
+   doc_id = cur.lastrowid
+   # Apply tags
+   for tag in ['tag1', 'tag2']:
+       cur.execute('INSERT OR IGNORE INTO tags (name) VALUES (?)', (tag,))
+       cur.execute('SELECT id FROM tags WHERE name = ?', (tag,))
+       tag_id = cur.fetchone()[0]
+       cur.execute('INSERT OR IGNORE INTO document_tags (document_id, tag_id) VALUES (?, ?)', (doc_id, tag_id))
+   # Log
+   cur.execute('INSERT INTO operations_log (operation, target_table, target_id, detail, actor) VALUES (?, ?, ?, ?, ?)',
+               ('ingest', 'documents', doc_id, json.dumps({'source_type': 'manual', 'title': 'TITLE_HERE'}), 'claude'))
+   conn.commit()
+   print(f'Ingested document #{doc_id}')
+   conn.close()
+   &quot;
+   ```
+
+   For multi-line content, use a temp file or the Write tool first, then read it in the Python script.
+
+6. Report: &quot;Ingested document #N. Searchable via /rag-query.&quot;
+
+## Extending Ingestion
+
+To add a custom pipeline (e.g., for a folder of markdown files, a Notion export, a session log):
+
+1. Add a new section to this skill describing when it triggers
+2. Write a small Python script (or extend `rag_helpers.py`) that:
+   - Creates one source row for the data origin
+   - Iterates the items, creating one document each with appropriate `doc_type`
+   - Applies tags consistently
+   - Logs each ingest
+3. Add example trigger phrases to the skill description so Claude routes correctly
+
+The schema accepts any `doc_type` and `source_type` &mdash; you don't need to modify the schema for new sources.
+~~~
+
+### Step 11 &mdash; Initialize the database
+
+Run:
+```
+python ~/.rag-db/rag_helpers.py init
+```
+
+Verify the output shows all tables created and `FTS5: OK`.
+
+### Step 12 &mdash; Report
+
+Tell the user:
+
+&gt; **Karpathy RAG bootstrapped.**
+&gt;
+&gt; - Database: `~/.rag-db/rag.db`
+&gt; - Code: `schema.sql`, `rag_helpers.py`, `capture.py`, `capture_mcp_server.py`
+&gt; - Skills: `/rag-init`, `/rag-status`, `/rag-query`, `/rag-capture`, `/rag-ingest`
+&gt;
+&gt; Next steps:
+&gt; 1. Add your first content: &quot;Add a note: title / content&quot;
+&gt; 2. Query it back: &quot;What do I know about [topic]?&quot;
+&gt; 3. Optional: register the MCP server (see README) for cross-interface capture.
+
+## Critical Rules
+
+1. **Never overwrite an existing rag.db without explicit confirmation.** If the user runs `/rag-init` again on a populated database, stop and ask.
+2. **Write files exactly as embedded.** Do not paraphrase the schema or the helper code.
+3. **The Python paths above use `~`** &mdash; if the platform doesn't expand tilde reliably (some Windows shells), substitute the user's actual home directory.
+4. **The MCP server requires `pip install mcp`.** If the user doesn't have it, the file still gets written but won't run until they install. Mention this in the final report.
+5. **Don't pre-seed any documents.** A fresh RAG starts empty. The user populates it through `/rag-ingest`.
+</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Built with Claude Code by the AI Clubhouse
+  </div>
+
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const target = document.getElementById(btn.dataset.target);
+        const text = target.textContent;
+        const original = btn.dataset.original || btn.textContent;
+        btn.dataset.original = original;
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch (err) {
+          const range = document.createRange();
+          range.selectNodeContents(target);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          try { document.execCommand('copy'); } catch (e) {}
+          sel.removeAllRanges();
+        }
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1600);
+      });
+    });
+  </script>
+</body>
+</html>

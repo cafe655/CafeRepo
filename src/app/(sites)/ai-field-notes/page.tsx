@@ -28,6 +28,10 @@ const fieldNotes = [
     title: <>Ai Coach<br />Builder</>,
     href: "/ai-field-notes/ai-coach-builder",
   },
+  {
+    title: <>Karpathy RAG<br />Builder</>,
+    href: "/ai-field-notes/karpathy-rag-builder",
+  },
 ];
 
 export default function AIFieldNotesPage() {

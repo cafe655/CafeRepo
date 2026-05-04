@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Code Session Manager &mdash; Local Dashboard for Your Sessions</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0a; color: #e0e0e0; line-height: 1.6; min-height: 100vh;
+    }
+    .site-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 10px 16px;
+      border-bottom: 1px solid #2a2a2a; flex-wrap: wrap;
+    }
+    .site-nav .site-brand {
+      font-size: 1.25em; font-weight: 700; color: #f5f5f7;
+      text-decoration: none; margin-right: 18px; letter-spacing: -0.02em;
+    }
+    .site-nav .site-brand span { color: #E31837; }
+    .site-nav a.site-link {
+      color: #9e9eb8; text-decoration: none; font-size: 0.85em;
+      padding: 5px 12px; border-radius: 6px; transition: all 0.2s;
+    }
+    .site-nav a.site-link:hover {
+      color: #f5f5f7; background: rgba(227, 24, 55, 0.12);
+    }
+    .site-nav a.site-link.current {
+      color: #E31837; background: rgba(227, 24, 55, 0.1);
+    }
+    .hero {
+      background: linear-gradient(135deg, #1a0a0a 0%, #2a0a14 50%, #3a0010 100%);
+      border-bottom: 2px solid #E31837;
+      padding: 4rem 2rem 3rem; text-align: center;
+    }
+    .hero h1 { font-size: 2.8rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+    .hero h1 span { color: #E31837; }
+    .hero .subtitle { font-size: 1.2rem; color: #a0a0b0; max-width: 720px; margin: 0 auto 2rem; }
+    .badge {
+      display: inline-block; background: rgba(227, 24, 55, 0.15);
+      border: 1px solid #E31837; color: #E31837;
+      padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; }
+    .section { margin-bottom: 3rem; }
+    .section h2 {
+      font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 1rem;
+      padding-bottom: 0.5rem; border-bottom: 1px solid #2a2a2a;
+    }
+    .section p { color: #b0b0b0; margin-bottom: 1rem; }
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin: 1.5rem 0; }
+    .feature-card {
+      background: #141414; border: 1px solid #2a2a2a; border-radius: 10px;
+      padding: 1.2rem; transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: #E31837; }
+    .feature-card h3 { font-size: 1rem; color: #fff; margin-bottom: 0.4rem; }
+    .feature-card p { font-size: 0.9rem; color: #888; margin: 0; }
+    .how-it-works {
+      background: #141414; border: 1px solid #2a2a2a; border-radius: 10px;
+      padding: 2rem; margin: 1.5rem 0;
+    }
+    .step { display: flex; gap: 1rem; margin-bottom: 1.2rem; }
+    .step:last-child { margin-bottom: 0; }
+    .step-num {
+      flex-shrink: 0; width: 32px; height: 32px;
+      background: #E31837; color: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.9rem;
+    }
+    .step-text { padding-top: 4px; }
+    .step-text strong { color: #fff; }
+    .requirements { list-style: none; padding: 0; }
+    .requirements li {
+      padding: 0.5rem 0; padding-left: 1.5rem; position: relative; color: #b0b0b0;
+    }
+    .requirements li::before {
+      content: ''; position: absolute; left: 0; top: 0.85rem;
+      width: 8px; height: 8px; background: #E31837; border-radius: 50%;
+    }
+    .file-block {
+      background: #141414; border: 1px solid #2a2a2a; border-radius: 10px;
+      margin: 1.5rem 0; overflow: hidden;
+    }
+    .file-block-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.8rem 1.2rem; background: #1a1a1a; border-bottom: 1px solid #2a2a2a;
+      gap: 1rem;
+    }
+    .file-block-header .filename {
+      color: #E31837; font-family: 'SF Mono', Consolas, Menlo, monospace;
+      font-size: 0.9rem; font-weight: 600;
+    }
+    .file-block-header .filename .save-hint {
+      color: #888; font-weight: 400; margin-left: 0.5rem;
+    }
+    .copy-btn {
+      background: transparent; border: 1px solid #3a3a3a; color: #e0e0e0;
+      padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.8rem;
+      font-weight: 600; cursor: pointer; transition: all 0.15s;
+      font-family: inherit; flex-shrink: 0;
+    }
+    .copy-btn:hover { border-color: #E31837; color: #E31837; }
+    .copy-btn.copied { border-color: #4ade80; color: #4ade80; }
+    .file-block pre {
+      margin: 0; padding: 1.2rem; max-height: 520px; overflow: auto;
+      font-family: 'SF Mono', Consolas, Menlo, monospace;
+      font-size: 0.82rem; line-height: 1.55; color: #c8c8c8;
+      white-space: pre; tab-size: 2;
+    }
+    .file-block pre::-webkit-scrollbar { width: 10px; height: 10px; }
+    .file-block pre::-webkit-scrollbar-track { background: #0a0a0a; }
+    .file-block pre::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 5px; }
+    .file-block pre::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+    .get-skill-section {
+      padding: 3rem 2rem;
+      background: linear-gradient(180deg, #0a0a0a 0%, #141414 100%);
+      border-top: 1px solid #2a2a2a;
+    }
+    .get-skill-section .inner { max-width: 900px; margin: 0 auto; }
+    .get-skill-section h2 {
+      font-size: 1.8rem; color: #fff; margin-bottom: 0.5rem; text-align: center;
+    }
+    .get-skill-section .lede {
+      color: #888; margin-bottom: 2rem; text-align: center;
+    }
+    .footer {
+      text-align: center; padding: 2rem; color: #444; font-size: 0.85rem;
+      border-top: 1px solid #1a1a1a;
+    }
+    .footer a { color: #E31837; text-decoration: none; }
+    code.inline {
+      background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 4px;
+      padding: 0.1rem 0.4rem; font-size: 0.85em; color: #e0e0e0;
+      font-family: 'SF Mono', Consolas, Menlo, monospace;
+    }
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2rem; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .container { padding: 2rem 1.2rem; }
+      .file-block pre { font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="site-nav">
+    <a href="https://www.cafe655.com" class="site-brand">Cafe<span>655</span></a>
+    <a href="https://www.cafe655.com/ai-field-notes" class="site-link current">Ai Field Notes</a>
+    <a href="https://www.cafe655.com/barista-painting" class="site-link">Barista Painting Services</a>
+    <a href="https://www.cafe655.com/cafe655-on-twitch" class="site-link">Cafe655 on Twitch</a>
+    <a href="https://www.cafe655.com/personal" class="site-link">Cafe655 Personal</a>
+  </div>
+
+  <div class="hero">
+    <div class="badge">Claude Code Skill Pack</div>
+    <h1>Claude Code <span>Session Manager</span></h1>
+    <p class="subtitle">A local web dashboard for browsing, searching, renaming, tagging, archiving, and resuming Claude Code CLI sessions. Reads and writes the actual JSONL files Claude Code keeps under <code class="inline">~/.claude/projects/</code> &mdash; every action persists.</p>
+  </div>
+
+  <div class="container">
+
+    <div class="section">
+      <h2>What Is This?</h2>
+      <p>Claude Code stores every session as a JSONL file at <code class="inline">~/.claude/projects/{encoded-project-dir}/{uuid}.jsonl</code>. Over weeks and months these accumulate &mdash; dozens, hundreds, eventually thousands &mdash; and the only way to navigate them is the built-in <code class="inline">/resume</code> picker, which shows a flat list of recent sessions with truncated names.</p>
+      <p>This system replaces that with a real interface: a browser dashboard at <code class="inline">http://localhost:5111</code> that surfaces every session on disk, sortable and searchable, with inline rename / tag / summary / archive / resume. It&rsquo;s a Python web server (Starlette + uvicorn) plus a single self-contained HTML file. No build step. No frameworks. The mutation pattern is append-only JSONL &mdash; the same mechanism Claude Code uses internally &mdash; so your changes interoperate cleanly with <code class="inline">/rename</code> and friends from inside an active session.</p>
+    </div>
+
+    <div class="section">
+      <h2>What It Can Do</h2>
+      <div class="feature-grid">
+        <div class="feature-card"><h3>Browse &amp; Sort</h3><p>Every session across every project, sortable by name, folder, turns, created, or modified</p></div>
+        <div class="feature-card"><h3>Deep Transcript Search</h3><p>Press Enter to search inside the conversation text, not just the metadata</p></div>
+        <div class="feature-card"><h3>Inline Rename + Tag</h3><p>Click the name to rename. Add and remove tags from the row. Both persist to the JSONL.</p></div>
+        <div class="feature-card"><h3>Editable Summaries</h3><p>Expand a row, edit the summary inline. Future-you will thank present-you.</p></div>
+        <div class="feature-card"><h3>One-Click Resume</h3><p>Resume button on every row launches a terminal and reattaches to the session. Optional plugin-load button if you use Discord, Slack, or other channel plugins.</p></div>
+        <div class="feature-card"><h3>Non-Destructive Archive</h3><p>Archive moves the JSONL to <code class="inline">~/.claude/projects/.archive/</code> &mdash; never deletes</p></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>How It Works</h2>
+      <div class="how-it-works">
+        <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Scan.</strong> A Python scanner walks <code class="inline">~/.claude/projects/</code>, parses each JSONL line by line, and extracts name, summary, tags, turns, timestamps, origin (the original <code class="inline">cwd</code>), and the first user message. Sidechain / subagent files are skipped.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Serve.</strong> A Starlette server caches the scan in memory, exposes a small REST API (<code class="inline">/api/sessions</code>, <code class="inline">/api/search</code>, <code class="inline">/api/sessions/{id}/rename</code>, etc.), and serves the dashboard HTML.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Mutate.</strong> Renames, tags, and summary edits APPEND a new entry to the JSONL. Last write wins on read. This is exactly what Claude Code does internally for its own metadata, so the two layers don&rsquo;t fight.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Resume.</strong> Resume / New buttons write a temporary launcher script to the system temp dir and spawn it in a new terminal window with <code class="inline">claude --resume &lt;uuid&gt;</code>. UUID rather than name &mdash; emoji-safe across Windows code pages.</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Requirements</h2>
+      <ul class="requirements">
+        <li><strong>Claude Code CLI</strong> &mdash; the <code class="inline">claude</code> command on PATH</li>
+        <li><strong>Python 3.10+</strong> &mdash; standard install</li>
+        <li><code class="inline">pip install starlette uvicorn</code> &mdash; the build skill checks and prompts if missing</li>
+        <li><strong>A writable folder for the project files</strong> &mdash; you choose during the interview</li>
+        <li><strong>Optional:</strong> a Claude Code plugin you want auto-loaded on session resume (e.g. a Discord channel plugin)</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Quick Start</h2>
+      <div class="how-it-works">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Save <code class="inline">PROMPT.md</code> below as <code class="inline">~/.claude/skills/ccsm-build/SKILL.md</code></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Open Claude Code in any project and say: <strong>&ldquo;build the session manager&rdquo;</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Claude runs a short interview &mdash; OS, project folder, default working directory, accent color, port, optional plugin auto-launch, optional desktop launcher</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Claude writes the scanner, server, dashboard, and (if you opted in) launcher &mdash; tailored to your environment, with your accent color and your home-path encoding baked in</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Claude runs a smoke test and reports the launch command</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-text">Open <code class="inline">http://localhost:&lt;your-port&gt;</code> in a browser. Every Claude Code session you&rsquo;ve ever started is right there.</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Customization</h2>
+      <p>The build skill produces a working baseline. Anything in the source files is yours to change. Common follow-ups:</p>
+      <ul class="requirements">
+        <li><strong>Add more plugin buttons.</strong> Each &ldquo;launch with plugin X&rdquo; button is one server endpoint and one HTML button. Same shape as the Resume / Plugin-Resume pair the skill optionally builds.</li>
+        <li><strong>Restyle.</strong> The CSS variables for colors and type live near the top of <code class="inline">index.html</code>. Swap the accent, swap the fonts, replace the texture &mdash; the structure is unopinionated.</li>
+        <li><strong>Auto-start on login.</strong> Wrap the launcher in a Windows Task Scheduler entry, a macOS LaunchAgent, or a systemd user unit and the dashboard is always on.</li>
+        <li><strong>Filter by tag.</strong> The <code class="inline">/api/sessions</code> endpoint already takes a <code class="inline">project</code> filter; adding a <code class="inline">tag</code> filter is a few lines of Python and one chip in the HTML.</li>
+        <li><strong>Export.</strong> Add an endpoint that streams a session&rsquo;s parsed transcript as Markdown or JSON for archiving outside Claude.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>What the Build Skill Actually Does</h2>
+      <div class="how-it-works">
+        <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Interview.</strong> Asks one question at a time, confirms each answer. OS, project folder, default working directory, plugin auto-launch (with examples so you can answer easily), accent color, port, desktop launcher.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Pre-flight.</strong> Verifies Python 3.10+, checks Starlette and uvicorn, runs <code class="inline">pip install</code> if missing.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Build.</strong> Writes the scanner, server, and dashboard from the spec in the prompt &mdash; substituting your paths, your accent color, your port, and your plugin string. Skips the plugin-resume buttons entirely if you said no.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Smoke test.</strong> Launches the server in the background, hits <code class="inline">/api/sessions</code> with curl, expects a JSON array, kills the process. Fails loudly if the wiring is wrong.</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Report.</strong> Tells you the launch command, the URL, and a one-line tip on the resume + new-session flow.</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="get-skill-section">
+    <div class="inner">
+      <h2>Get the System</h2>
+      <p class="lede">Two files. The README is the human-readable explainer. The Prompt is a Claude Code build skill &mdash; drop it in <code class="inline">~/.claude/skills/ccsm-build/SKILL.md</code>, say &ldquo;build the session manager,&rdquo; and Claude takes it from there.</p>
+
+      <div class="file-block">
+        <div class="file-block-header">
+          <span class="filename">README.md</span>
+          <button class="copy-btn" data-target="readme">Copy</button>
+        </div>
+        <pre id="readme"># Claude Code Session Manager
+
+A local web dashboard for browsing, searching, renaming, tagging, archiving, and resuming Claude Code CLI sessions. Reads and writes the actual JSONL session files Claude Code keeps under `~/.claude/projects/` &mdash; every action persists.
+
+## What This Does
+
+Claude Code stores every session as a JSONL file under `~/.claude/projects/{encoded-project-dir}/{uuid}.jsonl`. The session manager indexes them, surfaces them in a sortable / searchable browser interface, and lets you act on them: rename, tag, summarize, archive, resume, or kick off a new one in any working directory.
+
+It&#x27;s a Python web server, not a static site. Every dashboard action mutates the actual JSONL files on disk.
+
+## Architecture
+
+Three files. Optional fourth.
+
+- **Scanner** &mdash; Python module that walks `~/.claude/projects/`, parses each JSONL, and exposes a small import API. Also runnable standalone for grepping sessions from the shell.
+- **Server** &mdash; Starlette + uvicorn API. Imports the scanner. Exposes REST endpoints for list / search / rename / tag / summary / archive / resume / refresh. Mutations append to JSONL.
+- **Dashboard** &mdash; Single self-contained HTML file. Inline CSS + JS, no framework, no build step. Sortable table, filter pills, real-time search, deep transcript search, inline rename, expand-row detail panel.
+- **Launcher** (optional) &mdash; `.bat` on Windows, `.sh` on macOS / Linux. Double-click to start the server and open the browser.
+
+## Behavior
+
+1. **Read.** The scanner walks `~/.claude/projects/`, parses each session JSONL line by line, and returns a list of sessions with name, summary, tags, turn count, created / modified timestamps, origin (the original `cwd` field on entries), and the first user message.
+2. **Serve.** The server caches that list in memory, exposes it as JSON, serves the dashboard HTML.
+3. **Mutate.** Renames, tags, and summaries are written by APPENDING a new entry to the JSONL (`{&quot;type&quot;:&quot;custom-title&quot;,&quot;customTitle&quot;:&quot;...&quot;}` etc.). Last entry wins on read. Same mechanism Claude Code uses internally &mdash; your appends co-exist cleanly with `/rename` from inside a session.
+4. **Resume.** Resume / New Session writes a temporary launcher script to `%TEMP%` (or `/tmp`), then spawns it in a new terminal window running `claude --resume &lt;uuid&gt; --dangerously-skip-permissions`. UUID rather than name because Windows .bat files can&#x27;t reliably encode emoji.
+
+## Features
+
+- Sortable columns: Name, Folder, Turns, Created, Modified, Tags
+- Filter pills auto-populated from the project folders the scanner encounters
+- Real-time search by name / summary / project / tag
+- Deep transcript search (Enter or click DEEP) &mdash; searches inside the conversation text
+- Click a row to expand: Origin, session ID, editable summary, first-message preview, lazy-loaded tools / files digest, Archive button (with confirm)
+- Inline rename (click the name)
+- Tag with click-to-remove
+- Resume button on every row, plus a Resume button in the expanded panel
+- Optional plugin-load buttons that resume / start with `--channels &lt;plugin_string&gt;`
+- &quot;+ New&quot; starts a fresh Claude Code session in your default working directory
+- Open-project-folder button opens the project folder in the OS file explorer
+- `/` or `Ctrl+K` to focus search; `Escape` to clear
+- Refresh re-scans from disk
+
+## JSONL Entry Types the Scanner Cares About
+
+| Type | Field | Purpose |
+|---|---|---|
+| `custom-title` | `customTitle` | Session name |
+| `summary` | `summary` | Session summary |
+| `tag` | `tag` | Session tag (empty string clears) |
+| `user` | `message.content` | First non-empty becomes display fallback; counts toward `turn_count` |
+| `assistant` | `message.content` | Used by transcript search |
+| &mdash; | `cwd` | Original working directory (Origin) |
+| &mdash; | `timestamp` | First / last activity (more accurate than file mtime) |
+| &mdash; | `isSidechain` / `teamName` | If present, skip the entire file (subagent / swarm transcript) |
+| &mdash; | `forkedFrom.sessionId` | Fork lineage |
+
+## Requirements
+
+- Claude Code CLI installed and on PATH
+- Python 3.10+
+- `pip install starlette uvicorn`
+- A writable folder for the project files
+
+## How to Build It
+
+Save `PROMPT.md` as `~/.claude/skills/ccsm-build/SKILL.md`, open Claude Code, say **&quot;build the session manager.&quot;** Claude runs an interview, builds the system to your specifications, smoke-tests it, and reports the launch command.
+
+## Known Limitations
+
+- The server must be running for the dashboard to work. Add it to a Task Scheduler / LaunchAgent / systemd unit if you want it always on.
+- No live sync. If you `/rename` from inside Claude Code, click Refresh in the dashboard to see it.
+- Don&#x27;t resume a session from the dashboard while the same session is active in another window &mdash; concurrent appends to the JSONL can interleave.
+- The Desktop App&#x27;s sidebar generates its own titles server-side; renames from this dashboard affect the CLI&#x27;s view but not the Desktop App sidebar.
+- The path-decode logic for the Folder column assumes your project paths don&#x27;t contain hyphens. Hyphens in folder names will render as spaces. Good enough for display.
+</pre>
+      </div>
+
+      <div class="file-block">
+        <div class="file-block-header">
+          <span class="filename">PROMPT.md <span class="save-hint">&mdash; Save as ~/.claude/skills/ccsm-build/SKILL.md</span></span>
+          <button class="copy-btn" data-target="prompt">Copy</button>
+        </div>
+        <pre id="prompt">---
+name: ccsm-build
+description: &gt;
+  Build the Claude Code Session Manager &mdash; a local web dashboard that browses, searches,
+  renames, tags, archives, and resumes Claude Code CLI sessions stored at ~/.claude/projects/.
+  Trigger when the user says &quot;build the session manager&quot;, &quot;set up CCSM&quot;,
+  &quot;create a Claude Code session dashboard&quot;, or any close variation.
+allowed-tools: Bash Read Write Edit
+argument-hint: (no arguments needed)
+---
+
+# Claude Code Session Manager &mdash; Build Skill
+
+You are building a local web dashboard for the user that surfaces every Claude Code CLI session on disk and lets them browse, search, rename, tag, summarize, archive, and resume each one. Code lives entirely on the user&#x27;s machine; nothing is hosted.
+
+You decide the implementation. This skill gives you a build spec (what the system must do), an interview (to gather environment specifics), implementation hints for the non-obvious bits, and a smoke test to confirm the build works.
+
+## Step 1 &mdash; Interview
+
+Ask one question at a time. Confirm each answer before moving on. Use the user&#x27;s exact answers when writing files.
+
+1. **OS and shell.** Windows (Git Bash / cmd / PowerShell), macOS (zsh / bash), or Linux? Different OSes get different launcher syntax and different terminal-spawn calls.
+
+2. **Project folder.** Where do you want the dashboard files written? Give a full path. Will hold `server.py` and `index.html` (and optionally a copy of the scanner if you don&#x27;t have a `~/.local/bin/`).
+
+3. **Default working directory.** When the dashboard launches a NEW session via the &quot;+ New&quot; button, which folder should the new Claude Code session start in? Usually a project root the user works in often. Can be the same as the project folder or different.
+
+4. **Plugin auto-launch.** Some Claude Code plugins (e.g. a Discord plugin that lets a session be controlled from a Discord channel, a Slack equivalent, or anything else registered with `claude --channels`) can auto-load when a session starts. Want extra dashboard buttons that resume / start sessions WITH a specific plugin auto-loaded? If yes, ask for the channel string &mdash; something like `plugin:discord@claude-plugins-official`. If no, skip plugin buttons entirely.
+
+5. **Accent color.** Hex code for buttons, highlights, focus rings. Default `#3b82f6` (blue) &mdash; user can pick anything.
+
+6. **Port.** Default `5111`. Change if it conflicts with something else they run.
+
+7. **Desktop launcher.** Want a double-clickable file on the Desktop that starts the server and opens the browser? `.bat` on Windows, `.sh` on macOS / Linux.
+
+## Step 2 &mdash; Pre-flight
+
+Run `python --version` (or `python3 --version`). Require &gt;= 3.10.
+
+Check Starlette and uvicorn:
+```
+python -c &quot;import starlette, uvicorn; print('ok')&quot;
+```
+
+If either is missing, run `pip install starlette uvicorn` (or `py -m pip install ...` on Windows if `pip` isn&#x27;t on PATH). Confirm they import after install.
+
+## Step 3 &mdash; Build the system
+
+You are writing 3-4 files:
+
+- `&lt;project&gt;/server.py` &mdash; REST API server.
+- `&lt;project&gt;/index.html` &mdash; single-page dashboard.
+- `~/.local/bin/cc-sessions.py` &mdash; scanner module. If `~/.local/bin/` isn&#x27;t writable or isn&#x27;t on PATH, place the scanner alongside `server.py` instead and import it normally.
+- `~/Desktop/Claude Code Session Manager.{bat,sh}` &mdash; only if user opted in.
+
+### Build spec
+
+#### Scanner (`cc-sessions.py`)
+
+Walk `~/.claude/projects/`. Each subdirectory is one project; each `*.jsonl` file with a UUID name is one session. Parse line by line and accumulate per-session state.
+
+Recognized JSONL entry types:
+- `type: &quot;custom-title&quot;` &mdash; session name (`customTitle` field)
+- `type: &quot;summary&quot;` &mdash; session summary (`summary` field)
+- `type: &quot;tag&quot;` &mdash; session tag (`tag` field; empty string clears)
+- `type: &quot;user&quot;` &mdash; first non-empty user message becomes `first_message`; count toward `turn_count`. Skip messages that are only a `&lt;system-reminder&gt;` block, or only a `&lt;command-name&gt;` / `&lt;local-command&gt;` block.
+- `cwd` field on entries &mdash; original working directory (the &quot;Origin&quot; shown in the row detail). Take the first one you see.
+- `timestamp` field &mdash; track first and last for created / modified. More accurate than file mtime.
+- `isSidechain: true` OR `teamName` present &mdash; skip the ENTIRE file (subagent or swarm transcript).
+- `forkedFrom.sessionId` &mdash; record the lineage.
+
+Skip sessions where `cwd`, `first_message`, AND `summary` are all empty (junk / aborted).
+
+The &quot;Folder&quot; column comes from decoding the project directory name. Claude Code encodes paths by replacing `:`, `/`, and `\` with `-`. Use the user&#x27;s home directory, encoded the same way, as a strip prefix. Example: home `C:\Users\jane` encodes to `C--Users-jane`; for project dir `C--Users-jane-code-app1`, strip the prefix and convert remaining `-` to space &rarr; `code app1`. Fall back to the raw dir name if the prefix doesn&#x27;t match.
+
+Expose these for the server to import:
+- `find_all_sessions(projects_dir)` &mdash; returns list of session dicts, sorted by modified desc
+- `scan_session(filepath)` &mdash; returns one session dict, or `None` to skip
+- `search_session_text(filepath, query)` &mdash; bool, case-insensitive substring search across all user / assistant message content
+- `display_name(session)` &mdash; `name` &gt; `summary[:60]` &gt; `first_message[:60]` &gt; `&quot;(unnamed: &lt;short_id&gt;)&quot;`
+- `format_time_ago(datetime)` &mdash; &quot;just now&quot; / &quot;5m ago&quot; / &quot;3h ago&quot; / &quot;2d ago&quot; / &quot;3mo ago&quot;
+
+Also runnable as a CLI for shell-grepping (`--list`, `--count`, `--search`, `--project`, `--debug`, `--min-turns`, `--json`).
+
+#### Server (`server.py`)
+
+Starlette app, uvicorn at `127.0.0.1:&lt;port&gt;`. Import the scanner via `importlib.util.spec_from_file_location` if it lives at `~/.local/bin/cc-sessions.py` (the dotted name has a hyphen so direct import doesn&#x27;t work). In-memory cache of all sessions, refreshed on startup and on `/api/refresh`.
+
+Endpoints:
+
+| Method | Path | Body | Behavior |
+|---|---|---|---|
+| GET | `/` | &mdash; | Serve `index.html` |
+| GET | `/api/sessions` | &mdash; | List cached sessions; supports `?project=&min_turns=` query params |
+| GET | `/api/search?q=` | &mdash; | Display-name match first (fast), then full-transcript search; returns matching session IDs |
+| GET | `/api/sessions/{id}/preview` | &mdash; | First ~8 user / assistant messages (cleaned) |
+| GET | `/api/sessions/{id}/digest` | &mdash; | Full-transcript scan: tools used, files touched, MCP tools, first / last messages, cwd |
+| POST | `/api/sessions/{id}/rename` | `{name}` | Append `{&quot;type&quot;:&quot;custom-title&quot;,&quot;customTitle&quot;:name}` to JSONL; update cache |
+| POST | `/api/sessions/{id}/tag` | `{tag}` | Append `{&quot;type&quot;:&quot;tag&quot;,&quot;tag&quot;:tag}`; empty string clears |
+| POST | `/api/sessions/{id}/summary` | `{summary}` | Append `{&quot;type&quot;:&quot;summary&quot;,&quot;summary&quot;:summary}` |
+| POST | `/api/sessions/{id}/archive` | &mdash; | Move JSONL to `~/.claude/projects/.archive/&lt;project_dir&gt;/`; also move companion `&lt;id&gt;/` subdir if present |
+| POST | `/api/sessions/{id}/resume` | &mdash; | Spawn a terminal that runs `claude --resume &lt;uuid&gt; --dangerously-skip-permissions` from the user&#x27;s default working dir |
+| POST | `/api/sessions/{id}/resume-plugin` | &mdash; | (only if plugin opted in) same as resume but with `--channels &lt;plugin_string&gt;` |
+| POST | `/api/new-session` | &mdash; | Spawn a terminal with a fresh `claude` in the default working dir |
+| POST | `/api/new-plugin-session` | &mdash; | (only if plugin opted in) same as new but with `--channels &lt;plugin_string&gt;` |
+| POST | `/api/open-folder` | &mdash; | Open the project folder in the OS file explorer (best-effort) |
+| POST | `/api/refresh` | &mdash; | Re-scan from disk |
+
+#### Dashboard (`index.html`)
+
+Single self-contained HTML file. Inline CSS + JS, no framework, no build step. Dark theme, the user&#x27;s accent color for highlights, monospace for data, serif for session names (editorial feel &mdash; an unexpected touch for a dashboard).
+
+Functional requirements:
+- Sticky header: open-project-folder button, search input (placeholder &quot;search by name, project, tag, or content...&quot;), `/` and `Ctrl+K` shortcuts, &quot;+ New&quot; button (and &quot;+ Plugin&quot; if opted in), Refresh button.
+- Filter chips above the table, auto-populated from the unique `project` field of all sessions. Clicking a chip filters; clicking again clears.
+- Sortable column headers: Name, Resume, Folder, Turns, Created, Modified, Tags. Click to sort; click again to toggle direction. Default Name A-Z.
+- Each row:
+  - Click anywhere (except buttons / inputs) toggles the expanded detail.
+  - Click name &rarr; inline rename (turn into an input, Enter to save, Escape to cancel).
+  - Inline Resume button on the row. If plugin opted in, a second &quot;Plugin&quot; button beside it.
+  - Tags rendered right-aligned, with a click-to-remove `&times;` on hover.
+- Expanded detail panel (left side) shows: Origin (cwd), session ID, summary with edit-link, first-message preview (italic serif), lazy-loaded tools / files digest from `/api/sessions/{id}/digest`. Right side has action buttons: Resume, Plugin Resume (if opted in), Archive (with confirm dialog).
+- Real-time client-side filtering on every keystroke: name / summary / project / tag substring.
+- Pressing Enter (or clicking a &quot;DEEP&quot; pill) triggers `/api/search?q=...` for full-transcript search; results merged with the client-side filter.
+- All API responses optimistically update the in-memory state so the UI feels instant.
+- Confirm dialog used for archive (and only archive). Modal, blurred backdrop.
+- Loading bar at the top of the page (gradient using the accent color) animates during async operations.
+
+#### Launcher (optional)
+
+Windows `.bat`:
+```bat
+@echo off
+cd /d &quot;&lt;project&gt;&quot;
+start &quot;&quot; http://localhost:&lt;port&gt;
+python server.py
+```
+
+macOS / Linux `.sh`:
+```bash
+#!/usr/bin/env bash
+cd &quot;&lt;project&gt;&quot;
+( sleep 1 &amp;&amp; ${OPEN:-open} &quot;http://localhost:&lt;port&gt;&quot; ) &amp;
+python3 server.py
+```
+
+(`OPEN=open` on macOS, `OPEN=xdg-open` on Linux. Detect or set conservatively.)
+
+## Implementation hints
+
+The non-obvious bits, distilled. Skim before you start:
+
+### Path encoding
+
+Each project directory under `~/.claude/projects/` is named for its absolute path with `:` removed and `\` / `/` replaced by `-`. Example: `C:\Users\jane\code\app1` &rarr; `C--Users-jane-code-app1`. To decode for display, encode the user&#x27;s home dir the same way and use it as a strip prefix; replace remaining `-` with spaces. Information is lost if folder names contain hyphens; that&#x27;s acceptable.
+
+### Append-only mutations
+
+Renames, tags, and summaries are written by appending a new line to the JSONL, not by rewriting it. The reader takes the LAST entry of each type as authoritative. This matches Claude Code&#x27;s internal mechanism, so dashboard renames and `/rename` from inside a session co-exist cleanly. Don&#x27;t open the JSONL in `&quot;w&quot;` mode &mdash; only `&quot;a&quot;`.
+
+### Spawning a terminal from a web server
+
+Don&#x27;t embed a terminal. Write a temporary launcher script to the OS temp dir (`tempfile.gettempdir()`), then spawn it detached:
+
+- Windows: `subprocess.Popen([&quot;cmd&quot;, &quot;/c&quot;, &quot;start&quot;, title, &quot;cmd&quot;, &quot;/k&quot;, bat_path])`
+- macOS: `subprocess.Popen([&quot;osascript&quot;, &quot;-e&quot;, f&#x27;tell app &quot;Terminal&quot; to do script &quot;{cmd}&quot;&#x27;])` &mdash; or `open -a Terminal &lt;script&gt;`
+- Linux: `subprocess.Popen([&quot;gnome-terminal&quot;, &quot;--&quot;, &quot;bash&quot;, &quot;-c&quot;, f&quot;{cmd}; exec bash&quot;])` (fall back to `xterm -e` if not present)
+
+The new terminal is detached &mdash; it survives the server going away.
+
+### Resume by UUID, never by name
+
+Session names can contain emoji and arbitrary unicode. Windows `.bat` files can&#x27;t pass UTF-8 reliably (the encoding is cp1252 by default). Always pass `--resume &lt;uuid&gt;` to `claude`, never the display name.
+
+### The ASCII-safe launcher trick
+
+Even when resuming by UUID, the launcher script&#x27;s &quot;title&quot; argument can contain the session name and ALSO trip cp1252. When writing the .bat, open the file with `encoding=&quot;ascii&quot;, errors=&quot;replace&quot;` and truncate the title to ~30 chars. Anything non-ASCII becomes `?`. The session itself still resumes cleanly because the actual `claude --resume` argument is the UUID.
+
+### Skip sidechain files
+
+JSONL files where any entry has `isSidechain: true` are subagent transcripts, not user-driven sessions. Files where any entry has a `teamName` field are swarm teammates. In both cases, drop the entire file from the listing. The cleanest place to short-circuit is inside `scan_session` &mdash; if you see either marker, return `None` immediately.
+
+### Concurrent-write hazard
+
+Two processes appending to the same JSONL at the same time can interleave mid-line. The dashboard takes the &quot;don&#x27;t do that&quot; approach &mdash; document it as a known limitation in the README. Don&#x27;t try to take a file lock; on Windows that fights with whatever Claude Code is doing internally.
+
+### Foreground the explorer window (Windows-only nicety)
+
+`subprocess.Popen([&quot;explorer&quot;, path])` on Windows can open the folder window BEHIND the current foreground app because of foreground-lock restrictions. If you want the window to come forward, spawn a helper thread that:
+1. Polls `EnumWindows` looking for a window with class `CabinetWClass` or `ExploreWClass` whose title contains the folder leaf name.
+2. Calls `AttachThreadInput` between the current foreground thread and the helper thread.
+3. Calls `SetForegroundWindow` + `BringWindowToTop`.
+
+This is fiddly but reliable. Skip on macOS / Linux &mdash; not an issue there.
+
+### Lazy-load digests
+
+The full transcript scan is expensive. Don&#x27;t do it for every session at list time &mdash; only on demand when the user expands a row. Endpoint pattern: `/api/sessions/{id}/digest` returns a fresh per-session scan (tools used, files touched, MCP tools, first / last messages, cwd). The dashboard fetches it once per row expansion and caches in JS state.
+
+## Step 4 &mdash; Smoke test
+
+After all files are written:
+1. Launch `python &quot;&lt;project&gt;/server.py&quot;` in the background.
+2. Wait 2 seconds.
+3. `curl http://localhost:&lt;port&gt;/api/sessions` &mdash; expect a JSON array (may be empty if the user has no sessions yet).
+4. `curl -s http://localhost:&lt;port&gt;/ | head -c 200` &mdash; expect HTML (a `&lt;!DOCTYPE html&gt;` opener).
+5. Kill the background process.
+6. If anything fails, debug and re-test before reporting success.
+
+## Step 5 &mdash; Report
+
+Tell the user:
+&gt; **Claude Code Session Manager built.**
+&gt;
+&gt; - Files: `&lt;list of paths written&gt;`
+&gt; - Launch: `python &quot;&lt;project&gt;/server.py&quot;` (or double-click the desktop launcher if you opted in)
+&gt; - Browser: `http://localhost:&lt;port&gt;`
+&gt;
+&gt; The dashboard reads / writes the JSONL session files Claude Code keeps in `~/.claude/projects/`. Every action (rename, tag, archive, resume) persists. Sessions you start in any Claude Code window will appear after Refresh.
+
+## Critical rules
+
+1. Never overwrite an existing `server.py` / `index.html` in the project folder without asking the user first. If the files exist, run `/api/sessions` against the running server (if any) to verify it&#x27;s the same system, then ask before re-writing.
+2. Never delete or rewrite a JSONL session file. All mutations are appends.
+3. Always pass `--resume &lt;uuid&gt;` to `claude`, never the session name.
+4. Don&#x27;t pre-seed sessions or test data. The dashboard reads what&#x27;s there.
+5. On macOS / Linux, omit the Win32 explorer-foregrounding code from `open_folder` &mdash; `ctypes.windll` doesn&#x27;t exist there. The endpoint can fall back to `subprocess.Popen([&quot;open&quot;, path])` (mac) or `[&quot;xdg-open&quot;, path]` (linux) and skip the foreground trick.
+6. If pip-install fails (corporate firewall, no network), tell the user clearly and stop &mdash; don&#x27;t try to vendor or work around it.
+</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Built with Claude Code by Cafe<span style="color:#E31837">655</span>
+  </div>
+
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const target = document.getElementById(btn.dataset.target);
+        const text = target.textContent;
+        const original = btn.dataset.original || btn.textContent;
+        btn.dataset.original = original;
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch (err) {
+          const range = document.createRange();
+          range.selectNodeContents(target);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          try { document.execCommand('copy'); } catch (e) {}
+          sel.removeAllRanges();
+        }
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1600);
+      });
+    });
+  </script>
+</body>
+</html>

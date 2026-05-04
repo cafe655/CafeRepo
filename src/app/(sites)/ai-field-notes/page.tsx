@@ -32,6 +32,10 @@ const fieldNotes = [
     title: <>Karpathy RAG<br />Builder</>,
     href: "/ai-field-notes/karpathy-rag-builder",
   },
+  {
+    title: <>Session Manager<br />Builder</>,
+    href: "/ai-field-notes/session-manager-builder",
+  },
 ];
 
 export default function AIFieldNotesPage() {

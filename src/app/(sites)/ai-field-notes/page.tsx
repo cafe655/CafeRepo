@@ -36,6 +36,10 @@ const fieldNotes = [
     title: <>Session Manager<br />Builder</>,
     href: "/ai-field-notes/session-manager-builder",
   },
+  {
+    title: <>Find Your<br />TikTok<br />Followers</>,
+    href: "/ai-field-notes/find-your-tiktok-followers",
+  },
 ];
 
 export default function AIFieldNotesPage() {

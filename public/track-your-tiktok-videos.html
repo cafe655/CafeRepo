@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Your TikTok Videos — Cafe655</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .site-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 10px 16px;
+      border-bottom: 1px solid #2a2a2a; flex-wrap: wrap;
+    }
+    .site-nav .site-brand {
+      font-size: 1.25em; font-weight: 700; color: #f5f5f7;
+      text-decoration: none; margin-right: 18px; letter-spacing: -0.02em;
+    }
+    .site-nav .site-brand span { color: #E31837; }
+    .site-nav a.site-link {
+      color: #9e9eb8; text-decoration: none; font-size: 0.85em;
+      padding: 5px 12px; border-radius: 6px; transition: all 0.2s;
+    }
+    .site-nav a.site-link:hover { color: #f5f5f7; background: rgba(227, 24, 55, 0.12); }
+    .site-nav a.site-link.current { color: #E31837; background: rgba(227, 24, 55, 0.1); }
+
+    .hero {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0508 50%, #2a0a14 100%);
+      border-bottom: 2px solid #E31837;
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 2.8rem; font-weight: 800; color: #ffffff;
+      margin-bottom: 0.5rem; letter-spacing: -0.02em;
+    }
+    .hero h1 span { color: #E31837; }
+    .hero .subtitle {
+      font-size: 1.15rem; color: #a0a0b0;
+      max-width: 680px; margin: 0 auto 2rem;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(227, 24, 55, 0.15);
+      border: 1px solid #E31837;
+      color: #E31837;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .stat-row {
+      display: flex; justify-content: center; gap: 2.5rem; margin-top: 1.5rem; flex-wrap: wrap;
+    }
+    .stat-row .stat { text-align: center; }
+    .stat-num { font-size: 1.8rem; font-weight: 700; color: #E31837; line-height: 1; }
+    .stat-label { font-size: 0.8rem; color: #888; margin-top: 0.3rem; letter-spacing: 0.05em; text-transform: uppercase; }
+
+    .companion-banner {
+      max-width: 820px; margin: 1.5rem auto 0;
+      background: rgba(227, 24, 55, 0.06);
+      border: 1px solid rgba(227, 24, 55, 0.35);
+      border-radius: 10px;
+      padding: 0.9rem 1.2rem;
+      font-size: 0.92rem; color: #b0b0b0;
+      text-align: center;
+    }
+    .companion-banner a { color: #E31837; text-decoration: none; font-weight: 600; }
+    .companion-banner a:hover { text-decoration: underline; }
+
+    .container { max-width: 820px; margin: 0 auto; padding: 3rem 2rem; }
+
+    .section { margin-bottom: 3rem; }
+    .section h2 {
+      font-size: 1.5rem; font-weight: 700; color: #ffffff;
+      margin-bottom: 1rem; padding-bottom: 0.5rem;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    .section p { color: #b0b0b0; margin-bottom: 1rem; }
+    .section p strong { color: #f5f5f7; }
+    .section p a { color: #E31837; text-decoration: none; }
+    .section p a:hover { text-decoration: underline; }
+
+    .how-it-works {
+      background: #141414; border: 1px solid #2a2a2a;
+      border-radius: 10px; padding: 1.8rem; margin: 1.5rem 0;
+    }
+    .step { display: flex; gap: 1rem; margin-bottom: 1.2rem; }
+    .step:last-child { margin-bottom: 0; }
+    .step-num {
+      flex-shrink: 0; width: 32px; height: 32px;
+      background: #E31837; color: #ffffff;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.9rem;
+    }
+    .step-text { padding-top: 4px; }
+    .step-text strong { color: #ffffff; }
+    .step-text code {
+      background: #1a1a1a; padding: 0.1rem 0.4rem; border-radius: 4px;
+      color: #E31837; font-size: 0.85em;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    }
+
+    .requirements { list-style: none; padding: 0; }
+    .requirements li {
+      padding: 0.5rem 0; padding-left: 1.5rem; position: relative; color: #b0b0b0;
+    }
+    .requirements li::before {
+      content: ''; position: absolute; left: 0; top: 0.85rem;
+      width: 8px; height: 8px; background: #E31837; border-radius: 50%;
+    }
+    .requirements li code {
+      background: #1a1a1a; padding: 0.1rem 0.4rem; border-radius: 4px;
+      color: #E31837; font-size: 0.85em;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    }
+    .requirements li strong { color: #f5f5f7; }
+
+    .columns-table {
+      width: 100%; border-collapse: collapse;
+      background: #141414; border: 1px solid #2a2a2a; border-radius: 10px; overflow: hidden;
+      margin: 1.2rem 0;
+    }
+    .columns-table th, .columns-table td {
+      padding: 0.7rem 1rem; text-align: left; border-bottom: 1px solid #2a2a2a;
+      font-size: 0.9rem;
+    }
+    .columns-table th { color: #E31837; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase; }
+    .columns-table td:first-child { color: #ffffff; font-weight: 600; width: 1%; white-space: nowrap; }
+    .columns-table td { color: #b0b0b0; }
+    .columns-table tr:last-child td { border-bottom: 0; }
+
+    .tip-card {
+      background: #141414; border-left: 3px solid #E31837; border-radius: 6px;
+      padding: 1rem 1.2rem; margin: 0.75rem 0;
+    }
+    .tip-card strong { color: #ffffff; }
+    .tip-card p { margin: 0; font-size: 0.92rem; color: #b0b0b0; }
+
+    .skill-section {
+      text-align: center; padding: 3rem 2rem 1.5rem;
+      background: linear-gradient(180deg, #0a0a0a 0%, #141414 100%);
+      border-top: 1px solid #2a2a2a;
+    }
+    .skill-section h2 { font-size: 1.8rem; color: #ffffff; margin-bottom: 0.5rem; }
+    .skill-section > p { color: #888; margin: 0 auto 2rem; max-width: 640px; }
+
+    .code-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 2rem 3rem;
+      background: linear-gradient(180deg, #141414 0%, #0a0a0a 100%);
+    }
+    .code-panel {
+      position: relative; background: #0d0d0d;
+      border: 1px solid #2a2a2a; border-radius: 10px; overflow: hidden;
+    }
+    .code-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1rem; background: #1a1a1a;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    .code-panel-title { font-size: 0.85rem; font-weight: 600; color: #E31837; }
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(227, 24, 55, 0.15); border: 1px solid #E31837; color: #E31837;
+      padding: 0.3rem 0.8rem; border-radius: 6px;
+      font-size: 0.75rem; font-weight: 600; cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .copy-btn:hover { background: rgba(227, 24, 55, 0.3); }
+    .copy-btn.copied {
+      background: rgba(34, 197, 94, 0.2); border-color: #22c55e; color: #22c55e;
+    }
+    .copy-btn svg { width: 14px; height: 14px; }
+    .code-panel pre {
+      padding: 1rem; overflow: auto; max-height: 620px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.75rem; line-height: 1.55; color: #c0c0c0;
+      white-space: pre; tab-size: 2;
+    }
+
+    .footer {
+      text-align: center; padding: 2rem; color: #444; font-size: 0.85rem;
+      border-top: 1px solid #1a1a1a;
+    }
+    .footer a { color: #E31837; text-decoration: none; }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .code-grid { grid-template-columns: 1fr; padding: 0 1.2rem 2rem; }
+      .container { padding: 2rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="site-nav">
+    <a href="https://www.cafe655.com" class="site-brand">Cafe<span>655</span></a>
+    <a href="https://www.cafe655.com/ai-field-notes" class="site-link current">Ai Field Notes</a>
+    <a href="https://www.cafe655.com/barista-painting" class="site-link">Barista Painting Services</a>
+    <a href="https://www.cafe655.com/cafe655-on-twitch" class="site-link">Cafe655 on Twitch</a>
+    <a href="https://www.cafe655.com/personal" class="site-link">Cafe655 Personal</a>
+  </div>
+
+  <div class="hero">
+    <div class="badge">Claude Code Recipe</div>
+    <h1>Track Your <span>TikTok Videos</span></h1>
+    <p class="subtitle">Harvest every video you've ever posted on TikTok into a clickable, filterable Excel spreadsheet with full engagement metrics — plays, likes, comments, shares, saves, post date, music, and a clickable link to each video.</p>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-num">&lt; 2 min</div><div class="stat-label">For a few hundred videos</div></div>
+      <div class="stat"><div class="stat-num">12</div><div class="stat-label">Columns of data</div></div>
+      <div class="stat"><div class="stat-num">1</div><div class="stat-label">Prompt to paste</div></div>
+    </div>
+    <div class="companion-banner">
+      Pairs with <a href="/ai-field-notes/find-your-tiktok-followers">Find Your TikTok Followers</a> — followers harvests the audience, this one harvests the content.
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="section">
+      <h2>What Is This?</h2>
+      <p>A <strong>Claude Code recipe</strong> that uses the <strong>Playwright MCP</strong> plugin to log into TikTok, walk every video on your profile, and enrich each one with public engagement metrics. The output is an Excel workbook with a clickable HYPERLINK on every caption, autofilter on every column, count formatting on the numbers, and a TOTALS row at the bottom that sums plays / likes / comments / shares / saves.</p>
+      <p>Nothing private. Every metric in the spreadsheet is the same number anyone can see on your video pages. The login step exists only so TikTok serves real pages instead of bot-protection placeholders.</p>
+    </div>
+
+    <div class="section">
+      <h2>What You Get</h2>
+      <table class="columns-table">
+        <thead><tr><th>Column</th><th>What It Holds</th></tr></thead>
+        <tbody>
+          <tr><td>A — Row #</td><td>1-indexed, sorted newest-first</td></tr>
+          <tr><td>B — Date</td><td>Post date in YYYY-MM-DD format</td></tr>
+          <tr><td>C — Caption</td><td>Truncated to ~80 chars, as a clickable HYPERLINK to the video</td></tr>
+          <tr><td>D — Plays</td><td>Total play count</td></tr>
+          <tr><td>E — Likes</td><td>Heart count</td></tr>
+          <tr><td>F — Comments</td><td>Comment count</td></tr>
+          <tr><td>G — Shares</td><td>Share count</td></tr>
+          <tr><td>H — Saves</td><td>Save / collect count</td></tr>
+          <tr><td>I — Duration</td><td>Seconds</td></tr>
+          <tr><td>J — Music title</td><td>Track name</td></tr>
+          <tr><td>K — Music author</td><td>Track creator</td></tr>
+          <tr><td>L — Full video URL</td><td>Plain text URL (not a hyperlink)</td></tr>
+        </tbody>
+      </table>
+      <p>Plus a <strong>TOTALS row</strong> two rows below the last video, with SUM formulas on plays / likes / comments / shares / saves.</p>
+    </div>
+
+    <div class="section">
+      <h2>How It Works</h2>
+      <div class="how-it-works">
+        <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Claude opens TikTok</strong> in a Playwright browser. You log in manually in that window — no credentials touch Claude.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Username is detected</strong> from the URL. If that fails, Claude asks you for your handle.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Profile is confirmed.</strong> Claude reads the embedded JSON to verify <code>uniqueId</code> matches and grabs the expected video count.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Auto-scroll the grid</strong> until <code>[data-e2e="user-post-item"]</code> count is stable for 4 rounds (cap at 40 iterations).</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Extract URLs</strong> for every grid tile — video_id, video_url, grid_views, grid_caption — into <code>videos_raw.csv</code>.</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-text"><strong>Enrichment in parallel</strong> — Python with <code>ThreadPoolExecutor(max_workers=4)</code> and a 5-second pause every 100 fetches. Each video page's embedded JSON yields caption, post time, duration, music, plays, likes, comments, shares, saves.</div></div>
+        <div class="step"><div class="step-num">7</div><div class="step-text"><strong>Build the spreadsheet</strong> with <code>openpyxl</code> — sorted newest-first, frozen header row, autofilter on, number formatting, TOTALS row. Saves as <code>MY_VIDEOS.xlsx</code> and opens.</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Requirements</h2>
+      <ul class="requirements">
+        <li><strong>Claude Code</strong> with the <strong>Playwright MCP</strong> plugin enabled</li>
+        <li><strong>Python 3</strong> with <code>openpyxl</code> (<code>pip install openpyxl</code>)</li>
+        <li>Your <strong>TikTok account</strong> — the scraper runs on your own profile, no API key required</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Quick Start</h2>
+      <div class="how-it-works">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Open a fresh Claude Code session in the folder where you want <code>MY_VIDEOS.xlsx</code> to land.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Paste <strong>The Prompt</strong> below into chat.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">When Claude opens a browser, <strong>log in to TikTok</strong> there, then come back and type <code>logged in</code>.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Under two minutes later, your Excel file opens with every video and its full engagement story.</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Tips</h2>
+      <div class="tip-card"><p><strong>Filter by date.</strong> Click the dropdown on column B to narrow to a specific month or year.</p></div>
+      <div class="tip-card"><p><strong>Find your evergreen content.</strong> Add a column M with <code>=H2/E2</code> (saves ÷ plays). Videos where that ratio is high are the ones people kept for later — usually your most useful or evergreen pieces.</p></div>
+      <div class="tip-card"><p><strong>Saves vs Shares are different signals.</strong> Sort by Saves to find your most "save-worthy" content. Sort by Shares to find your most "share-worthy." They're rarely the same videos.</p></div>
+      <div class="tip-card"><p><strong>Track growth over time.</strong> Re-run the prompt periodically and save dated copies of the xlsx. Diff them in a separate sheet to see which videos are still picking up plays months after posting.</p></div>
+    </div>
+
+    <div class="section">
+      <h2>What It Does NOT Capture</h2>
+      <ul class="requirements">
+        <li><strong>Per-video new-follower counts</strong> — only in TikTok's Creator Analytics dashboard (Pro accounts)</li>
+        <li><strong>Watch time / completion rate</strong> — same restriction</li>
+        <li><strong>Audience demographics</strong> — same restriction</li>
+        <li><strong>The comments themselves</strong> (just the count) — loaded by a separate API call, can be added if needed</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="skill-section">
+    <h2>Get the Recipe</h2>
+    <p>One README, one prompt block inside it. Copy either panel below — the left is the full README for reference, the right is just the prompt you paste into Claude Code.</p>
+  </div>
+
+  <div class="code-grid">
+    <div class="code-panel">
+      <div class="code-panel-header">
+        <span class="code-panel-title">README.md</span>
+        <button class="copy-btn" onclick="copyCode('readme-code', this)">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+          </svg>
+          Copy
+        </button>
+      </div>
+      <pre id="readme-code"># TikTok Videos &rarr; Spreadsheet
+
+Harvest every video you've ever posted on TikTok into a clickable, filterable Excel spreadsheet with full engagement metrics — plays, likes, comments, shares, saves, post date, music, and a clickable link to each video.
+
+**Time:** Under 2 minutes for a profile with a few hundred videos.
+
+**Output columns:** Row # · Date · Caption (clickable link) · Plays · Likes · Comments · Shares · Saves · Duration · Music title · Music author · Full video URL. With a TOTALS row at the bottom and autofilter enabled.
+
+## Prerequisites
+
+- Claude Code with the **Playwright MCP** plugin enabled
+- Python 3 with `openpyxl` installed (`pip install openpyxl`)
+- Your TikTok account (the scraper runs on your own profile — no API key, no authentication trickery)
+
+## How to run
+
+Paste the prompt below into a fresh Claude Code session. When Claude opens a browser to TikTok, log in. Then say "logged in" in chat and let it work.
+
+---
+
+## The prompt
+
+```
+Harvest every video on my TikTok profile into an Excel spreadsheet with full engagement metrics. Steps:
+
+1. Open https://www.tiktok.com/login via Playwright MCP. Wait until I say "logged in" before continuing. (If Playwright needs the browser installed: npx @playwright/mcp install-browser chrome-for-testing)
+
+2. After I confirm, evaluate this in the page to detect my username from the current URL:
+   location.href.match(/@([\w.\-_]+)/)[1]
+   If that returns null, ask me for my TikTok handle.
+
+3. Navigate to https://www.tiktok.com/@&lt;my_username&gt;. Confirm the page loaded my profile by checking that the embedded JSON contains my uniqueId:
+   JSON.parse(document.querySelector('#__UNIVERSAL_DATA_FOR_REHYDRATION__').textContent)['__DEFAULT_SCOPE__']['webapp.user-detail'].userInfo.user.uniqueId
+   Also read videoCount from the same path's stats — that's how many videos to expect.
+
+4. Scroll the page to load every video grid item. In a loop: window.scrollTo(0, document.body.scrollHeight), wait 900ms, count [data-e2e="user-post-item"]. Stop when the count is stable for 4 consecutive iterations. Cap at 40 iterations as a safety net.
+
+5. Extract video URLs from the DOM. For each [data-e2e="user-post-item"]: the inner `a[href*="/video/"]` gives the video URL, image alt gives a preview caption, and [data-e2e="video-views"] gives the grid view count. Save to videos_raw.csv with columns: idx, video_id, video_url, grid_views, grid_caption.
+
+6. Write a Python script (videos_raw.csv &rarr; videos_enriched.csv) that for each video URL fetches the page with a real browser User-Agent header (e.g. "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"). urllib's default UA gets 403'd by TikTok. For each response:
+   - Regex-extract &lt;script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"&gt;…&lt;/script&gt;
+   - JSON.parse it
+   - Read data["__DEFAULT_SCOPE__"]["webapp.video-detail"]["itemInfo"]["itemStruct"] (fallback to "webapp.user-post" if missing)
+   - From that itemStruct, pull: desc (caption), createTime (unix timestamp), video.duration, music.title, music.authorName, and stats: playCount, diggCount (likes), commentCount, shareCount, collectCount (saves)
+   - Convert createTime to a YYYY-MM-DD date string
+
+   Use ThreadPoolExecutor(max_workers=4) and time.sleep(5) every 100 completions — this is the throttling pattern that stays under TikTok's edge rate limit. If you hit &gt;10% errors, stop immediately — you're being rate-limited and should not retry within the same run.
+
+7. Build the spreadsheet with openpyxl. Sort by date descending (newest first). Columns:
+     A: Row # (1-indexed)
+     B: Date posted (YYYY-MM-DD)
+     C: Caption as clickable hyperlink &rarr; `=HYPERLINK("&lt;video_url&gt;","&lt;short_caption&gt;")` (truncate caption to ~80 chars + ellipsis)
+     D: Plays
+     E: Likes
+     F: Comments
+     G: Shares
+     H: Saves
+     I: Duration (seconds)
+     J: Music title
+     K: Music author
+     L: Full video URL
+
+   Freeze the header row, enable autofilter on the full range, format count columns with #,##0. Add a TOTALS row two rows below the last video with SUM formulas on plays/likes/comments/shares/saves.
+
+   Save as MY_VIDEOS.xlsx and open it.
+
+NOTES
+- TikTok randomizes CSS class names. Always use partial matchers like [class*="..."] or data-e2e attributes — never the css-xxx-xxx-DivWhatever hashed class names, which will have changed by the time the next person runs this.
+- TikTok's profile shows a slightly higher videoCount in the user-detail JSON than the actual grid (~2-3 video gap is normal — TikTok hides a few from public listings).
+- A small number of older videos may not have all stats fields populated. Don't crash on missing fields — write empty cells.
+- Per-video new-follower counts are NOT available in any public TikTok data. Those are only in the Creator Analytics dashboard (Pro accounts) and require manual export. Five engagement metrics (plays, likes, comments, shares, saves) is everything the public profile exposes.
+```
+
+---
+
+## Tips
+
+- **Filter by date:** Click the dropdown on column B to filter to a specific month or year.
+- **Find your saves-to-likes ratio:** Add a column M with `=H2/E2`. Videos where this is high signal "people kept it for later" — usually your most useful or evergreen content.
+- **Find top growers over time:** Re-run this prompt periodically and save the dated xlsx files. Diff them in a separate spreadsheet to see which videos are still picking up plays months later.
+- **Filtering by engagement type:** Sort by Saves column to find your most "save-worthy" content. Sort by Shares to find your most "share-worthy." They're usually different videos.
+
+## What this scraper does NOT capture
+
+- **Per-video new-followers gained** — only available in TikTok's Creator Analytics dashboard
+- **Watch time / completion rate** — same restriction
+- **Audience demographics** — same restriction
+- **Comments themselves** (only the count) — can be added if needed, but comments are loaded via separate API call
+
+## Privacy note
+
+This tool only reads what's already public on your TikTok profile. Every metric in the spreadsheet is visible to anyone who visits your video pages. The login step is just to ensure TikTok treats you as a real user rather than serving bot-protection placeholder pages.
+</pre>
+    </div>
+
+    <div class="code-panel">
+      <div class="code-panel-header">
+        <span class="code-panel-title">PROMPT — paste into Claude Code</span>
+        <button class="copy-btn" onclick="copyCode('prompt-code', this)">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+          </svg>
+          Copy
+        </button>
+      </div>
+      <pre id="prompt-code">Harvest every video on my TikTok profile into an Excel spreadsheet with full engagement metrics. Steps:
+
+1. Open https://www.tiktok.com/login via Playwright MCP. Wait until I say "logged in" before continuing. (If Playwright needs the browser installed: npx @playwright/mcp install-browser chrome-for-testing)
+
+2. After I confirm, evaluate this in the page to detect my username from the current URL:
+   location.href.match(/@([\w.\-_]+)/)[1]
+   If that returns null, ask me for my TikTok handle.
+
+3. Navigate to https://www.tiktok.com/@&lt;my_username&gt;. Confirm the page loaded my profile by checking that the embedded JSON contains my uniqueId:
+   JSON.parse(document.querySelector('#__UNIVERSAL_DATA_FOR_REHYDRATION__').textContent)['__DEFAULT_SCOPE__']['webapp.user-detail'].userInfo.user.uniqueId
+   Also read videoCount from the same path's stats — that's how many videos to expect.
+
+4. Scroll the page to load every video grid item. In a loop: window.scrollTo(0, document.body.scrollHeight), wait 900ms, count [data-e2e="user-post-item"]. Stop when the count is stable for 4 consecutive iterations. Cap at 40 iterations as a safety net.
+
+5. Extract video URLs from the DOM. For each [data-e2e="user-post-item"]: the inner `a[href*="/video/"]` gives the video URL, image alt gives a preview caption, and [data-e2e="video-views"] gives the grid view count. Save to videos_raw.csv with columns: idx, video_id, video_url, grid_views, grid_caption.
+
+6. Write a Python script (videos_raw.csv &rarr; videos_enriched.csv) that for each video URL fetches the page with a real browser User-Agent header (e.g. "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"). urllib's default UA gets 403'd by TikTok. For each response:
+   - Regex-extract &lt;script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"&gt;…&lt;/script&gt;
+   - JSON.parse it
+   - Read data["__DEFAULT_SCOPE__"]["webapp.video-detail"]["itemInfo"]["itemStruct"] (fallback to "webapp.user-post" if missing)
+   - From that itemStruct, pull: desc (caption), createTime (unix timestamp), video.duration, music.title, music.authorName, and stats: playCount, diggCount (likes), commentCount, shareCount, collectCount (saves)
+   - Convert createTime to a YYYY-MM-DD date string
+
+   Use ThreadPoolExecutor(max_workers=4) and time.sleep(5) every 100 completions — this is the throttling pattern that stays under TikTok's edge rate limit. If you hit &gt;10% errors, stop immediately — you're being rate-limited and should not retry within the same run.
+
+7. Build the spreadsheet with openpyxl. Sort by date descending (newest first). Columns:
+     A: Row # (1-indexed)
+     B: Date posted (YYYY-MM-DD)
+     C: Caption as clickable hyperlink &rarr; `=HYPERLINK("&lt;video_url&gt;","&lt;short_caption&gt;")` (truncate caption to ~80 chars + ellipsis)
+     D: Plays
+     E: Likes
+     F: Comments
+     G: Shares
+     H: Saves
+     I: Duration (seconds)
+     J: Music title
+     K: Music author
+     L: Full video URL
+
+   Freeze the header row, enable autofilter on the full range, format count columns with #,##0. Add a TOTALS row two rows below the last video with SUM formulas on plays/likes/comments/shares/saves.
+
+   Save as MY_VIDEOS.xlsx and open it.
+
+NOTES
+- TikTok randomizes CSS class names. Always use partial matchers like [class*="..."] or data-e2e attributes — never the css-xxx-xxx-DivWhatever hashed class names, which will have changed by the time the next person runs this.
+- TikTok's profile shows a slightly higher videoCount in the user-detail JSON than the actual grid (~2-3 video gap is normal — TikTok hides a few from public listings).
+- A small number of older videos may not have all stats fields populated. Don't crash on missing fields — write empty cells.
+- Per-video new-follower counts are NOT available in any public TikTok data. Those are only in the Creator Analytics dashboard (Pro accounts) and require manual export. Five engagement metrics (plays, likes, comments, shares, saves) is everything the public profile exposes.
+</pre>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Part of <a href="https://www.cafe655.com/ai-field-notes">Cafe655 Ai Field Notes</a></p>
+  </div>
+
+  <script>
+    function copyCode(elementId, btn) {
+      const code = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const original = btn.innerHTML;
+        btn.classList.add('copied');
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg> Copied';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = original;
+        }, 1800);
+      });
+    }
+  </script>
+
+</body>
+</html>

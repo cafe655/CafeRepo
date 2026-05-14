@@ -40,6 +40,10 @@ const fieldNotes = [
     title: <>Find Your<br />TikTok<br />Followers</>,
     href: "/ai-field-notes/find-your-tiktok-followers",
   },
+  {
+    title: <>Track Your<br />TikTok<br />Videos</>,
+    href: "/ai-field-notes/track-your-tiktok-videos",
+  },
 ];
 
 export default function AIFieldNotesPage() {
